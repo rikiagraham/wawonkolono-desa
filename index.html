@@ -1,3 +1,298 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Desa Wawongkolono</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#eef5f1;
+  color:#18352b;
+}
+
+button,input,select,textarea{font:inherit}
+
+button{
+  border:0;
+  border-radius:9px;
+  padding:9px 12px;
+  cursor:pointer;
+  background:#176b4d;
+  color:white;
+}
+
+button:hover{opacity:.9}
+
+.danger{background:#b42318}
+.secondary{background:#65736d}
+.hidden{display:none!important}
+
+.login{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(circle at 20% 20%,#4ca98355,transparent 30%),
+    radial-gradient(circle at 80% 80%,#73d0aa44,transparent 30%),
+    linear-gradient(135deg,#0b5138,#2d8967);
+}
+
+.login-box{
+  background:white;
+  width:100%;
+  max-width:390px;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 10px 35px #0004;
+  text-align:center;
+}
+
+.login-box h1{
+  margin:5px 0;
+  color:#145d43;
+}
+
+.login-box p{color:#667}
+
+input,select,textarea{
+  width:100%;
+  padding:10px;
+  border:1px solid #ccd8d2;
+  border-radius:8px;
+  margin:5px 0 10px;
+  background:white;
+}
+
+textarea{
+  min-height:80px;
+  resize:vertical;
+}
+
+label{
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin-top:5px;
+}
+
+.app{
+  display:none;
+  min-height:100vh;
+}
+
+.header{
+  background:#126044;
+  color:white;
+  padding:13px 16px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.header-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.header h2{
+  margin:0;
+  font-size:19px;
+}
+
+.header small{opacity:.9}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:14px;
+}
+
+.hero{
+  border-radius:15px;
+  padding:18px;
+  color:white;
+  margin-bottom:13px;
+  background:linear-gradient(120deg,#176b4d,#3a9b75);
+}
+
+.hero h2{margin:0 0 5px}
+.hero p{margin:3px 0}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.stat{
+  background:white;
+  padding:12px;
+  border-radius:11px;
+  box-shadow:0 2px 8px #0000000d;
+}
+
+.stat b{
+  font-size:21px;
+  display:block;
+}
+
+.stat span{
+  font-size:12px;
+  color:#68766f;
+}
+
+.menu{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px;
+  margin-bottom:13px;
+}
+
+.menu button{
+  min-height:55px;
+  font-size:12px;
+  padding:7px 4px;
+}
+
+.panel{
+  background:white;
+  border-radius:13px;
+  padding:15px;
+  margin-bottom:12px;
+  box-shadow:0 2px 8px #0000000b;
+}
+
+.panel h3{margin-top:0}
+
+.toolbar{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.toolbar input{
+  margin:0;
+  flex:1;
+  min-width:180px;
+}
+
+.table-wrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+}
+
+th,td{
+  border-bottom:1px solid #e4ebe7;
+  padding:8px;
+  text-align:left;
+  font-size:13px;
+}
+
+th{background:#edf5f1}
+
+.badge{
+  display:inline-block;
+  padding:4px 7px;
+  border-radius:20px;
+  background:#e8f3ed;
+  font-size:11px;
+}
+
+.actions button{
+  padding:6px 8px;
+  font-size:11px;
+  margin:2px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+.dusun-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px;
+}
+
+.dusun-grid button{font-size:12px}
+
+.empty{
+  text-align:center;
+  color:#718078;
+  padding:20px;
+}
+
+.footer{
+  text-align:center;
+  padding:20px;
+  font-size:12px;
+  color:#758078;
+}
+
+.info-box{
+  background:#edf7f2;
+  border-left:4px solid #176b4d;
+  padding:12px;
+  border-radius:7px;
+  font-size:13px;
+  margin-bottom:12px;
+}
+
+@media(max-width:700px){
+
+  .container{padding:9px}
+
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .menu{
+    grid-template-columns:repeat(4,1fr);
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+
+  .dusun-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .header h2{
+    font-size:16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
 <!-- =========================
      LOGIN
 ========================= -->
@@ -42,11 +337,3830 @@
       🔐 MASUK
     </button>
 
+    <p style="font-size:11px;margin-top:15px">
+
+      <b>Akun Kepala Desa</b><br>
+      Username: <b>admin@wawongkolono.desa</b><br>
+      Password: <b>desa123</b>
+
+      <br><br>
+
+      Akun lainnya:<br>
+      <b>operator</b> / desa123<br>
+      <b>dusun1</b> sampai <b>dusun5</b> / desa123
+
+    </p>
+
     <div
       id="loginError"
-      style="color:#b42318;font-size:13px;margin-top:8px"
+      style="color:#b42318;font-size:13px"
     ></div>
 
   </div>
 
 </div>
+
+
+<!-- =========================
+     APP
+========================= -->
+
+<div id="app" class="app">
+
+<header class="header">
+
+  <div class="header-row">
+
+    <div>
+
+      <h2>🏘️ Desa Wawongkolono</h2>
+
+      <small id="userInfo"></small>
+
+    </div>
+
+    <button
+      class="secondary"
+      onclick="logout()"
+    >
+      Keluar
+    </button>
+
+  </div>
+
+</header>
+
+
+<main class="container">
+
+
+<section class="hero">
+
+  <h2>Dashboard Desa</h2>
+
+  <p>
+    Sistem Pendataan Desa Wawongkolono
+  </p>
+
+  <small id="tanggal"></small>
+
+</section>
+
+
+<section class="stats">
+
+  <div class="stat">
+    <b id="statPenduduk">0</b>
+    <span>Penduduk Aktif</span>
+  </div>
+
+  <div class="stat">
+    <b id="statKK">0</b>
+    <span>Kepala Keluarga</span>
+  </div>
+
+  <div class="stat">
+    <b id="statMasuk">0</b>
+    <span>Data Masuk</span>
+  </div>
+
+  <div class="stat">
+    <b id="statPindah">0</b>
+    <span>Data Pindah</span>
+  </div>
+
+</section>
+
+
+<section class="menu">
+
+  <button onclick="showPage('penduduk')">
+    👥<br>Penduduk
+  </button>
+
+  <button onclick="showPage('kk')">
+    👪<br>Keluarga / KK
+  </button>
+
+  <button onclick="showPage('bulanan')">
+    📅<br>Pendataan
+  </button>
+
+  <button onclick="showPage('bantuan')">
+    🤝<br>Bantuan
+  </button>
+
+  <button onclick="showPage('surat')">
+    📄<br>Surat Desa
+  </button>
+
+  <button onclick="showPage('program')">
+    🏗️<br>Program Dusun
+  </button>
+
+  <button onclick="showPage('aspirasi')">
+    💬<br>Kritik & Saran
+  </button>
+
+  <button onclick="showPage('laporan')">
+    📊<br>Laporan
+  </button>
+
+  <button onclick="showPage('pengaturan')">
+    ⚙️<br>Pengaturan
+  </button>
+
+</section>
+
+
+<div id="content"></div>
+
+
+<div class="footer">
+  Sistem Pendataan Desa Wawongkolono
+</div>
+
+
+</main>
+</div>
+
+
+<script>
+
+/* =========================================================
+   DATABASE LOCAL
+========================================================= */
+
+const DB_KEY="DESA_WAWONGKOLONO_V2";
+
+
+let db;
+
+try{
+
+  db=JSON.parse(
+    localStorage.getItem(DB_KEY)
+  ) || {};
+
+}catch(e){
+
+  db={};
+
+}
+
+
+/* Memastikan semua tabel selalu tersedia */
+
+db.penduduk=db.penduduk || [];
+db.kk=db.kk || [];
+db.bulanan=db.bulanan || [];
+db.bantuan=db.bantuan || [];
+db.surat=db.surat || [];
+db.program=db.program || [];
+db.aspirasi=db.aspirasi || [];
+
+
+let currentUser=null;
+
+
+/* =========================================================
+   AKUN
+========================================================= */
+
+const akun={
+
+  "admin@wawongkolono.desa":{
+    nama:"Administrator / Kepala Desa",
+    dusun:"ALL"
+  },
+
+  "kades":{
+    nama:"Kepala Desa",
+    dusun:"ALL"
+  },
+
+  "operator":{
+    nama:"Operator Desa",
+    dusun:"ALL"
+  },
+
+  "dusun1":{
+    nama:"Kepala Dusun 1",
+    dusun:"Dusun 1"
+  },
+
+  "dusun2":{
+    nama:"Kepala Dusun 2",
+    dusun:"Dusun 2"
+  },
+
+  "dusun3":{
+    nama:"Kepala Dusun 3",
+    dusun:"Dusun 3"
+  },
+
+  "dusun4":{
+    nama:"Kepala Dusun 4",
+    dusun:"Dusun 4"
+  },
+
+  "dusun5":{
+    nama:"Kepala Dusun 5",
+    dusun:"Dusun 5"
+
+  }
+
+};
+
+
+const PASSWORD="desa123";
+
+
+/* =========================================================
+   SIMPAN DATABASE
+========================================================= */
+
+function save(){
+
+  localStorage.setItem(
+    DB_KEY,
+    JSON.stringify(db)
+  );
+
+}
+
+
+/* =========================================================
+   ID
+========================================================= */
+
+function id(){
+
+  return Date.now().toString(36)
+    +
+    Math.random()
+      .toString(36)
+      .slice(2,7);
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function esc(v){
+
+  return String(v ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* =========================================================
+   TANGGAL
+========================================================= */
+
+function today(){
+
+  return new Date()
+    .toISOString()
+    .slice(0,10);
+
+}
+
+
+function formatDate(d){
+
+  if(!d)return "-";
+
+  return new Date(
+    d+"T00:00:00"
+  ).toLocaleDateString("id-ID");
+
+}
+
+
+/* =========================================================
+   HAK AKSES DUSUN
+========================================================= */
+
+function boleh(dusun){
+
+  return currentUser &&
+    (
+      currentUser.dusun==="ALL" ||
+      currentUser.dusun===dusun
+    );
+
+}
+
+
+function lihat(data){
+
+  return data.filter(
+    x=>boleh(x.dusun)
+  );
+
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function login(){
+
+  const u=document
+    .getElementById("username")
+    .value
+    .trim()
+    .toLowerCase();
+
+  const p=document
+    .getElementById("password")
+    .value;
+
+  const error=document
+    .getElementById("loginError");
+
+
+  if(!akun[u]){
+
+    error.textContent=
+      "Username tidak terdaftar.";
+
+    return;
+
+  }
+
+
+  if(p!==PASSWORD){
+
+    error.textContent=
+      "Password salah.";
+
+    return;
+
+  }
+
+
+  currentUser={
+
+    username:u,
+
+    nama:akun[u].nama,
+
+    dusun:akun[u].dusun
+
+  };
+
+
+  sessionStorage.setItem(
+    "DESA_USER",
+    JSON.stringify(currentUser)
+  );
+
+
+  bukaAplikasi();
+
+}
+
+
+/* =========================================================
+   BUKA APLIKASI
+========================================================= */
+
+function bukaAplikasi(){
+
+  document
+    .getElementById("loginPage")
+    .style.display="none";
+
+
+  document
+    .getElementById("app")
+    .style.display="block";
+
+
+  document
+    .getElementById("userInfo")
+    .textContent=
+      currentUser.nama+
+      " • "+
+      (
+        currentUser.dusun==="ALL"
+        ?
+        "Semua Dusun"
+        :
+        currentUser.dusun
+      );
+
+
+  document
+    .getElementById("tanggal")
+    .textContent=
+      new Date().toLocaleDateString(
+        "id-ID",
+        {
+          weekday:"long",
+          year:"numeric",
+          month:"long",
+          day:"numeric"
+        }
+      );
+
+
+  dashboard();
+
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logout(){
+
+  sessionStorage.removeItem(
+    "DESA_USER"
+  );
+
+  location.reload();
+
+}
+
+
+/* =========================================================
+   SESSION
+========================================================= */
+
+const savedUser=
+  sessionStorage.getItem("DESA_USER");
+
+
+if(savedUser){
+
+  try{
+
+    currentUser=
+      JSON.parse(savedUser);
+
+    bukaAplikasi();
+
+  }catch(e){
+
+    sessionStorage.removeItem(
+      "DESA_USER"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+function dashboard(){
+
+  const p=lihat(db.penduduk);
+
+  const k=lihat(db.kk);
+
+
+  document
+    .getElementById("statPenduduk")
+    .textContent=
+      p.filter(
+        x=>
+          x.status!=="Meninggal" &&
+          x.status!=="Pindah"
+      ).length;
+
+
+  document
+    .getElementById("statKK")
+    .textContent=k.length;
+
+
+  document
+    .getElementById("statMasuk")
+    .textContent=
+      lihat(db.bulanan)
+      .filter(x=>x.jenis==="Masuk")
+      .length;
+
+
+  document
+    .getElementById("statPindah")
+    .textContent=
+      lihat(db.bulanan)
+      .filter(x=>x.jenis==="Pindah")
+      .length;
+
+
+  showPage("dashboard");
+
+}
+
+
+/* =========================================================
+   NAVIGASI
+========================================================= */
+
+function showPage(page){
+
+  if(page==="dashboard"){
+
+    document
+      .getElementById("content")
+      .innerHTML=`
+
+      <section class="panel">
+
+        <h3>Selamat Datang 👋</h3>
+
+        <p>
+          Gunakan menu di atas untuk
+          mengelola data Desa Wawongkolono.
+        </p>
+
+        <div class="info-box">
+
+          <b>Pengguna:</b>
+          ${esc(currentUser.nama)}
+
+          <br>
+
+          <b>Akses:</b>
+          ${
+            currentUser.dusun==="ALL"
+            ?"Semua Dusun"
+            :esc(currentUser.dusun)
+          }
+
+        </div>
+
+        <div class="dusun-grid">
+
+          ${[1,2,3,4,5].map(i=>
+
+            `<button
+              onclick="filterDusun('Dusun ${i}')"
+            >
+              📍 Dusun ${i}
+            </button>`
+
+          ).join("")}
+
+        </div>
+
+      </section>
+
+    `;
+
+    return;
+
+  }
+
+
+  if(page==="penduduk")
+    halamanPenduduk();
+
+  if(page==="kk")
+    halamanKK();
+
+  if(page==="bulanan")
+    halamanBulanan();
+
+  if(page==="bantuan")
+    halamanBantuan();
+
+  if(page==="surat")
+    halamanSurat();
+
+  if(page==="program")
+    halamanProgram();
+
+  if(page==="aspirasi")
+    halamanAspirasi();
+
+  if(page==="laporan")
+    halamanLaporan();
+
+  if(page==="pengaturan")
+    halamanPengaturan();
+
+}
+
+
+/* =========================================================
+   PENDUDUK
+========================================================= */
+
+function halamanPenduduk(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>👥 Data Penduduk</h3>
+
+      <div class="toolbar">
+
+        <input
+          id="cariPenduduk"
+          placeholder="Cari nama, NIK atau No. KK..."
+          oninput="renderPenduduk()"
+        >
+
+        <button onclick="formPenduduk()">
+          ＋ Tambah
+        </button>
+
+      </div>
+
+      <div id="tabelPenduduk"></div>
+
+    </section>
+
+  `;
+
+
+  renderPenduduk();
+
+}
+
+
+function renderPenduduk(){
+
+  const cari=
+    (
+      document
+        .getElementById("cariPenduduk")
+        ?.value || ""
+    )
+    .toLowerCase();
+
+
+  const data=
+    lihat(db.penduduk)
+    .filter(x=>
+      `${x.nama} ${x.nik} ${x.kk}`
+      .toLowerCase()
+      .includes(cari)
+    );
+
+
+  if(!data.length){
+
+    document
+      .getElementById("tabelPenduduk")
+      .innerHTML=
+        `<div class="empty">
+          Belum ada data penduduk.
+        </div>`;
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("tabelPenduduk")
+    .innerHTML=`
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>NIK</th>
+            <th>Nama</th>
+            <th>JK</th>
+            <th>No. KK</th>
+            <th>Dusun</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${data.map(x=>`
+
+            <tr>
+
+              <td>${esc(x.nik)}</td>
+
+              <td>${esc(x.nama)}</td>
+
+              <td>${esc(x.jk)}</td>
+
+              <td>${esc(x.kk)}</td>
+
+              <td>${esc(x.dusun)}</td>
+
+              <td>
+                <span class="badge">
+                  ${esc(x.status)}
+                </span>
+              </td>
+
+              <td class="actions">
+
+                <button
+                  onclick="lihatPenduduk('${x.id}')"
+                >
+                  Lihat
+                </button>
+
+                <button
+                  onclick="editPenduduk('${x.id}')"
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="danger"
+                  onclick="hapusPenduduk('${x.id}')"
+                >
+                  Hapus
+                </button>
+
+              </td>
+
+            </tr>
+
+          `).join("")}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   FORM PENDUDUK
+========================================================= */
+
+function formPenduduk(edit=null){
+
+  const x=edit || {};
+
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>
+        ${edit?"✏️ Edit":"＋ Tambah"} Penduduk
+      </h3>
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>NIK</label>
+
+          <input
+            id="pNik"
+            value="${esc(x.nik)}"
+            maxlength="16"
+            inputmode="numeric"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>No. KK</label>
+
+          <input
+            id="pKK"
+            value="${esc(x.kk)}"
+            maxlength="16"
+            inputmode="numeric"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Nama Lengkap</label>
+
+          <input
+            id="pNama"
+            value="${esc(x.nama)}"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Jenis Kelamin</label>
+
+          <select id="pJK">
+
+            <option
+              ${x.jk==="Laki-laki"?"selected":""}
+            >
+              Laki-laki
+            </option>
+
+            <option
+              ${x.jk==="Perempuan"?"selected":""}
+            >
+              Perempuan
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Tempat Lahir</label>
+
+          <input
+            id="pTempat"
+            value="${esc(x.tempat)}"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Tanggal Lahir</label>
+
+          <input
+            id="pLahir"
+            type="date"
+            value="${esc(x.lahir)}"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Status Penduduk</label>
+
+          <select id="pStatus">
+
+            ${[
+              "Aktif",
+              "Masuk",
+              "Pindah",
+              "Meninggal"
+            ].map(s=>
+
+              `<option
+                ${x.status===s?"selected":""}
+              >
+                ${s}
+              </option>`
+
+            ).join("")}
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Dusun</label>
+
+          <select id="pDusun">
+
+            ${[1,2,3,4,5].map(i=>{
+
+              const d="Dusun "+i;
+
+              return `
+                <option
+                  ${x.dusun===d?"selected":""}
+                >
+                  ${d}
+                </option>
+              `;
+
+            }).join("")}
+
+          </select>
+
+        </div>
+
+
+        <div class="full">
+
+          <label>Alamat</label>
+
+          <textarea id="pAlamat">
+${esc(x.alamat)}
+          </textarea>
+
+        </div>
+
+
+        <div class="full">
+
+          <label>Keterangan / Riwayat</label>
+
+          <textarea id="pKet">
+${esc(x.keterangan)}
+          </textarea>
+
+        </div>
+
+      </div>
+
+
+      <button
+        onclick="simpanPenduduk('${edit?.id||""}')"
+      >
+        💾 Simpan
+      </button>
+
+      <button
+        class="secondary"
+        onclick="halamanPenduduk()"
+      >
+        Batal
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   SIMPAN PENDUDUK
+========================================================= */
+
+function simpanPenduduk(editId){
+
+  const nama=
+    document.getElementById("pNama")
+    .value
+    .trim();
+
+  const nik=
+    document.getElementById("pNik")
+    .value
+    .trim();
+
+  const dusun=
+    document.getElementById("pDusun")
+    .value;
+
+
+  if(!nama || !nik){
+
+    alert(
+      "Nama dan NIK wajib diisi."
+    );
+
+    return;
+
+  }
+
+
+  if(!boleh(dusun)){
+
+    alert(
+      "Anda tidak memiliki akses ke dusun tersebut."
+    );
+
+    return;
+
+  }
+
+
+  const data={
+
+    id:editId || id(),
+
+    nik:nik,
+
+    kk:
+      document
+        .getElementById("pKK")
+        .value
+        .trim(),
+
+    nama:nama,
+
+    jk:
+      document
+        .getElementById("pJK")
+        .value,
+
+    tempat:
+      document
+        .getElementById("pTempat")
+        .value
+        .trim(),
+
+    lahir:
+      document
+        .getElementById("pLahir")
+        .value,
+
+    status:
+      document
+        .getElementById("pStatus")
+        .value,
+
+    dusun:dusun,
+
+    alamat:
+      document
+        .getElementById("pAlamat")
+        .value
+        .trim(),
+
+    keterangan:
+      document
+        .getElementById("pKet")
+        .value
+        .trim()
+
+  };
+
+
+  if(editId){
+
+    const i=
+      db.penduduk.findIndex(
+        x=>x.id===editId
+      );
+
+    if(i>=0)
+      db.penduduk[i]=data;
+
+  }else{
+
+    db.penduduk.push(data);
+
+
+    if(data.status==="Masuk"){
+
+      db.bulanan.push({
+
+        id:id(),
+
+        jenis:"Masuk",
+
+        tanggal:today(),
+
+        nama:data.nama,
+
+        dusun:data.dusun,
+
+        keterangan:
+          "Penduduk baru ditambahkan"
+
+      });
+
+    }
+
+  }
+
+
+  save();
+
+  dashboard();
+
+  halamanPenduduk();
+
+  alert(
+    "Data penduduk berhasil disimpan."
+  );
+
+}
+
+
+/* =========================================================
+   EDIT PENDUDUK
+========================================================= */
+
+function editPenduduk(idp){
+
+  const x=
+    db.penduduk.find(
+      x=>x.id===idp
+    );
+
+  if(x)
+    formPenduduk(x);
+
+}
+
+
+/* =========================================================
+   LIHAT PENDUDUK
+========================================================= */
+
+function lihatPenduduk(idp){
+
+  const x=
+    db.penduduk.find(
+      x=>x.id===idp
+    );
+
+  if(!x)return;
+
+
+  const riwayat=
+    db.bulanan.filter(
+      r=>
+        r.nama===x.nama &&
+        r.dusun===x.dusun
+    );
+
+
+  alert(
+
+    "DATA PENDUDUK\n\n"+
+
+    "Nama: "+x.nama+"\n"+
+
+    "NIK: "+x.nik+"\n"+
+
+    "No. KK: "+(x.kk||"-")+"\n"+
+
+    "JK: "+x.jk+"\n"+
+
+    "Tempat/Tgl Lahir: "+
+      (x.tempat||"-")+
+      " / "+
+      formatDate(x.lahir)+"\n"+
+
+    "Dusun: "+x.dusun+"\n"+
+
+    "Status: "+x.status+"\n"+
+
+    "Alamat: "+(x.alamat||"-")+
+
+    "\n\nRIWAYAT: "+
+      riwayat.length+
+      " catatan"
+
+  );
+
+}
+
+
+/* =========================================================
+   HAPUS PENDUDUK
+========================================================= */
+
+function hapusPenduduk(idp){
+
+  if(!confirm(
+    "Hapus data penduduk?"
+  ))return;
+
+
+  const x=
+    db.penduduk.find(
+      x=>x.id===idp
+    );
+
+
+  if(!x || !boleh(x.dusun))
+    return;
+
+
+  db.penduduk=
+    db.penduduk.filter(
+      x=>x.id!==idp
+    );
+
+
+  save();
+
+  dashboard();
+
+  halamanPenduduk();
+
+}
+
+
+/* =========================================================
+   KK
+========================================================= */
+
+function halamanKK(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>👪 Data Kartu Keluarga</h3>
+
+      <div class="toolbar">
+
+        <input
+          id="cariKK"
+          placeholder="Cari No. KK atau kepala keluarga..."
+          oninput="renderKK()"
+        >
+
+        <button onclick="formKK()">
+          ＋ Tambah KK
+        </button>
+
+      </div>
+
+      <div id="tabelKK"></div>
+
+    </section>
+
+  `;
+
+  renderKK();
+
+}
+
+
+function renderKK(){
+
+  const cari=
+    (
+      document
+        .getElementById("cariKK")
+        ?.value || ""
+    )
+    .toLowerCase();
+
+
+  const data=
+    lihat(db.kk)
+    .filter(x=>
+      `${x.noKK} ${x.kepala}`
+      .toLowerCase()
+      .includes(cari)
+    );
+
+
+  if(!data.length){
+
+    document
+      .getElementById("tabelKK")
+      .innerHTML=
+        `<div class="empty">
+          Belum ada data KK.
+        </div>`;
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("tabelKK")
+    .innerHTML=`
+
+    <div class="table-wrap">
+
+    <table>
+
+      <tr>
+        <th>No. KK</th>
+        <th>Kepala Keluarga</th>
+        <th>Dusun</th>
+        <th>Anggota</th>
+        <th>Aksi</th>
+      </tr>
+
+      ${data.map(x=>{
+
+        const anggota=
+          lihat(db.penduduk)
+          .filter(
+            p=>p.kk===x.noKK
+          ).length;
+
+
+        return `
+
+        <tr>
+
+          <td>${esc(x.noKK)}</td>
+
+          <td>${esc(x.kepala)}</td>
+
+          <td>${esc(x.dusun)}</td>
+
+          <td>${anggota} orang</td>
+
+          <td class="actions">
+
+            <button
+              onclick="detailKK('${x.id}')"
+            >
+              Anggota
+            </button>
+
+            <button
+              onclick="editKK('${x.id}')"
+            >
+              Edit
+            </button>
+
+            <button
+              class="danger"
+              onclick="hapusKK('${x.id}')"
+            >
+              Hapus
+            </button>
+
+          </td>
+
+        </tr>
+
+        `;
+
+      }).join("")}
+
+    </table>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   FORM KK
+========================================================= */
+
+function formKK(edit=null){
+
+  const x=edit||{};
+
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>
+        ${edit?"✏️ Edit KK":"＋ Tambah KK"}
+      </h3>
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>Nomor KK</label>
+
+          <input
+            id="kkNo"
+            value="${esc(x.noKK)}"
+            maxlength="16"
+            inputmode="numeric"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Kepala Keluarga</label>
+
+          <input
+            id="kkKepala"
+            value="${esc(x.kepala)}"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Dusun</label>
+
+          <select id="kkDusun">
+
+            ${[1,2,3,4,5].map(i=>{
+
+              const d="Dusun "+i;
+
+              return `
+                <option
+                  ${x.dusun===d?"selected":""}
+                >
+                  ${d}
+                </option>
+              `;
+
+            }).join("")}
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Alamat</label>
+
+          <input
+            id="kkAlamat"
+            value="${esc(x.alamat)}"
+          >
+
+        </div>
+
+
+        <div class="full">
+
+          <label>Keterangan</label>
+
+          <textarea id="kkKet">
+${esc(x.keterangan)}
+          </textarea>
+
+        </div>
+
+      </div>
+
+
+      <button
+        onclick="simpanKK('${edit?.id||""}')"
+      >
+        💾 Simpan
+      </button>
+
+      <button
+        class="secondary"
+        onclick="halamanKK()"
+      >
+        Batal
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   SIMPAN KK
+========================================================= */
+
+function simpanKK(editId){
+
+  const noKK=
+    document
+      .getElementById("kkNo")
+      .value
+      .trim();
+
+  const kepala=
+    document
+      .getElementById("kkKepala")
+      .value
+      .trim();
+
+  const dusun=
+    document
+      .getElementById("kkDusun")
+      .value;
+
+
+  if(!noKK || !kepala){
+
+    alert(
+      "Nomor KK dan kepala keluarga wajib diisi."
+    );
+
+    return;
+
+  }
+
+
+  if(!boleh(dusun)){
+
+    alert(
+      "Anda tidak memiliki akses."
+    );
+
+    return;
+
+  }
+
+
+  const data={
+
+    id:editId || id(),
+
+    noKK:noKK,
+
+    kepala:kepala,
+
+    dusun:dusun,
+
+    alamat:
+      document
+        .getElementById("kkAlamat")
+        .value
+        .trim(),
+
+    keterangan:
+      document
+        .getElementById("kkKet")
+        .value
+        .trim()
+
+  };
+
+
+  if(editId){
+
+    const i=
+      db.kk.findIndex(
+        x=>x.id===editId
+      );
+
+    if(i>=0)
+      db.kk[i]=data;
+
+  }else{
+
+    db.kk.push(data);
+
+  }
+
+
+  save();
+
+  dashboard();
+
+  halamanKK();
+
+  alert(
+    "Data KK berhasil disimpan."
+  );
+
+}
+
+
+/* =========================================================
+   EDIT KK
+========================================================= */
+
+function editKK(i){
+
+  const x=
+    db.kk.find(
+      x=>x.id===i
+    );
+
+  if(x)
+    formKK(x);
+
+}
+
+
+/* =========================================================
+   DETAIL KK
+========================================================= */
+
+function detailKK(i){
+
+  const x=
+    db.kk.find(
+      x=>x.id===i
+    );
+
+  if(!x)return;
+
+
+  const anggota=
+    lihat(db.penduduk)
+    .filter(
+      p=>p.kk===x.noKK
+    );
+
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>
+        👪 Keluarga ${esc(x.noKK)}
+      </h3>
+
+      <p>
+        <b>Kepala Keluarga:</b>
+        ${esc(x.kepala)}
+      </p>
+
+      <p>
+        <b>Dusun:</b>
+        ${esc(x.dusun)}
+      </p>
+
+      <p>
+        <b>Alamat:</b>
+        ${esc(x.alamat||"-")}
+      </p>
+
+
+      <h4>
+        Anggota Keluarga
+        (${anggota.length})
+      </h4>
+
+
+      ${
+        anggota.length
+        ?
+
+        `
+
+        <div class="table-wrap">
+
+          <table>
+
+            <tr>
+              <th>NIK</th>
+              <th>Nama</th>
+              <th>JK</th>
+              <th>Status</th>
+            </tr>
+
+            ${anggota.map(p=>`
+
+              <tr>
+
+                <td>${esc(p.nik)}</td>
+
+                <td>${esc(p.nama)}</td>
+
+                <td>${esc(p.jk)}</td>
+
+                <td>${esc(p.status)}</td>
+
+              </tr>
+
+            `).join("")}
+
+          </table>
+
+        </div>
+
+        `
+
+        :
+
+        `
+        <div class="empty">
+          Belum ada anggota yang
+          terhubung dengan KK ini.
+        </div>
+        `
+
+      }
+
+
+      <br>
+
+      <button
+        class="secondary"
+        onclick="halamanKK()"
+      >
+        Kembali
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   HAPUS KK
+========================================================= */
+
+function hapusKK(i){
+
+  if(!confirm(
+    "Hapus data KK?"
+  ))return;
+
+
+  const x=
+    db.kk.find(
+      x=>x.id===i
+    );
+
+
+  if(!x || !boleh(x.dusun))
+    return;
+
+
+  db.kk=
+    db.kk.filter(
+      x=>x.id!==i
+    );
+
+
+  save();
+
+  dashboard();
+
+  halamanKK();
+
+}
+
+
+/* =========================================================
+   PENDATAAN BULANAN
+========================================================= */
+
+function halamanBulanan(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>📅 Pendataan Bulanan</h3>
+
+      <button
+        onclick="formBulanan()"
+      >
+        ＋ Tambah Riwayat
+      </button>
+
+      <div
+        id="tabelBulanan"
+        style="margin-top:10px"
+      ></div>
+
+    </section>
+
+  `;
+
+  renderBulanan();
+
+}
+
+
+function renderBulanan(){
+
+  const data=
+    lihat(db.bulanan)
+    .sort(
+      (a,b)=>
+        b.tanggal.localeCompare(a.tanggal)
+    );
+
+
+  if(!data.length){
+
+    document
+      .getElementById("tabelBulanan")
+      .innerHTML=
+        `<div class="empty">
+          Belum ada riwayat bulanan.
+        </div>`;
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("tabelBulanan")
+    .innerHTML=`
+
+    <div class="table-wrap">
+
+      <table>
+
+        <tr>
+          <th>Tanggal</th>
+          <th>Jenis</th>
+          <th>Nama</th>
+          <th>Dusun</th>
+          <th>Keterangan</th>
+        </tr>
+
+        ${data.map(x=>`
+
+          <tr>
+
+            <td>
+              ${formatDate(x.tanggal)}
+            </td>
+
+            <td>
+              <span class="badge">
+                ${esc(x.jenis)}
+              </span>
+            </td>
+
+            <td>${esc(x.nama)}</td>
+
+            <td>${esc(x.dusun)}</td>
+
+            <td>${esc(x.keterangan||"-")}</td>
+
+          </tr>
+
+        `).join("")}
+
+      </table>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   FORM BULANAN
+========================================================= */
+
+function formBulanan(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>＋ Riwayat Penduduk</h3>
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>Jenis</label>
+
+          <select id="bJenis">
+
+            <option>Masuk</option>
+            <option>Pindah</option>
+            <option>Lahir</option>
+            <option>Meninggal</option>
+            <option>Perubahan KK</option>
+            <option>Lainnya</option>
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Tanggal</label>
+
+          <input
+            id="bTanggal"
+            type="date"
+            value="${today()}"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Nama</label>
+
+          <input id="bNama">
+
+        </div>
+
+
+        <div>
+
+          <label>Dusun</label>
+
+          <select id="bDusun">
+
+            ${[1,2,3,4,5].map(i=>
+              `<option>Dusun ${i}</option>`
+            ).join("")}
+
+          </select>
+
+        </div>
+
+
+        <div class="full">
+
+          <label>Keterangan</label>
+
+          <textarea
+            id="bKet"
+            placeholder="Contoh: pindah ke desa lain, bayi lahir, dll."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <button onclick="simpanBulanan()">
+        💾 Simpan
+      </button>
+
+      <button
+        class="secondary"
+        onclick="halamanBulanan()"
+      >
+        Batal
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   SIMPAN BULANAN
+========================================================= */
+
+function simpanBulanan(){
+
+  const dusun=
+    document
+      .getElementById("bDusun")
+      .value;
+
+
+  if(!boleh(dusun)){
+
+    alert(
+      "Anda tidak memiliki akses ke dusun tersebut."
+    );
+
+    return;
+
+  }
+
+
+  db.bulanan.push({
+
+    id:id(),
+
+    jenis:
+      document
+        .getElementById("bJenis")
+        .value,
+
+    tanggal:
+      document
+        .getElementById("bTanggal")
+        .value,
+
+    nama:
+      document
+        .getElementById("bNama")
+        .value
+        .trim(),
+
+    dusun:dusun,
+
+    keterangan:
+      document
+        .getElementById("bKet")
+        .value
+        .trim()
+
+  });
+
+
+  save();
+
+  dashboard();
+
+  halamanBulanan();
+
+  alert(
+    "Riwayat berhasil ditambahkan."
+  );
+
+}
+
+
+/* =========================================================
+   BANTUAN
+========================================================= */
+
+function halamanBantuan(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>🤝 Data Bantuan</h3>
+
+      <button onclick="formBantuan()">
+        ＋ Tambah Penerima
+      </button>
+
+      <div
+        id="tabelBantuan"
+        style="margin-top:10px"
+      ></div>
+
+    </section>
+
+  `;
+
+  renderBantuan();
+
+}
+
+
+function renderBantuan(){
+
+  const data=
+    lihat(db.bantuan);
+
+
+  if(!data.length){
+
+    document
+      .getElementById("tabelBantuan")
+      .innerHTML=
+        `<div class="empty">
+          Belum ada data bantuan.
+        </div>`;
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("tabelBantuan")
+    .innerHTML=`
+
+    <div class="table-wrap">
+
+      <table>
+
+        <tr>
+          <th>Penerima</th>
+          <th>NIK</th>
+          <th>Dusun</th>
+          <th>Bantuan</th>
+          <th>Periode</th>
+          <th>Verifikasi</th>
+        </tr>
+
+        ${data.map(x=>`
+
+          <tr>
+
+            <td>${esc(x.nama)}</td>
+
+            <td>${esc(x.nik)}</td>
+
+            <td>${esc(x.dusun)}</td>
+
+            <td>${esc(x.jenis)}</td>
+
+            <td>${esc(x.periode)}</td>
+
+            <td>${esc(x.verifikasi)}</td>
+
+          </tr>
+
+        `).join("")}
+
+      </table>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   FORM BANTUAN
+========================================================= */
+
+function formBantuan(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>＋ Tambah Bantuan</h3>
+
+      <div class="form-grid">
+
+        <div>
+          <label>Nama Penerima</label>
+          <input id="btNama">
+        </div>
+
+        <div>
+          <label>NIK</label>
+          <input id="btNik">
+        </div>
+
+        <div>
+
+          <label>Dusun</label>
+
+          <select id="btDusun">
+
+            ${[1,2,3,4,5].map(i=>
+              `<option>Dusun ${i}</option>`
+            ).join("")}
+
+          </select>
+
+        </div>
+
+        <div>
+
+          <label>Jenis Bantuan</label>
+
+          <input
+            id="btJenis"
+            placeholder="Contoh: Sembako"
+          >
+
+        </div>
+
+        <div>
+
+          <label>Periode</label>
+
+          <input
+            id="btPeriode"
+            placeholder="Contoh: 2026"
+          >
+
+        </div>
+
+        <div>
+
+          <label>Status Verifikasi</label>
+
+          <select id="btVerifikasi">
+
+            <option>
+              Belum Diverifikasi
+            </option>
+
+            <option>
+              Terverifikasi
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+
+      <button onclick="simpanBantuan()">
+        💾 Simpan
+      </button>
+
+      <button
+        class="secondary"
+        onclick="halamanBantuan()"
+      >
+        Batal
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   SIMPAN BANTUAN
+========================================================= */
+
+function simpanBantuan(){
+
+  const dusun=
+    document
+      .getElementById("btDusun")
+      .value;
+
+
+  if(!boleh(dusun))
+    return alert(
+      "Tidak memiliki akses."
+    );
+
+
+  db.bantuan.push({
+
+    id:id(),
+
+    nama:
+      document
+        .getElementById("btNama")
+        .value
+        .trim(),
+
+    nik:
+      document
+        .getElementById("btNik")
+        .value
+        .trim(),
+
+    dusun:dusun,
+
+    jenis:
+      document
+        .getElementById("btJenis")
+        .value
+        .trim(),
+
+    periode:
+      document
+        .getElementById("btPeriode")
+        .value
+        .trim(),
+
+    verifikasi:
+      document
+        .getElementById("btVerifikasi")
+        .value
+
+  });
+
+
+  save();
+
+  halamanBantuan();
+
+  alert(
+    "Data bantuan disimpan."
+  );
+
+}
+
+
+/* =========================================================
+   SURAT
+========================================================= */
+
+function halamanSurat(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>📄 Pelayanan Surat Desa</h3>
+
+      <button onclick="formSurat()">
+        ＋ Buat Data Surat
+      </button>
+
+      <div
+        id="tabelSurat"
+        style="margin-top:10px"
+      ></div>
+
+    </section>
+
+  `;
+
+  renderSurat();
+
+}
+
+
+function renderSurat(){
+
+  const data=
+    lihat(db.surat);
+
+
+  if(!data.length){
+
+    document
+      .getElementById("tabelSurat")
+      .innerHTML=
+        `<div class="empty">
+          Belum ada data surat.
+        </div>`;
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("tabelSurat")
+    .innerHTML=`
+
+    <div class="table-wrap">
+
+      <table>
+
+        <tr>
+
+          <th>Tanggal</th>
+          <th>Pemohon</th>
+          <th>NIK</th>
+          <th>Dusun</th>
+          <th>Jenis Surat</th>
+          <th>Status</th>
+
+        </tr>
+
+        ${data.map(x=>`
+
+          <tr>
+
+            <td>${formatDate(x.tanggal)}</td>
+
+            <td>${esc(x.nama)}</td>
+
+            <td>${esc(x.nik)}</td>
+
+            <td>${esc(x.dusun)}</td>
+
+            <td>${esc(x.jenis)}</td>
+
+            <td>${esc(x.status)}</td>
+
+          </tr>
+
+        `).join("")}
+
+      </table>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   FORM SURAT
+========================================================= */
+
+function formSurat(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>＋ Data Surat</h3>
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>Nama Pemohon</label>
+
+          <input id="sNama">
+
+        </div>
+
+
+        <div>
+
+          <label>NIK</label>
+
+          <input id="sNik">
+
+        </div>
+
+
+        <div>
+
+          <label>Dusun</label>
+
+          <select id="sDusun">
+
+            ${[1,2,3,4,5].map(i=>
+              `<option>Dusun ${i}</option>`
+            ).join("")}
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Jenis Surat</label>
+
+          <input
+            id="sJenis"
+            placeholder="Surat Keterangan"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label>Status</label>
+
+          <select id="sStatus">
+
+            <option>Diajukan</option>
+            <option>Diproses</option>
+            <option>Selesai</option>
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Tanggal</label>
+
+          <input
+            id="sTanggal"
+            type="date"
+            value="${today()}"
+          >
+
+        </div>
+
+
+        <div class="full">
+
+          <label>Keterangan</label>
+
+          <textarea id="sKet"></textarea>
+
+        </div>
+
+      </div>
+
+
+      <button onclick="simpanSurat()">
+        💾 Simpan
+      </button>
+
+      <button
+        class="secondary"
+        onclick="halamanSurat()"
+      >
+        Batal
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   SIMPAN SURAT
+========================================================= */
+
+function simpanSurat(){
+
+  const dusun=
+    document
+      .getElementById("sDusun")
+      .value;
+
+
+  if(!boleh(dusun))
+    return alert(
+      "Tidak memiliki akses."
+    );
+
+
+  db.surat.push({
+
+    id:id(),
+
+    nama:
+      document
+        .getElementById("sNama")
+        .value
+        .trim(),
+
+    nik:
+      document
+        .getElementById("sNik")
+        .value
+        .trim(),
+
+    dusun:dusun,
+
+    jenis:
+      document
+        .getElementById("sJenis")
+        .value
+        .trim(),
+
+    status:
+      document
+        .getElementById("sStatus")
+        .value,
+
+    tanggal:
+      document
+        .getElementById("sTanggal")
+        .value,
+
+    keterangan:
+      document
+        .getElementById("sKet")
+        .value
+        .trim()
+
+  });
+
+
+  save();
+
+  halamanSurat();
+
+  alert(
+    "Data surat disimpan."
+  );
+
+}
+
+
+/* =========================================================
+   PROGRAM DUSUN
+========================================================= */
+
+function halamanProgram(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>🏗️ Program & Pembangunan Dusun</h3>
+
+      <button onclick="formProgram()">
+        ＋ Tambah Program
+      </button>
+
+      <div
+        id="tabelProgram"
+        style="margin-top:10px"
+      ></div>
+
+    </section>
+
+  `;
+
+  renderProgram();
+
+}
+
+
+function renderProgram(){
+
+  const data=
+    lihat(db.program);
+
+
+  if(!data.length){
+
+    document
+      .getElementById("tabelProgram")
+      .innerHTML=
+        `<div class="empty">
+          Belum ada program dusun.
+        </div>`;
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("tabelProgram")
+    .innerHTML=
+
+    data.map(x=>`
+
+      <div
+        class="panel"
+        style="border:1px solid #e1ebe6"
+      >
+
+        <b>${esc(x.nama)}</b>
+
+        <div
+          style="font-size:12px;margin:5px 0"
+        >
+
+          ${esc(x.dusun)}
+
+          •
+
+          <span class="badge">
+            ${esc(x.status)}
+          </span>
+
+        </div>
+
+        <div style="font-size:13px">
+
+          ${esc(
+            x.komentar ||
+            "Tidak ada keterangan."
+          )}
+
+        </div>
+
+        <small>
+
+          Pengusul:
+          ${esc(x.pengusul||"-")}
+
+          •
+
+          ${formatDate(x.tanggal)}
+
+        </small>
+
+        <br><br>
+
+        <button
+          class="danger"
+          onclick="hapusProgram('${x.id}')"
+        >
+          Hapus
+        </button>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* =========================================================
+   FORM PROGRAM
+========================================================= */
+
+function formProgram(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>＋ Program Dusun</h3>
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>Nama Program</label>
+
+          <input id="prNama">
+
+        </div>
+
+
+        <div>
+
+          <label>Dusun</label>
+
+          <select id="prDusun">
+
+            ${[1,2,3,4,5].map(i=>
+              `<option>Dusun ${i}</option>`
+            ).join("")}
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Status</label>
+
+          <select id="prStatus">
+
+            <option>Rencana</option>
+            <option>Berjalan</option>
+            <option>Selesai</option>
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Pengusul</label>
+
+          <input id="prPengusul">
+
+        </div>
+
+
+        <div class="full">
+
+          <label>
+            Komentar / Keterangan Program
+          </label>
+
+          <textarea
+            id="prKomentar"
+            placeholder="Masukkan keterangan atau komentar terkait program..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <button onclick="simpanProgram()">
+        💾 Simpan
+      </button>
+
+      <button
+        class="secondary"
+        onclick="halamanProgram()"
+      >
+        Batal
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   SIMPAN PROGRAM
+========================================================= */
+
+function simpanProgram(){
+
+  const dusun=
+    document
+      .getElementById("prDusun")
+      .value;
+
+
+  if(!boleh(dusun))
+    return alert(
+      "Tidak memiliki akses."
+    );
+
+
+  const nama=
+    document
+      .getElementById("prNama")
+      .value
+      .trim();
+
+
+  if(!nama){
+
+    alert(
+      "Nama program wajib diisi."
+    );
+
+    return;
+
+  }
+
+
+  db.program.push({
+
+    id:id(),
+
+    nama:nama,
+
+    dusun:dusun,
+
+    status:
+      document
+        .getElementById("prStatus")
+        .value,
+
+    pengusul:
+      document
+        .getElementById("prPengusul")
+        .value
+        .trim(),
+
+    komentar:
+      document
+        .getElementById("prKomentar")
+        .value
+        .trim(),
+
+    tanggal:today()
+
+  });
+
+
+  save();
+
+  halamanProgram();
+
+  alert(
+    "Program berhasil ditambahkan."
+  );
+
+}
+
+
+/* =========================================================
+   HAPUS PROGRAM
+========================================================= */
+
+function hapusProgram(i){
+
+  if(!confirm(
+    "Hapus program ini?"
+  ))return;
+
+
+  const x=
+    db.program.find(
+      x=>x.id===i
+    );
+
+
+  if(!x || !boleh(x.dusun))
+    return;
+
+
+  db.program=
+    db.program.filter(
+      x=>x.id!==i
+    );
+
+
+  save();
+
+  halamanProgram();
+
+}
+
+
+/* =========================================================
+   ASPIRASI
+========================================================= */
+
+function halamanAspirasi(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>
+        💬 Kritik, Saran & Aspirasi
+      </h3>
+
+      <p style="font-size:13px">
+
+        Semua masukan diarahkan kepada
+        <b>Kantor Desa Wawongkolono</b>.
+
+      </p>
+
+
+      <button onclick="formAspirasi()">
+        ＋ Kirim Masukan
+      </button>
+
+
+      <div
+        id="tabelAspirasi"
+        style="margin-top:10px"
+      ></div>
+
+    </section>
+
+  `;
+
+  renderAspirasi();
+
+}
+
+
+function renderAspirasi(){
+
+  const data=
+    lihat(db.aspirasi)
+    .sort(
+      (a,b)=>
+        b.tanggal.localeCompare(a.tanggal)
+    );
+
+
+  if(!data.length){
+
+    document
+      .getElementById("tabelAspirasi")
+      .innerHTML=
+        `<div class="empty">
+          Belum ada masukan.
+        </div>`;
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("tabelAspirasi")
+    .innerHTML=
+
+    data.map(x=>`
+
+      <div
+        class="panel"
+        style="border:1px solid #e1ebe6"
+      >
+
+        <b>
+          ${esc(x.jenis)}
+        </b>
+
+        <div style="font-size:12px">
+
+          ${esc(x.nama||"Warga")}
+
+          •
+
+          ${esc(x.dusun)}
+
+          •
+
+          ${formatDate(x.tanggal)}
+
+        </div>
+
+
+        <p>
+          ${esc(x.pesan)}
+        </p>
+
+
+        <span class="badge">
+
+          Status:
+          ${esc(x.status)}
+
+        </span>
+
+
+        ${
+          currentUser.dusun==="ALL"
+
+          ?
+
+          `
+          <button
+            onclick="ubahStatusAspirasi('${x.id}')"
+          >
+            Ubah Status
+          </button>
+          `
+
+          :
+
+          ""
+        }
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* =========================================================
+   FORM ASPIRASI
+========================================================= */
+
+function formAspirasi(){
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>
+        ＋ Kirim Kritik / Saran
+      </h3>
+
+      <div class="form-grid">
+
+        <div>
+
+          <label>Nama (boleh kosong)</label>
+
+          <input id="aNama">
+
+        </div>
+
+
+        <div>
+
+          <label>Dusun</label>
+
+          <select id="aDusun">
+
+            ${[1,2,3,4,5].map(i=>
+              `<option>Dusun ${i}</option>`
+            ).join("")}
+
+          </select>
+
+        </div>
+
+
+        <div>
+
+          <label>Jenis</label>
+
+          <select id="aJenis">
+
+            <option>Kritik</option>
+            <option>Saran</option>
+            <option>Aspirasi</option>
+            <option>Pengaduan</option>
+
+          </select>
+
+        </div>
+
+
+        <div class="full">
+
+          <label>
+            Pesan untuk Kantor Desa
+          </label>
+
+          <textarea
+            id="aPesan"
+            placeholder="Tuliskan kritik, saran, aspirasi atau pengaduan..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <button onclick="simpanAspirasi()">
+        📨 Kirim ke Kantor Desa
+      </button>
+
+      <button
+        class="secondary"
+        onclick="halamanAspirasi()"
+      >
+        Batal
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   SIMPAN ASPIRASI
+========================================================= */
+
+function simpanAspirasi(){
+
+  const dusun=
+    document
+      .getElementById("aDusun")
+      .value;
+
+
+  if(!boleh(dusun))
+
+    return alert(
+      "Anda tidak memiliki akses ke dusun tersebut."
+    );
+
+
+  const pesan=
+    document
+      .getElementById("aPesan")
+      .value
+      .trim();
+
+
+  if(!pesan)
+
+    return alert(
+      "Pesan belum diisi."
+    );
+
+
+  db.aspirasi.push({
+
+    id:id(),
+
+    nama:
+      document
+        .getElementById("aNama")
+        .value
+        .trim(),
+
+    dusun:dusun,
+
+    jenis:
+      document
+        .getElementById("aJenis")
+        .value,
+
+    pesan:pesan,
+
+    status:"Baru",
+
+    tanggal:today()
+
+  });
+
+
+  save();
+
+  halamanAspirasi();
+
+  alert(
+    "Masukan berhasil dikirim ke Kantor Desa."
+  );
+
+}
+
+
+/* =========================================================
+   UBAH STATUS ASPIRASI
+========================================================= */
+
+function ubahStatusAspirasi(i){
+
+  const x=
+    db.aspirasi.find(
+      x=>x.id===i
+    );
+
+
+  if(!x)return;
+
+
+  const status=prompt(
+
+    "Masukkan status:\n"+
+    "Baru / Diproses / Selesai",
+
+    x.status
+
+  );
+
+
+  if([
+    "Baru",
+    "Diproses",
+    "Selesai"
+  ].includes(status)){
+
+    x.status=status;
+
+    save();
+
+    halamanAspirasi();
+
+  }
+
+}
+
+
+/* =========================================================
+   LAPORAN
+========================================================= */
+
+function halamanLaporan(){
+
+  const p=lihat(db.penduduk);
+
+  const k=lihat(db.kk);
+
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>📊 Laporan Desa</h3>
+
+
+      <div class="stats">
+
+        <div class="stat">
+          <b>${p.length}</b>
+          <span>Total Penduduk</span>
+        </div>
+
+        <div class="stat">
+          <b>${k.length}</b>
+          <span>Total KK</span>
+        </div>
+
+        <div class="stat">
+          <b>${lihat(db.bulanan).length}</b>
+          <span>Riwayat</span>
+        </div>
+
+        <div class="stat">
+          <b>${lihat(db.aspirasi).length}</b>
+          <span>Aspirasi</span>
+        </div>
+
+      </div>
+
+
+      <h4>Rekap Per Dusun</h4>
+
+
+      <div class="table-wrap">
+
+        <table>
+
+          <tr>
+
+            <th>Dusun</th>
+            <th>Penduduk</th>
+            <th>KK</th>
+            <th>Masuk</th>
+            <th>Pindah</th>
+            <th>Program</th>
+
+          </tr>
+
+
+          ${[1,2,3,4,5].map(i=>{
+
+            const d="Dusun "+i;
+
+            const pd=
+              lihat(db.penduduk)
+              .filter(x=>x.dusun===d);
+
+            const kk=
+              lihat(db.kk)
+              .filter(x=>x.dusun===d);
+
+            const bl=
+              lihat(db.bulanan)
+              .filter(x=>x.dusun===d);
+
+
+            return `
+
+            <tr>
+
+              <td>${d}</td>
+
+              <td>${pd.length}</td>
+
+              <td>${kk.length}</td>
+
+              <td>
+                ${
+                  bl.filter(
+                    x=>x.jenis==="Masuk"
+                  ).length
+                }
+              </td>
+
+              <td>
+                ${
+                  bl.filter(
+                    x=>x.jenis==="Pindah"
+                  ).length
+                }
+              </td>
+
+              <td>
+                ${
+                  lihat(db.program)
+                  .filter(
+                    x=>x.dusun===d
+                  ).length
+                }
+              </td>
+
+            </tr>
+
+            `;
+
+          }).join("")}
+
+        </table>
+
+      </div>
+
+
+      <br>
+
+
+      <button onclick="window.print()">
+        🖨️ Cetak Laporan
+      </button>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   PENGATURAN
+========================================================= */
+
+function halamanPengaturan(){
+
+  const bolehBackup=
+    currentUser.dusun==="ALL";
+
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>⚙️ Pengaturan</h3>
+
+
+      <p>
+
+        <b>Desa:</b>
+        Wawongkolono
+
+        <br>
+
+        <b>Kecamatan:</b>
+        Menui Kepulauan
+
+        <br>
+
+        <b>Kabupaten:</b>
+        Morowali
+
+        <br>
+
+        <b>Provinsi:</b>
+        Sulawesi Tengah
+
+      </p>
+
+
+      <hr>
+
+
+      <h4>💾 Database</h4>
+
+
+      ${
+        bolehBackup
+
+        ?
+
+        `
+
+        <button onclick="backup()">
+          ⬇️ Backup Data
+        </button>
+
+        <button
+          onclick="document.getElementById('fileRestore').click()"
+        >
+          ⬆️ Restore Data
+        </button>
+
+        <input
+          id="fileRestore"
+          type="file"
+          accept=".json"
+          style="display:none"
+          onchange="restore(this)"
+        >
+
+        <br><br>
+
+        <button
+          class="danger"
+          onclick="resetData()"
+        >
+          Reset Semua Data
+        </button>
+
+        `
+
+        :
+
+        `
+
+        <p
+          style="font-size:13px;color:#68766f"
+        >
+          Backup dan reset hanya tersedia
+          untuk Kepala Desa/Operator.
+        </p>
+
+        `
+
+      }
+
+
+      <hr>
+
+
+      <div class="info-box">
+
+        <b>Informasi akun</b>
+
+        <br><br>
+
+        Username:
+        ${esc(currentUser.username)}
+
+        <br>
+
+        Nama:
+        ${esc(currentUser.nama)}
+
+        <br>
+
+        Akses:
+        ${
+          currentUser.dusun==="ALL"
+          ?"Semua Dusun"
+          :esc(currentUser.dusun)
+        }
+
+      </div>
+
+
+      <p
+        style="font-size:12px;color:#68766f"
+      >
+
+        ⚠️ Versi ini menyimpan data di browser
+        menggunakan LocalStorage.
+
+        Untuk penggunaan resmi dengan data NIK,
+        KK dan dokumen penduduk, sebaiknya
+        gunakan database server, HTTPS,
+        autentikasi dan pengamanan data.
+
+      </p>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   BACKUP
+========================================================= */
+
+function backup(){
+
+  const blob=
+    new Blob(
+      [
+        JSON.stringify(
+          db,
+          null,
+          2
+        )
+      ],
+      {
+        type:"application/json"
+      }
+    );
+
+
+  const a=
+    document.createElement("a");
+
+
+  a.href=
+    URL.createObjectURL(blob);
+
+
+  a.download=
+    "backup_desa_wawongkolono.json";
+
+
+  a.click();
+
+
+  URL.revokeObjectURL(a.href);
+
+}
+
+
+/* =========================================================
+   RESTORE
+========================================================= */
+
+function restore(input){
+
+  const file=
+    input.files[0];
+
+
+  if(!file)return;
+
+
+  const reader=
+    new FileReader();
+
+
+  reader.onload=function(){
+
+    try{
+
+      const data=
+        JSON.parse(
+          reader.result
+        );
+
+
+      if(
+        !data.penduduk ||
+        !data.kk ||
+        !data.bulanan ||
+        !data.bantuan ||
+        !data.surat ||
+        !data.program ||
+        !data.aspirasi
+      ){
+
+        throw new Error();
+
+      }
+
+
+      db=data;
+
+      save();
+
+
+      alert(
+        "Data berhasil dipulihkan."
+      );
+
+
+      location.reload();
+
+
+    }catch(e){
+
+      alert(
+        "File backup tidak valid."
+      );
+
+    }
+
+  };
+
+
+  reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   RESET DATA
+========================================================= */
+
+function resetData(){
+
+  if(!confirm(
+    "PERINGATAN!\n\n"+
+    "Semua data penduduk, KK, bantuan, "+
+    "surat, program dan aspirasi akan dihapus.\n\n"+
+    "Lanjutkan?"
+  ))return;
+
+
+  localStorage.removeItem(
+    DB_KEY
+  );
+
+
+  location.reload();
+
+}
+
+
+/* =========================================================
+   FILTER DUSUN
+========================================================= */
+
+function filterDusun(dusun){
+
+  if(!boleh(dusun)){
+
+    alert(
+      "Anda tidak memiliki akses ke "+
+      dusun
+    );
+
+    return;
+
+  }
+
+
+  document
+    .getElementById("content")
+    .innerHTML=`
+
+    <section class="panel">
+
+      <h3>
+        📍 ${esc(dusun)}
+      </h3>
+
+
+      <button
+        onclick="showPage('penduduk')"
+      >
+        👥 Penduduk
+      </button>
+
+
+      <button
+        onclick="showPage('kk')"
+      >
+        👪 KK
+      </button>
+
+
+      <button
+        onclick="showPage('program')"
+      >
+        🏗️ Program
+      </button>
+
+
+      <button
+        onclick="showPage('aspirasi')"
+      >
+        💬 Aspirasi
+      </button>
+
+
+      <div style="margin-top:15px">
+
+        <h4>Ringkasan</h4>
+
+
+        <p>
+          Penduduk:
+          ${
+            lihat(db.penduduk)
+            .filter(
+              x=>x.dusun===dusun
+            ).length
+          }
+        </p>
+
+
+        <p>
+          KK:
+          ${
+            lihat(db.kk)
+            .filter(
+              x=>x.dusun===dusun
+            ).length
+          }
+        </p>
+
+
+        <p>
+          Program:
+          ${
+            lihat(db.program)
+            .filter(
+              x=>x.dusun===dusun
+            ).length
+          }
+        </p>
+
+
+        <p>
+          Aspirasi:
+          ${
+            lihat(db.aspirasi)
+            .filter(
+              x=>x.dusun===dusun
+            ).length
+          }
+        </p>
+
+      </div>
+
+    </section>
+
+  `;
+
+}
+
+
+/* =========================================================
+   MULAI
+========================================================= */
+
+if(currentUser){
+
+  dashboard();
+
+}
+
+</script>
+
+</body>
+</html>
