@@ -2,817 +2,1716 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Desa Wawongkolono</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Informasi Desa Wawongkolono</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+    box-sizing:border-box;
+}
+
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f1f5f9;
-  color:#0f172a
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#f1f5f9;
+    color:#1e293b;
 }
-header{
-  background:#0f4c81;
-  color:white;
-  padding:20px;
-  text-align:center
+
+button,input,select,textarea{
+    font:inherit;
 }
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:16px
-}
-.card{
-  background:white;
-  border-radius:14px;
-  padding:20px;
-  margin-bottom:18px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08)
-}
-h1,h2{margin-top:0}
-label{
-  display:block;
-  font-weight:bold;
-  margin:12px 0 5px
-}
-input,select{
-  width:100%;
-  padding:12px;
-  border:1px solid #cbd5e1;
-  border-radius:8px;
-  font-size:16px
-}
+
 button{
-  border:0;
-  border-radius:8px;
-  padding:12px 18px;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer
+    cursor:pointer;
 }
+
+.hidden{
+    display:none !important;
+}
+
+/* LOGIN */
+#loginPage{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    background:linear-gradient(135deg,#0f766e,#0ea5e9);
+}
+
+.login-box{
+    width:100%;
+    max-width:420px;
+    background:white;
+    padding:30px;
+    border-radius:18px;
+    box-shadow:0 20px 50px rgba(0,0,0,.2);
+}
+
+.login-logo{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    margin:0 auto 15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#0f766e;
+    color:white;
+    font-size:35px;
+    font-weight:bold;
+}
+
+.login-box h1{
+    text-align:center;
+    margin:5px 0;
+    font-size:24px;
+}
+
+.login-box p{
+    text-align:center;
+    color:#64748b;
+    margin-bottom:25px;
+}
+
+.form-group{
+    margin-bottom:15px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:6px;
+    font-weight:bold;
+}
+
+input,select,textarea{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid #cbd5e1;
+    border-radius:9px;
+    outline:none;
+    background:white;
+}
+
+input:focus,select:focus,textarea:focus{
+    border-color:#0ea5e9;
+    box-shadow:0 0 0 2px rgba(14,165,233,.12);
+}
+
+textarea{
+    min-height:80px;
+    resize:vertical;
+}
+
 .btn{
-  background:#0f4c81;
-  color:white;
-  width:100%;
-  margin-top:16px
+    border:0;
+    border-radius:9px;
+    padding:11px 16px;
+    font-weight:bold;
 }
-.btn2{
-  background:#475569;
-  color:white;
-  margin-top:10px
+
+.btn-primary{
+    background:#0f766e;
+    color:white;
 }
-#pesan{
-  display:none;
-  padding:12px;
-  border-radius:8px;
-  margin-top:15px;
-  white-space:pre-wrap
+
+.btn-primary:hover{
+    background:#115e59;
 }
-.ok{
-  display:block!important;
-  background:#dcfce7;
-  color:#166534
+
+.btn-danger{
+    background:#dc2626;
+    color:white;
 }
-.gagal{
-  display:block!important;
-  background:#fee2e2;
-  color:#991b1b
+
+.btn-secondary{
+    background:#64748b;
+    color:white;
 }
-.table-wrap{
-  overflow-x:auto;
-  margin-top:15px
+
+.btn-info{
+    background:#0284c7;
+    color:white;
 }
+
+.btn-success{
+    background:#16a34a;
+    color:white;
+}
+
+/* APP */
+header{
+    background:#0f766e;
+    color:white;
+    padding:18px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.header-title h1{
+    margin:0;
+    font-size:22px;
+}
+
+.header-title p{
+    margin:5px 0 0;
+    opacity:.9;
+}
+
+.container{
+    width:min(1400px,94%);
+    margin:20px auto;
+}
+
+.top-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.stat{
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:0 3px 12px rgba(0,0,0,.07);
+}
+
+.stat h3{
+    margin:0;
+    color:#64748b;
+    font-size:14px;
+}
+
+.stat strong{
+    display:block;
+    margin-top:8px;
+    font-size:28px;
+    color:#0f766e;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:14px;
+    margin-bottom:20px;
+    box-shadow:0 3px 12px rgba(0,0,0,.07);
+}
+
+.card h2{
+    margin-top:0;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.full{
+    grid-column:1/-1;
+}
+
+.form-buttons{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+
+.search-box{
+    display:flex;
+    gap:10px;
+    margin-bottom:15px;
+}
+
+.search-box input{
+    flex:1;
+}
+
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+}
+
 table{
-  width:100%;
-  border-collapse:collapse
+    width:100%;
+    border-collapse:collapse;
+    min-width:1100px;
 }
+
 th,td{
-  padding:10px;
-  border-bottom:1px solid #e2e8f0;
-  white-space:nowrap
+    padding:10px;
+    border-bottom:1px solid #e2e8f0;
+    text-align:left;
+    vertical-align:top;
 }
-th{background:#f8fafc}
-.search{
-  margin-top:15px
+
+th{
+    background:#f8fafc;
 }
-.info{
-  background:#eff6ff;
-  color:#1e3a8a;
-  padding:12px;
-  border-radius:8px;
-  margin-bottom:15px;
-  font-size:14px
+
+.action-buttons{
+    display:flex;
+    gap:5px;
+}
+
+.action-buttons button{
+    padding:7px 10px;
+    border:0;
+    border-radius:7px;
+    color:white;
+}
+
+.edit-btn{
+    background:#0284c7;
+}
+
+.delete-btn{
+    background:#dc2626;
+}
+
+#message{
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:9999;
+    max-width:350px;
+    padding:14px 18px;
+    border-radius:10px;
+    color:white;
+    display:none;
+    box-shadow:0 5px 20px rgba(0,0,0,.2);
+}
+
+.message-success{
+    background:#16a34a;
+}
+
+.message-error{
+    background:#dc2626;
+}
+
+.loading{
+    opacity:.6;
+    pointer-events:none;
+}
+
+.user-info{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+@media(max-width:900px){
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:600px){
+    .stats{
+        grid-template-columns:1fr;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    header{
+        padding:15px;
+    }
+
+    .container{
+        width:96%;
+    }
+
+    .search-box{
+        flex-direction:column;
+    }
 }
 </style>
 </head>
 
 <body>
 
+<!-- =====================================================
+     LOGIN
+====================================================== -->
+
+<section id="loginPage">
+
+    <div class="login-box">
+
+        <div class="login-logo">DW</div>
+
+        <h1>Desa Wawongkolono</h1>
+
+        <p>Sistem Informasi Desa</p>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+                <label>Email</label>
+                <input
+                    type="email"
+                    id="loginEmail"
+                    placeholder="Masukkan email"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input
+                    type="password"
+                    id="loginPassword"
+                    placeholder="Masukkan password"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                id="loginButton"
+                style="width:100%;"
+            >
+                Masuk
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     APLIKASI
+====================================================== -->
+
+<section id="appPage" class="hidden">
+
 <header>
-  <h1>Desa Wawongkolono</h1>
-  <div>Kecamatan Menui Kepulauan</div>
-  <div>Kabupaten Morowali • Sulawesi Tengah</div>
+
+    <div class="header-title">
+        <h1>Desa Wawongkolono</h1>
+        <p>
+            Kecamatan Menui Kepulauan |
+            Kabupaten Morowali |
+            Sulawesi Tengah
+        </p>
+    </div>
+
+    <div class="user-info">
+        <span id="userEmail"></span>
+
+        <button
+            class="btn btn-danger"
+            onclick="logout()"
+        >
+            Logout
+        </button>
+    </div>
+
 </header>
+
 
 <div class="container">
 
-  <div class="card">
-    <h2>API Desa</h2>
+    <!-- STATISTIK -->
 
-    <div class="info">
-      API Penduduk aktif dan terhubung dengan Supabase.
-      Penyimpanan utama tetap menggunakan database Supabase.
-    </div>
+    <div class="stats">
 
-    <button class="btn2" id="testApi">
-      🔌 Tes Koneksi API
-    </button>
+        <div class="stat">
+            <h3>Total Penduduk</h3>
+            <strong id="totalPenduduk">0</strong>
+        </div>
 
-    <div id="apiStatus"></div>
-  </div>
+        <div class="stat">
+            <h3>Laki-laki</h3>
+            <strong id="totalLaki">0</strong>
+        </div>
 
+        <div class="stat">
+            <h3>Perempuan</h3>
+            <strong id="totalPerempuan">0</strong>
+        </div>
 
-  <div class="card">
-
-    <h2>Tambah Penduduk</h2>
-
-    <form id="formPenduduk">
-
-      <label>NIK</label>
-      <input
-        id="nik"
-        type="text"
-        inputmode="numeric"
-        maxlength="16"
-        placeholder="16 digit NIK"
-        required
-      >
-
-      <label>Nama Lengkap</label>
-      <input
-        id="nama"
-        type="text"
-        placeholder="Nama lengkap"
-        required
-      >
-
-      <label>Dusun</label>
-      <select id="dusun" required>
-        <option value="">Pilih Dusun</option>
-        <option>Dusun 1</option>
-        <option>Dusun 2</option>
-        <option>Dusun 3</option>
-        <option>Dusun 4</option>
-        <option>Dusun 5</option>
-      </select>
-
-      <label>Nomor KK</label>
-      <input
-        id="nomor_kk"
-        type="text"
-        inputmode="numeric"
-        maxlength="16"
-        placeholder="Nomor KK"
-      >
-
-      <label>Status</label>
-      <select id="status">
-        <option value="Aktif">Aktif</option>
-        <option value="Pindah">Pindah</option>
-        <option value="Meninggal">Meninggal</option>
-        <option value="Keluar">Keluar</option>
-      </select>
-
-      <button class="btn" type="submit">
-        💾 SIMPAN PENDUDUK
-      </button>
-
-      <div id="pesan"></div>
-
-    </form>
-
-  </div>
-
-
-  <div class="card">
-
-    <h2>Data Penduduk</h2>
-
-    <input
-      class="search"
-      id="pencarian"
-      type="search"
-      placeholder="🔎 Cari NIK atau nama..."
-    >
-
-    <button class="btn2" id="refresh">
-      🔄 Muat Data
-    </button>
-
-    <div class="table-wrap">
-
-      <table>
-
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>NIK</th>
-            <th>Nama</th>
-            <th>Dusun</th>
-            <th>Nomor KK</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-
-        <tbody id="tabel">
-          <tr>
-            <td colspan="6">
-              Memuat data...
-            </td>
-          </tr>
-        </tbody>
-
-      </table>
+        <div class="stat">
+            <h3>Jumlah KK</h3>
+            <strong id="totalKK">0</strong>
+        </div>
 
     </div>
 
-  </div>
+
+    <!-- FORM DATA -->
+
+    <div class="card">
+
+        <h2 id="formTitle">Tambah Data Penduduk</h2>
+
+        <form id="pendudukForm">
+
+            <input
+                type="hidden"
+                id="editId"
+            >
+
+            <div class="grid">
+
+                <div class="form-group">
+                    <label>NIK *</label>
+                    <input
+                        type="text"
+                        id="nik"
+                        maxlength="16"
+                        inputmode="numeric"
+                        placeholder="16 digit NIK"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Nama Lengkap *</label>
+                    <input
+                        type="text"
+                        id="nama"
+                        placeholder="Nama lengkap"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Nomor KK</label>
+                    <input
+                        type="text"
+                        id="nomor_kk"
+                        maxlength="16"
+                        inputmode="numeric"
+                        placeholder="Nomor KK"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Jenis Kelamin</label>
+                    <select id="jenis_kelamin">
+                        <option value="">-- Pilih --</option>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Dusun</label>
+                    <select id="dusun">
+                        <option value="">-- Pilih Dusun --</option>
+                        <option value="1">Dusun 1</option>
+                        <option value="2">Dusun 2</option>
+                        <option value="3">Dusun 3</option>
+                        <option value="4">Dusun 4</option>
+                        <option value="5">Dusun 5</option>
+                        <option value="6">Dusun 6</option>
+                        <option value="7">Dusun 7</option>
+                        <option value="8">Dusun 8</option>
+                        <option value="9">Dusun 9</option>
+                        <option value="10">Dusun 10</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>RT</label>
+                    <input
+                        type="text"
+                        id="rt"
+                        placeholder="RT"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>RW</label>
+                    <input
+                        type="text"
+                        id="rw"
+                        placeholder="RW"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Tempat Lahir</label>
+                    <input
+                        type="text"
+                        id="tempat_lahir"
+                        placeholder="Tempat lahir"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Tanggal Lahir</label>
+                    <input
+                        type="date"
+                        id="tanggal_lahir"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Agama</label>
+                    <select id="agama">
+                        <option value="">-- Pilih --</option>
+                        <option>Islam</option>
+                        <option>Kristen</option>
+                        <option>Katolik</option>
+                        <option>Hindu</option>
+                        <option>Buddha</option>
+                        <option>Konghucu</option>
+                        <option>Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Status Perkawinan</label>
+                    <select id="status_perkawinan">
+                        <option value="">-- Pilih --</option>
+                        <option>Belum Kawin</option>
+                        <option>Kawin</option>
+                        <option>Cerai Hidup</option>
+                        <option>Cerai Mati</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Pekerjaan</label>
+                    <input
+                        type="text"
+                        id="pekerjaan"
+                        placeholder="Pekerjaan"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>Status Penduduk</label>
+                    <select id="status">
+                        <option value="Tetap">Tetap</option>
+                        <option>Pendatang</option>
+                        <option>Pindah</option>
+                        <option>Meninggal</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Tanggal Status</label>
+                    <input
+                        type="date"
+                        id="tanggal_status"
+                    >
+                </div>
+
+                <div class="form-group full">
+                    <label>Alamat</label>
+                    <textarea
+                        id="alamat"
+                        placeholder="Alamat lengkap"
+                    ></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-buttons">
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                    id="saveButton"
+                >
+                    Simpan Data
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="resetForm()"
+                >
+                    Bersihkan
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- DATA PENDUDUK -->
+
+    <div class="card">
+
+        <h2>Data Penduduk</h2>
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Cari NIK, nama, KK, RT, RW..."
+                oninput="filterData()"
+            >
+
+            <button
+                class="btn btn-info"
+                onclick="loadPenduduk()"
+            >
+                ↻ Muat Ulang
+            </button>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>NIK</th>
+                        <th>Nama</th>
+                        <th>No. KK</th>
+                        <th>JK</th>
+                        <th>Dusun</th>
+                        <th>RT</th>
+                        <th>RW</th>
+                        <th>Tgl Lahir</th>
+                        <th>Pekerjaan</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTable">
+
+                    <tr>
+                        <td colspan="12" style="text-align:center;">
+                            Memuat data...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
+
+</section>
+
+
+<div id="message"></div>
 
 
 <script>
 
-/* =====================================================
-   KONFIGURASI
-   ===================================================== */
+/* ========================================================
+   KONFIGURASI SUPABASE
+======================================================== */
 
-const SUPABASE_URL =
-"https://xetmoemzrahwljfspxyp.supabase.co";
+const SUPABASE_URL = "GANTI_DENGAN_SUPABASE_URL_ANDA";
+const SUPABASE_ANON_KEY = "GANTI_DENGAN_SUPABASE_ANON_KEY_ANDA";
 
-const SUPABASE_KEY =
-"sb_publishable_HwM_id1TLL7FxRH89DHg_Q_nAn7jxGS";
-
-const supabaseClient =
-window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
 );
 
 
-/* =====================================================
-   ENDPOINT API
-   ===================================================== */
+/* ========================================================
+   VARIABEL
+======================================================== */
 
-const API = {
-
-  penduduk:
-    SUPABASE_URL + "/rest/v1/penduduk"
-
-};
+let semuaData = [];
 
 
-/* =====================================================
-   HEADER API
-   ===================================================== */
+/* ========================================================
+   ELEMENT
+======================================================== */
 
-function headersAPI(){
-
-  return {
-
-    "apikey": SUPABASE_KEY,
-
-    "Authorization":
-      "Bearer " + SUPABASE_KEY,
-
-    "Content-Type":
-      "application/json",
-
-    "Prefer":
-      "return=representation"
-
-  };
-
-}
+const loginPage = document.getElementById("loginPage");
+const appPage = document.getElementById("appPage");
+const loginForm = document.getElementById("loginForm");
+const pendudukForm = document.getElementById("pendudukForm");
 
 
-/* =====================================================
+/* ========================================================
    PESAN
-   ===================================================== */
+======================================================== */
 
-function pesan(text, type){
+function showMessage(text, type = "success") {
 
-  const box =
-    document.getElementById("pesan");
+    const box = document.getElementById("message");
 
-  box.textContent = text;
+    box.textContent = text;
 
-  box.className =
-    type === "ok"
-      ? "ok"
-      : "gagal";
+    box.className =
+        type === "success"
+        ? "message-success"
+        : "message-error";
 
+    box.style.display = "block";
+
+    setTimeout(() => {
+        box.style.display = "none";
+    }, 3500);
 }
 
 
-/* =====================================================
-   API GET
-   ===================================================== */
+/* ========================================================
+   LOGIN
+======================================================== */
 
-async function getPenduduk(){
-
-  const response =
-    await fetch(
-      API.penduduk +
-      "?select=*&order=id.desc",
-      {
-        headers:headersAPI()
-      }
-    );
-
-  const data =
-    await response.json();
-
-  if(!response.ok){
-
-    throw new Error(
-      data.message ||
-      "Gagal mengambil data penduduk."
-    );
-
-  }
-
-  return data;
-
-}
-
-
-/* =====================================================
-   API POST
-   ===================================================== */
-
-async function tambahPenduduk(data){
-
-  let response =
-    await fetch(
-      API.penduduk,
-      {
-        method:"POST",
-        headers:headersAPI(),
-        body:JSON.stringify(data)
-      }
-    );
-
-  let result =
-    await response.json();
-
-
-  /*
-    Jika API belum mengenal nomor_kk,
-    otomatis coba lagi tanpa nomor_kk.
-  */
-
-  if(
-    !response.ok &&
-    (
-      result.code === "PGRST204" ||
-      String(result.message || "")
-        .toLowerCase()
-        .includes("nomor_kk")
-    )
-  ){
-
-    const dataTanpaKK = {
-
-      nik:data.nik,
-      nama:data.nama,
-      dusun:data.dusun,
-      status:data.status
-
-    };
-
-
-    response =
-      await fetch(
-        API.penduduk,
-        {
-          method:"POST",
-          headers:headersAPI(),
-          body:JSON.stringify(dataTanpaKK)
-        }
-      );
-
-
-    result =
-      await response.json();
-
-  }
-
-
-  if(!response.ok){
-
-    throw new Error(
-      result.message ||
-      result.error ||
-      "Gagal menyimpan penduduk."
-    );
-
-  }
-
-
-  return result;
-
-}
-
-
-/* =====================================================
-   FORM SIMPAN
-   ===================================================== */
-
-document
-.getElementById("formPenduduk")
-.addEventListener(
-  "submit",
-  async function(e){
+loginForm.addEventListener("submit", async function(e){
 
     e.preventDefault();
 
+    const email =
+        document.getElementById("loginEmail").value.trim();
 
-    pesan(
-      "⏳ Sedang menyimpan data...",
-      "ok"
-    );
+    const password =
+        document.getElementById("loginPassword").value;
 
+    const button =
+        document.getElementById("loginButton");
 
-    const nik =
-      document
-      .getElementById("nik")
-      .value.trim();
+    button.disabled = true;
+    button.textContent = "Memproses...";
 
-    const nama =
-      document
-      .getElementById("nama")
-      .value.trim();
+    try {
 
-    const dusun =
-      document
-      .getElementById("dusun")
-      .value;
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
 
-    const nomorKK =
-      document
-      .getElementById("nomor_kk")
-      .value.trim();
+        if(error){
+            throw error;
+        }
 
-    const status =
-      document
-      .getElementById("status")
-      .value;
+        if(!data.session){
+            throw new Error("Login tidak menghasilkan sesi.");
+        }
 
+        showApp(data.user);
 
-    if(!nik){
+        showMessage("Login berhasil.");
 
-      pesan(
-        "❌ NIK wajib diisi.",
-        "gagal"
-      );
+    } catch(error){
 
-      return;
+        console.error(error);
 
-    }
+        showMessage(
+            "Login gagal: " + error.message,
+            "error"
+        );
 
+    } finally {
 
-    if(!nama){
-
-      pesan(
-        "❌ Nama wajib diisi.",
-        "gagal"
-      );
-
-      return;
+        button.disabled = false;
+        button.textContent = "Masuk";
 
     }
 
-
-    if(!dusun){
-
-      pesan(
-        "❌ Dusun wajib dipilih.",
-        "gagal"
-      );
-
-      return;
-
-    }
+});
 
 
-    if(!/^[0-9]{16}$/.test(nik)){
+/* ========================================================
+   CEK LOGIN
+======================================================== */
 
-      pesan(
-        "❌ NIK harus terdiri dari 16 angka.",
-        "gagal"
-      );
+async function checkLogin(){
 
-      return;
+    try {
 
-    }
+        const { data } =
+            await supabaseClient.auth.getSession();
 
+        if(data.session && data.session.user){
 
-    try{
+            showApp(data.session.user);
 
-      await tambahPenduduk({
+        }else{
 
-        nik:nik,
+            showLogin();
 
-        nama:nama,
+        }
 
-        dusun:dusun,
+    } catch(error){
 
-        nomor_kk:
-          nomorKK || null,
+        console.error(error);
 
-        status:status
-
-      });
-
-
-      pesan(
-        "✅ Data penduduk berhasil disimpan.",
-        "ok"
-      );
-
-
-      document
-      .getElementById("formPenduduk")
-      .reset();
-
-
-      await muatData();
-
+        showLogin();
 
     }
-    catch(error){
-
-      console.error(error);
+}
 
 
-      pesan(
-        "❌ Gagal menyimpan data.\n\n" +
-        error.message,
-        "gagal"
-      );
+/* ========================================================
+   TAMPILKAN APP
+======================================================== */
 
-    }
+function showApp(user){
 
-  }
-);
+    loginPage.classList.add("hidden");
+
+    appPage.classList.remove("hidden");
+
+    document.getElementById("userEmail").textContent =
+        user.email || "";
+
+    loadPenduduk();
+}
 
 
-/* =====================================================
-   TAMPIL DATA
-   ===================================================== */
+/* ========================================================
+   TAMPILKAN LOGIN
+======================================================== */
 
-function escapeHTML(value){
+function showLogin(){
 
-  return String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    appPage.classList.add("hidden");
+
+    loginPage.classList.remove("hidden");
 
 }
 
 
-function tampilData(data){
+/* ========================================================
+   LOGOUT
+======================================================== */
 
-  const tabel =
-    document.getElementById("tabel");
+async function logout(){
 
+    const yakin =
+        confirm("Apakah Anda yakin ingin keluar?");
 
-  if(!data.length){
+    if(!yakin){
+        return;
+    }
 
-    tabel.innerHTML =
-      `<tr>
-        <td colspan="6">
-          Belum ada data penduduk.
-        </td>
-      </tr>`;
+    const { error } =
+        await supabaseClient.auth.signOut();
 
-    return;
+    if(error){
 
-  }
-
-
-  tabel.innerHTML =
-    data.map(
-      (item,index)=>`
-
-        <tr>
-
-          <td>${index+1}</td>
-
-          <td>${escapeHTML(item.nik)}</td>
-
-          <td>${escapeHTML(item.nama)}</td>
-
-          <td>${escapeHTML(item.dusun)}</td>
-
-          <td>${escapeHTML(item.nomor_kk || "-")}</td>
-
-          <td>${escapeHTML(item.status || "Aktif")}</td>
-
-        </tr>
-
-      `
-    ).join("");
-
-}
-
-
-/* =====================================================
-   MUAT DATA
-   ===================================================== */
-
-async function muatData(){
-
-  const tabel =
-    document.getElementById("tabel");
-
-
-  tabel.innerHTML =
-    `<tr>
-      <td colspan="6">
-        ⏳ Memuat data...
-      </td>
-    </tr>`;
-
-
-  try{
-
-    const data =
-      await getPenduduk();
-
-    tampilData(data);
-
-  }
-  catch(error){
-
-    console.error(error);
-
-    tabel.innerHTML =
-      `<tr>
-        <td colspan="6">
-          ❌ Data belum dapat dimuat.
-        </td>
-      </tr>`;
-
-  }
-
-}
-
-
-/* =====================================================
-   PENCARIAN
-   ===================================================== */
-
-document
-.getElementById("pencarian")
-.addEventListener(
-  "input",
-  async function(){
-
-    const keyword =
-      this.value
-      .trim()
-      .toLowerCase();
-
-
-    try{
-
-      const data =
-        await getPenduduk();
-
-
-      if(!keyword){
-
-        tampilData(data);
+        showMessage(
+            "Gagal logout: " + error.message,
+            "error"
+        );
 
         return;
+    }
 
-      }
+    showLogin();
+
+    document.getElementById("loginPassword").value = "";
+
+    showMessage("Anda sudah logout.");
+
+}
 
 
-      const hasil =
+/* ========================================================
+   SUBMIT DATA
+======================================================== */
+
+pendudukForm.addEventListener("submit", async function(e){
+
+    e.preventDefault();
+
+    const saveButton =
+        document.getElementById("saveButton");
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Menyimpan...";
+
+    try {
+
+        const nik =
+            document.getElementById("nik").value.trim();
+
+        const nama =
+            document.getElementById("nama").value.trim();
+
+        const nomor_kk =
+            document.getElementById("nomor_kk").value.trim();
+
+        const dusunValue =
+            document.getElementById("dusun").value;
+
+        /* 
+           INI BAGIAN PENTING:
+           Dusun yang dipilih "Dusun 2"
+           dikirim ke database sebagai angka 2.
+        */
+
+        const dusun =
+            dusunValue === ""
+            ? null
+            : Number(dusunValue);
+
+        if(!nik){
+
+            throw new Error("NIK wajib diisi.");
+
+        }
+
+        if(!/^\d{16}$/.test(nik)){
+
+            throw new Error(
+                "NIK harus terdiri dari 16 digit."
+            );
+
+        }
+
+        if(!nama){
+
+            throw new Error("Nama wajib diisi.");
+
+        }
+
+        if(nomor_kk &&
+           !/^\d{16}$/.test(nomor_kk)){
+
+            throw new Error(
+                "Nomor KK harus 16 digit."
+            );
+
+        }
+
+        if(dusun !== null &&
+           (!Number.isInteger(dusun) ||
+            dusun < 1 ||
+            dusun > 10)){
+
+            throw new Error("Dusun tidak valid.");
+
+        }
+
+
+        const dataPenduduk = {
+
+            nik: nik,
+
+            nama: nama,
+
+            nomor_kk:
+                nomor_kk || null,
+
+            jenis_kelamin:
+                document.getElementById(
+                    "jenis_kelamin"
+                ).value || null,
+
+            dusun: dusun,
+
+            rt:
+                document.getElementById(
+                    "rt"
+                ).value.trim() || null,
+
+            rw:
+                document.getElementById(
+                    "rw"
+                ).value.trim() || null,
+
+            tempat_lahir:
+                document.getElementById(
+                    "tempat_lahir"
+                ).value.trim() || null,
+
+            tanggal_lahir:
+                document.getElementById(
+                    "tanggal_lahir"
+                ).value || null,
+
+            agama:
+                document.getElementById(
+                    "agama"
+                ).value || null,
+
+            status_perkawinan:
+                document.getElementById(
+                    "status_perkawinan"
+                ).value || null,
+
+            pekerjaan:
+                document.getElementById(
+                    "pekerjaan"
+                ).value.trim() || null,
+
+            status:
+                document.getElementById(
+                    "status"
+                ).value || "Tetap",
+
+            tanggal_status:
+                document.getElementById(
+                    "tanggal_status"
+                ).value || null,
+
+            alamat:
+                document.getElementById(
+                    "alamat"
+                ).value.trim() || null
+
+        };
+
+
+        const editId =
+            document.getElementById("editId").value;
+
+
+        /* ==============================
+           EDIT
+        ============================== */
+
+        if(editId){
+
+            const { error } =
+                await supabaseClient
+                .from("penduduk")
+                .update(dataPenduduk)
+                .eq("id", editId);
+
+            if(error){
+                throw error;
+            }
+
+            showMessage(
+                "Data penduduk berhasil diperbarui."
+            );
+
+        }
+
+
+        /* ==============================
+           TAMBAH
+        ============================== */
+
+        else{
+
+            /* cek NIK supaya tidak dobel */
+
+            const { data: existing, error: checkError } =
+                await supabaseClient
+                .from("penduduk")
+                .select("id")
+                .eq("nik", nik)
+                .limit(1);
+
+            if(checkError){
+                throw checkError;
+            }
+
+            if(existing && existing.length > 0){
+
+                throw new Error(
+                    "NIK tersebut sudah terdaftar."
+                );
+
+            }
+
+
+            const { error } =
+                await supabaseClient
+                .from("penduduk")
+                .insert([dataPenduduk]);
+
+            if(error){
+                throw error;
+            }
+
+            showMessage(
+                "Data penduduk berhasil disimpan."
+            );
+
+        }
+
+
+        resetForm();
+
+        await loadPenduduk();
+
+
+    } catch(error){
+
+        console.error(error);
+
+        showMessage(
+            "Gagal menyimpan data: " +
+            error.message,
+            "error"
+        );
+
+    } finally {
+
+        saveButton.disabled = false;
+
+        saveButton.textContent =
+            document.getElementById("editId").value
+            ? "Simpan Perubahan"
+            : "Simpan Data";
+
+    }
+
+});
+
+
+/* ========================================================
+   LOAD DATA
+======================================================== */
+
+async function loadPenduduk(){
+
+    const tbody =
+        document.getElementById("dataTable");
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="12" style="text-align:center;">
+                Memuat data...
+            </td>
+        </tr>
+    `;
+
+    try {
+
+        const { data, error } =
+            await supabaseClient
+            .from("penduduk")
+            .select("*")
+            .order("id", {
+                ascending:false
+            });
+
+        if(error){
+            throw error;
+        }
+
+        semuaData = data || [];
+
+        renderTable(semuaData);
+
+        updateStatistics(semuaData);
+
+
+    } catch(error){
+
+        console.error(error);
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="12"
+                    style="text-align:center;color:red;">
+                    Gagal mengambil data:<br>
+                    ${escapeHTML(error.message)}
+                </td>
+            </tr>
+        `;
+
+        showMessage(
+            "Gagal memuat data: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ========================================================
+   RENDER TABLE
+======================================================== */
+
+function renderTable(data){
+
+    const tbody =
+        document.getElementById("dataTable");
+
+    if(!data.length){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="12"
+                    style="text-align:center;">
+                    Belum ada data penduduk.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+
+    tbody.innerHTML =
+        data.map((item,index) => {
+
+            return `
+
+            <tr>
+
+                <td>${index + 1}</td>
+
+                <td>${escapeHTML(item.nik || "-")}</td>
+
+                <td>${escapeHTML(item.nama || "-")}</td>
+
+                <td>${escapeHTML(item.nomor_kk || "-")}</td>
+
+                <td>${escapeHTML(item.jenis_kelamin || "-")}</td>
+
+                <td>${namaDusun(item.dusun)}</td>
+
+                <td>${escapeHTML(item.rt || "-")}</td>
+
+                <td>${escapeHTML(item.rw || "-")}</td>
+
+                <td>${formatTanggal(item.tanggal_lahir)}</td>
+
+                <td>${escapeHTML(item.pekerjaan || "-")}</td>
+
+                <td>${escapeHTML(item.status || "-")}</td>
+
+                <td>
+
+                    <div class="action-buttons">
+
+                        <button
+                            class="edit-btn"
+                            onclick="editData(${item.id})"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteData(${item.id})"
+                        >
+                            Hapus
+                        </button>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            `;
+
+        }).join("");
+
+}
+
+
+/* ========================================================
+   DUSUN
+======================================================== */
+
+function namaDusun(value){
+
+    if(
+        value === null ||
+        value === undefined ||
+        value === ""
+    ){
+        return "-";
+    }
+
+    return "Dusun " + value;
+
+}
+
+
+/* ========================================================
+   EDIT
+======================================================== */
+
+function editData(id){
+
+    const item =
+        semuaData.find(
+            data => Number(data.id) === Number(id)
+        );
+
+    if(!item){
+
+        showMessage(
+            "Data tidak ditemukan.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    document.getElementById("editId").value =
+        item.id;
+
+    document.getElementById("nik").value =
+        item.nik || "";
+
+    document.getElementById("nama").value =
+        item.nama || "";
+
+    document.getElementById("nomor_kk").value =
+        item.nomor_kk || "";
+
+    document.getElementById("jenis_kelamin").value =
+        item.jenis_kelamin || "";
+
+    document.getElementById("dusun").value =
+        item.dusun === null ||
+        item.dusun === undefined
+        ? ""
+        : String(item.dusun);
+
+    document.getElementById("rt").value =
+        item.rt || "";
+
+    document.getElementById("rw").value =
+        item.rw || "";
+
+    document.getElementById("tempat_lahir").value =
+        item.tempat_lahir || "";
+
+    document.getElementById("tanggal_lahir").value =
+        item.tanggal_lahir || "";
+
+    document.getElementById("agama").value =
+        item.agama || "";
+
+    document.getElementById("status_perkawinan").value =
+        item.status_perkawinan || "";
+
+    document.getElementById("pekerjaan").value =
+        item.pekerjaan || "";
+
+    document.getElementById("status").value =
+        item.status || "Tetap";
+
+    document.getElementById("tanggal_status").value =
+        item.tanggal_status || "";
+
+    document.getElementById("alamat").value =
+        item.alamat || "";
+
+
+    document.getElementById("formTitle").textContent =
+        "Edit Data Penduduk";
+
+    document.getElementById("saveButton").textContent =
+        "Simpan Perubahan";
+
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* ========================================================
+   HAPUS
+======================================================== */
+
+async function deleteData(id){
+
+    const item =
+        semuaData.find(
+            data => Number(data.id) === Number(id)
+        );
+
+    if(!item){
+        return;
+    }
+
+
+    const yakin =
+        confirm(
+            "Hapus data penduduk:\n\n" +
+            item.nama +
+            "\nNIK: " +
+            item.nik +
+            "\n\nData yang dihapus tidak dapat dikembalikan."
+        );
+
+    if(!yakin){
+        return;
+    }
+
+
+    try{
+
+        const { error } =
+            await supabaseClient
+            .from("penduduk")
+            .delete()
+            .eq("id", id);
+
+        if(error){
+            throw error;
+        }
+
+        showMessage(
+            "Data penduduk berhasil dihapus."
+        );
+
+        await loadPenduduk();
+
+
+    }catch(error){
+
+        console.error(error);
+
+        showMessage(
+            "Gagal menghapus data: " +
+            error.message,
+            "error"
+        );
+
+    }
+
+}
+
+
+/* ========================================================
+   RESET FORM
+======================================================== */
+
+function resetForm(){
+
+    pendudukForm.reset();
+
+    document.getElementById("editId").value =
+        "";
+
+    document.getElementById("status").value =
+        "Tetap";
+
+    document.getElementById("formTitle").textContent =
+        "Tambah Data Penduduk";
+
+    document.getElementById("saveButton").textContent =
+        "Simpan Data";
+
+}
+
+
+/* ========================================================
+   SEARCH
+======================================================== */
+
+function filterData(){
+
+    const keyword =
+        document.getElementById(
+            "searchInput"
+        ).value
+        .toLowerCase()
+        .trim();
+
+
+    if(!keyword){
+
+        renderTable(semuaData);
+
+        return;
+    }
+
+
+    const hasil =
+        semuaData.filter(item => {
+
+            const dusunText =
+                namaDusun(item.dusun);
+
+            return [
+
+                item.nik,
+                item.nama,
+                item.nomor_kk,
+                item.jenis_kelamin,
+                dusunText,
+                item.rt,
+                item.rw,
+                item.tempat_lahir,
+                item.agama,
+                item.status_perkawinan,
+                item.pekerjaan,
+                item.status,
+                item.alamat
+
+            ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+            .includes(keyword);
+
+        });
+
+
+    renderTable(hasil);
+
+}
+
+
+/* ========================================================
+   STATISTIK
+======================================================== */
+
+function updateStatistics(data){
+
+    document.getElementById(
+        "totalPenduduk"
+    ).textContent = data.length;
+
+
+    const laki =
         data.filter(
-          item =>
-            String(item.nik || "")
-              .toLowerCase()
-              .includes(keyword)
-            ||
-            String(item.nama || "")
-              .toLowerCase()
-              .includes(keyword)
+            item =>
+                item.jenis_kelamin === "Laki-laki"
+        ).length;
+
+
+    const perempuan =
+        data.filter(
+            item =>
+                item.jenis_kelamin === "Perempuan"
+        ).length;
+
+
+    const kkSet =
+        new Set(
+            data
+            .map(item => item.nomor_kk)
+            .filter(Boolean)
         );
 
 
-      tampilData(hasil);
+    document.getElementById(
+        "totalLaki"
+    ).textContent = laki;
+
+
+    document.getElementById(
+        "totalPerempuan"
+    ).textContent = perempuan;
+
+
+    document.getElementById(
+        "totalKK"
+    ).textContent = kkSet.size;
+
+}
+
+
+/* ========================================================
+   FORMAT TANGGAL
+======================================================== */
+
+function formatTanggal(tanggal){
+
+    if(!tanggal){
+        return "-";
+    }
+
+    const parts =
+        tanggal.split("-");
+
+    if(parts.length !== 3){
+        return tanggal;
+    }
+
+    return (
+        parts[2] +
+        "/" +
+        parts[1] +
+        "/" +
+        parts[0]
+    );
+
+}
+
+
+/* ========================================================
+   KEAMANAN OUTPUT HTML
+======================================================== */
+
+function escapeHTML(value){
+
+    if(value === null ||
+       value === undefined){
+
+        return "";
 
     }
-    catch(error){
 
-      console.error(error);
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* ========================================================
+   PERUBAHAN STATUS LOGIN
+======================================================== */
+
+supabaseClient.auth.onAuthStateChange(
+    (event, session) => {
+
+        if(session && session.user){
+
+            showApp(session.user);
+
+        }else{
+
+            showLogin();
+
+        }
 
     }
-
-  }
 );
 
 
-/* =====================================================
-   REFRESH
-   ===================================================== */
+/* ========================================================
+   MULAI APLIKASI
+======================================================== */
 
-document
-.getElementById("refresh")
-.addEventListener(
-  "click",
-  muatData
-);
-
-
-/* =====================================================
-   TES API
-   ===================================================== */
-
-document
-.getElementById("testApi")
-.addEventListener(
-  "click",
-  async function(){
-
-    const box =
-      document.getElementById("apiStatus");
-
-
-    box.innerHTML =
-      "⏳ Menghubungkan ke API...";
-
-
-    try{
-
-      const data =
-        await getPenduduk();
-
-
-      box.innerHTML =
-        `<div class="ok" style="margin-top:12px">
-          ✅ API BERHASIL TERHUBUNG<br>
-          Tabel: penduduk<br>
-          Jumlah data: ${data.length}
-        </div>`;
-
-
-    }
-    catch(error){
-
-      console.error(error);
-
-
-      box.innerHTML =
-        `<div class="gagal" style="margin-top:12px">
-          ❌ API GAGAL<br>
-          ${escapeHTML(error.message)}
-        </div>`;
-
-    }
-
-  }
-);
-
-
-/* =====================================================
-   MULAI
-   ===================================================== */
-
-muatData();
-
-
-/* =====================================================
-   API DESA UNTUK MODUL LAIN
-   ===================================================== */
-
-window.DesaAPI = {
-
-  getPenduduk,
-
-  tambahPenduduk
-
-};
+checkLogin();
 
 </script>
 
