@@ -3,381 +3,402 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Desa Wawongkolono</title>
+<title>Sistem Informasi Desa Wawongkolono</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
-
-body{
- margin:0;
- font-family:Arial,sans-serif;
- background:#eef3f7;
- color:#17212b;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
 }
 
-button,input,select,textarea{font:inherit}
-button{cursor:pointer}
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f1f5f9;
+    color:#1e293b;
+}
 
-.login{
- min-height:100vh;
- display:flex;
- justify-content:center;
- align-items:center;
- padding:20px;
- background:linear-gradient(135deg,#0b5c8e,#138a9e);
+button,input,select,textarea{
+    font:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* LOGIN */
+#loginPage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:linear-gradient(135deg,#0f766e,#164e63);
 }
 
 .login-box{
- width:100%;
- max-width:390px;
- background:white;
- border-radius:18px;
- padding:25px;
- box-shadow:0 10px 35px rgba(0,0,0,.2);
+    width:100%;
+    max-width:420px;
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
 }
 
 .logo{
- width:65px;
- height:65px;
- margin:auto;
- border-radius:50%;
- background:#0b5c8e;
- color:white;
- display:flex;
- align-items:center;
- justify-content:center;
- font-size:30px;
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    background:#0f766e;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 15px;
+    font-size:38px;
 }
 
-.login-title{
- text-align:center;
- margin-top:15px;
+.login-box h1{
+    text-align:center;
+    font-size:22px;
+    margin-bottom:5px;
 }
 
-.location{
- text-align:center;
- color:#667;
- font-size:13px;
- margin-bottom:20px;
+.login-box p{
+    text-align:center;
+    color:#64748b;
+    margin-bottom:25px;
 }
 
-.field{
- margin-bottom:12px;
+.form-group{
+    margin-bottom:15px;
 }
 
-.field label{
- display:block;
- font-size:13px;
- font-weight:bold;
- margin-bottom:5px;
+label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:7px;
+    font-size:14px;
 }
 
-.field input,
-.field select,
-.field textarea{
- width:100%;
- border:1px solid #ccd5dc;
- border-radius:9px;
- padding:11px;
- background:white;
+input,select,textarea{
+    width:100%;
+    padding:12px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    outline:none;
+    background:white;
 }
 
-.field textarea{
- min-height:85px;
- resize:vertical;
+input:focus,select:focus,textarea:focus{
+    border-color:#0f766e;
+    box-shadow:0 0 0 3px rgba(15,118,110,.12);
 }
 
-.primary{
- width:100%;
- border:0;
- padding:12px;
- border-radius:9px;
- background:#0b5c8e;
- color:white;
- font-weight:bold;
+textarea{
+    min-height:90px;
+    resize:vertical;
 }
 
-.primary:disabled{
- opacity:.6;
+.btn{
+    border:0;
+    border-radius:10px;
+    padding:12px 16px;
+    font-weight:bold;
 }
 
-.error{
- display:none;
- margin-top:12px;
- padding:10px;
- border-radius:8px;
- background:#ffe6e6;
- color:#a40000;
- font-size:13px;
- white-space:pre-wrap;
+.btn-primary{
+    background:#0f766e;
+    color:white;
+    width:100%;
 }
 
-.app{
- display:none;
+.btn-primary:hover{
+    background:#115e59;
 }
 
-.header{
- background:#0b5c8e;
- color:white;
- padding:13px 16px;
- display:flex;
- justify-content:space-between;
- align-items:center;
- gap:10px;
+.btn-secondary{
+    background:#e2e8f0;
+    color:#334155;
 }
 
-.header-title{
- font-weight:bold;
+.btn-danger{
+    background:#dc2626;
+    color:white;
 }
 
-.header-sub{
- font-size:11px;
- opacity:.85;
+.login-error{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:15px;
+    font-size:14px;
+}
+
+/* APP */
+#app{
+    min-height:100vh;
+}
+
+header{
+    background:#0f766e;
+    color:white;
+    padding:15px 20px;
+    position:sticky;
+    top:0;
+    z-index:20;
+    box-shadow:0 2px 10px rgba(0,0,0,.15);
+}
+
+.header-inner{
+    max-width:1200px;
+    margin:auto;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+
+.header-title h1{
+    font-size:20px;
+}
+
+.header-title small{
+    opacity:.85;
 }
 
 .logout{
- border:1px solid rgba(255,255,255,.5);
- background:transparent;
- color:white;
- border-radius:7px;
- padding:7px 10px;
+    background:#dc2626;
+    color:white;
+    border:0;
+    padding:9px 13px;
+    border-radius:8px;
+    font-weight:bold;
 }
 
 .container{
- width:100%;
- max-width:1050px;
- margin:auto;
- padding:12px;
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
 }
 
-.hero{
- background:linear-gradient(135deg,#0b5c8e,#1a8995);
- color:white;
- border-radius:14px;
- padding:18px;
- margin-bottom:12px;
-}
-
-.hero h2{
- margin-bottom:5px;
- font-size:21px;
-}
-
-.hero p{
- margin:0;
- font-size:13px;
-}
-
-.stats{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:7px;
- margin-bottom:12px;
-}
-
-.stat{
- background:white;
- border-radius:10px;
- padding:10px 6px;
- text-align:center;
- border:1px solid #e0e6eb;
-}
-
-.stat b{
- display:block;
- font-size:19px;
-}
-
-.stat span{
- font-size:11px;
- color:#68737d;
-}
-
+/* MENU */
 .menu{
- display:grid;
- grid-template-columns:repeat(4,1fr);
- gap:7px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:20px;
 }
 
 .menu button{
- min-height:58px;
- border:1px solid #d9e0e5;
- background:white;
- border-radius:10px;
- font-size:12px;
- font-weight:bold;
- color:#263746;
+    border:0;
+    background:white;
+    padding:15px 8px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    color:#334155;
+    font-weight:bold;
 }
 
-.menu button:hover{
- background:#f2f8fb;
+.menu button:hover,
+.menu button.active{
+    background:#0f766e;
+    color:white;
 }
 
-.page{
- display:none;
- background:white;
- border-radius:12px;
- padding:14px;
- margin-top:12px;
+/* DASHBOARD */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:20px;
 }
 
-.page.active{
- display:block;
+.stat{
+    background:white;
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 2px 8px rgba(0,0,0,.07);
 }
 
-.page-head{
- display:flex;
- align-items:center;
- justify-content:space-between;
- gap:10px;
- margin-bottom:12px;
+.stat .icon{
+    font-size:28px;
 }
 
-.page-head h3{
- margin:0;
+.stat h3{
+    margin-top:5px;
+    font-size:25px;
 }
 
-.back{
- border:0;
- background:#eaf1f5;
- color:#0b5c8e;
- padding:8px 11px;
- border-radius:8px;
+.stat p{
+    color:#64748b;
+    font-size:13px;
 }
 
-.form{
- background:#f7f9fa;
- padding:12px;
- border-radius:10px;
- margin-bottom:13px;
+/* CONTENT */
+.card{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,.07);
+    margin-bottom:20px;
 }
 
-.grid{
- display:grid;
- grid-template-columns:repeat(2,1fr);
- gap:10px;
+.card h2{
+    margin-bottom:15px;
 }
 
-.full{
- grid-column:1/-1;
+.grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.grid-3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:15px;
+}
+
+.actions .btn{
+    width:auto;
 }
 
 .table-wrap{
- overflow-x:auto;
- border:1px solid #e1e6ea;
- border-radius:9px;
+    overflow-x:auto;
+    margin-top:20px;
 }
 
 table{
- width:100%;
- border-collapse:collapse;
- min-width:700px;
+    width:100%;
+    border-collapse:collapse;
+    min-width:700px;
 }
 
 th,td{
- padding:8px;
- border-bottom:1px solid #e8ecef;
- text-align:left;
- font-size:12px;
+    border-bottom:1px solid #e2e8f0;
+    padding:10px;
+    text-align:left;
+    font-size:14px;
 }
 
 th{
- background:#f1f5f7;
+    background:#f8fafc;
 }
 
-.search{
- margin-bottom:10px;
- width:100%;
- padding:10px;
- border:1px solid #ccd5dc;
- border-radius:8px;
+.badge{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    background:#dbeafe;
+    color:#1d4ed8;
+    font-size:12px;
+    font-weight:bold;
 }
 
-.dusun{
- display:grid;
- grid-template-columns:repeat(5,1fr);
- gap:6px;
- margin-bottom:12px;
-}
-
-.dusun button{
- padding:9px 4px;
- border:1px solid #ccd9e1;
- background:#f5f8fa;
- border-radius:8px;
- font-size:12px;
-}
-
-.dusun button.active{
- background:#0b5c8e;
- color:white;
-}
-
-.message{
- display:none;
- padding:10px;
- margin-bottom:10px;
- border-radius:8px;
- font-size:13px;
- white-space:pre-wrap;
-}
-
-.success{
- background:#e4f7ea;
- color:#14652d;
-}
-
-.fail{
- background:#ffe7e7;
- color:#a00000;
+.loading{
+    text-align:center;
+    padding:20px;
+    color:#64748b;
 }
 
 .empty{
- text-align:center;
- padding:20px;
- color:#78838c;
- font-size:13px;
+    text-align:center;
+    padding:25px;
+    color:#64748b;
 }
 
-.footer{
- text-align:center;
- padding:20px 10px;
- color:#78838c;
- font-size:11px;
+.notice{
+    padding:12px;
+    background:#ecfeff;
+    color:#155e75;
+    border-radius:10px;
+    margin-bottom:15px;
+    font-size:14px;
 }
 
-@media(max-width:650px){
+.error-box{
+    padding:12px;
+    background:#fee2e2;
+    color:#991b1b;
+    border-radius:10px;
+    margin:15px 0;
+    white-space:pre-wrap;
+    font-size:13px;
+}
 
- .stats{
-  grid-template-columns:repeat(4,1fr);
- }
+/* RESPONSIVE */
+@media(max-width:800px){
+    .menu{
+        grid-template-columns:repeat(3,1fr);
+    }
 
- .menu{
-  grid-template-columns:repeat(4,1fr);
- }
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
 
- .menu button{
-  font-size:10px;
-  min-height:55px;
-  padding:3px;
- }
+    .grid-2,
+    .grid-3{
+        grid-template-columns:1fr;
+    }
+}
 
- .grid{
-  grid-template-columns:1fr;
- }
+@media(max-width:500px){
+    .container{
+        padding:12px;
+    }
 
- .full{
-  grid-column:auto;
- }
+    .menu{
+        grid-template-columns:repeat(3,1fr);
+    }
 
- .dusun{
-  grid-template-columns:repeat(5,1fr);
- }
+    .menu button{
+        padding:12px 4px;
+        font-size:12px;
+    }
 
- .dusun button{
-  font-size:10px;
- }
+    .stats{
+        gap:8px;
+    }
 
+    .stat{
+        padding:13px;
+    }
+
+    .stat h3{
+        font-size:21px;
+    }
+
+    .header-title h1{
+        font-size:16px;
+    }
+
+    .header-title small{
+        font-size:11px;
+    }
+
+    .logout{
+        font-size:12px;
+        padding:8px;
+    }
+
+    .card{
+        padding:15px;
+    }
 }
 </style>
 </head>
@@ -386,3018 +407,2463 @@ th{
 
 <!-- ================= LOGIN ================= -->
 
-<section id="loginScreen" class="login">
+<div id="loginPage">
 
-<div class="login-box">
+    <div class="login-box">
 
-<div class="logo">🏘️</div>
+        <div class="logo">🏘️</div>
 
-<h2 class="login-title">
-Desa Wawongkolono
-</h2>
+        <h1>Desa Wawongkolono</h1>
 
-<div class="location">
-Kecamatan Menui Kepulauan<br>
-Kabupaten Morowali<br>
-Sulawesi Tengah
+        <p>
+            Sistem Informasi & Pendataan Desa
+        </p>
+
+        <div id="loginError" class="login-error hidden"></div>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+                <label>Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Masukkan email"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Masukkan password"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+                id="loginButton"
+            >
+                🔐 Masuk
+            </button>
+
+        </form>
+
+    </div>
+
 </div>
 
-<div class="field">
-<label>Email</label>
-<input id="email" type="email" placeholder="Email">
-</div>
 
-<div class="field">
-<label>Password</label>
-<input id="password" type="password" placeholder="Password">
-</div>
+<!-- ================= APP ================= -->
 
-<button
- class="primary"
- id="loginButton"
- onclick="login()">
- MASUK
-</button>
+<div id="app" class="hidden">
 
-<div id="loginError" class="error"></div>
+<header>
 
-</div>
-</section>
+    <div class="header-inner">
 
+        <div class="header-title">
 
-<!-- ================= APPLICATION ================= -->
+            <h1>🏘️ Desa Wawongkolono</h1>
 
-<section id="appScreen" class="app">
+            <small>
+                Kec. Menui Kepulauan • Kab. Morowali • Sulawesi Tengah
+            </small>
 
-<header class="header">
+        </div>
 
-<div>
-<div class="header-title">
-🏘️ Desa Wawongkolono
-</div>
+        <button
+            class="logout"
+            id="logoutButton"
+        >
+            Keluar
+        </button>
 
-<div class="header-sub">
-Sistem Informasi & Pendataan Desa
-</div>
-</div>
-
-<button class="logout" onclick="logout()">
-Keluar
-</button>
+    </div>
 
 </header>
 
 
-<main class="container">
-
-<div class="hero">
-
-<h2>
-Selamat Datang 👋
-</h2>
-
-<p>
-Sistem pendataan Desa Wawongkolono
-</p>
-
-</div>
-
-
-<!-- STATISTIK -->
-
-<div class="stats">
-
-<div class="stat">
-<b id="statPenduduk">0</b>
-<span>Penduduk</span>
-</div>
-
-<div class="stat">
-<b id="statKK">0</b>
-<span>KK</span>
-</div>
-
-<div class="stat">
-<b id="statBantuan">0</b>
-<span>Bantuan</span>
-</div>
-
-<div class="stat">
-<b id="statProgram">0</b>
-<span>Program</span>
-</div>
-
-</div>
-
+<div class="container">
 
 <!-- MENU -->
 
 <div class="menu">
 
-<button onclick="showPage('pendudukPage')">
-👥<br>Penduduk
-</button>
+    <button data-page="dashboard">🏠<br>Dashboard</button>
 
-<button onclick="showPage('kkPage')">
-👪<br>Keluarga/KK
-</button>
+    <button data-page="penduduk">👥<br>Penduduk</button>
 
-<button onclick="showPage('bulananPage')">
-📅<br>Bulanan
-</button>
+    <button data-page="kk">👪<br>Keluarga/KK</button>
 
-<button onclick="showPage('bantuanPage')">
-🤝<br>Bantuan
-</button>
+    <button data-page="bulanan">📅<br>Bulanan</button>
 
-<button onclick="showPage('suratPage')">
-📄<br>Surat Desa
-</button>
+    <button data-page="bantuan">🤝<br>Bantuan</button>
 
-<button onclick="showPage('programPage')">
-🏗️<br>Program Dusun
-</button>
+    <button data-page="surat">📄<br>Surat Desa</button>
 
-<button onclick="showPage('aspirasiPage')">
-💬<br>Kritik & Saran
-</button>
+    <button data-page="program">🏗️<br>Program</button>
 
-<button onclick="showPage('laporanPage')">
-📊<br>Laporan
-</button>
+    <button data-page="aspirasi">💬<br>Aspirasi</button>
 
-</div>
-
-
-<!-- ================= PENDUDUK ================= -->
-
-<section id="pendudukPage" class="page">
-
-<div class="page-head">
-
-<h3>
-👥 Data Penduduk
-</h3>
-
-<button class="back" onclick="closePages()">
-Kembali
-</button>
-
-</div>
-
-<div id="pendudukMessage" class="message"></div>
-
-<div class="form">
-
-<div class="grid">
-
-<div class="field">
-<label>NIK</label>
-<input
- id="p_nik"
- maxlength="16"
- inputmode="numeric"
- placeholder="16 digit NIK">
-</div>
-
-<div class="field">
-<label>Nama Lengkap</label>
-<input id="p_nama" placeholder="Nama lengkap">
-</div>
-
-<div class="field">
-<label>Dusun</label>
-
-<select id="p_dusun">
-
-<option value="">
-Pilih Dusun
-</option>
-
-<option>Dusun 1</option>
-<option>Dusun 2</option>
-<option>Dusun 3</option>
-<option>Dusun 4</option>
-<option>Dusun 5</option>
-
-</select>
-
-</div>
-
-<div class="field">
-<label>Nomor KK</label>
-
-<input
- id="p_kk"
- maxlength="16"
- inputmode="numeric"
- placeholder="Nomor KK">
-
-</div>
-
-<div class="field">
-<label>Status</label>
-
-<select id="p_status">
-
-<option>Aktif</option>
-<option>Pindah</option>
-<option>Meninggal</option>
-
-</select>
-
-</div>
-
-<div class="field">
-<label>Tanggal Status</label>
-
-<input
- id="p_tanggal"
- type="date">
-
-</div>
-
-</div>
-
-<button
- class="primary"
- onclick="savePenduduk()">
-
-💾 Simpan Penduduk
-
-</button>
-
-</div>
-
-
-<input
- class="search"
- id="searchPenduduk"
- placeholder="🔎 Cari NIK, nama, KK atau dusun..."
- oninput="renderPenduduk()">
-
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>NIK</th>
-<th>Nama</th>
-<th>Dusun</th>
-<th>KK</th>
-<th>Status</th>
-<th>Tanggal</th>
-
-</tr>
-
-</thead>
-
-<tbody id="pendudukTable"></tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-<!-- ================= KK ================= -->
-
-<section id="kkPage" class="page">
-
-<div class="page-head">
-
-<h3>
-👪 Data Keluarga / KK
-</h3>
-
-<button class="back" onclick="closePages()">
-Kembali
-</button>
-
-</div>
-
-<div id="kkMessage" class="message"></div>
-
-<div class="form">
-
-<div class="grid">
-
-<div class="field">
-
-<label>Nomor KK</label>
-
-<input
- id="k_nomor"
- maxlength="16"
- inputmode="numeric"
- placeholder="Nomor KK">
-
-</div>
-
-<div class="field">
-
-<label>Kepala Keluarga</label>
-
-<input
- id="k_kepala"
- placeholder="Nama kepala keluarga">
-
-</div>
-
-<div class="field">
-
-<label>Dusun</label>
-
-<select id="k_dusun">
-
-<option value="">
-Pilih Dusun
-</option>
-
-<option>Dusun 1</option>
-<option>Dusun 2</option>
-<option>Dusun 3</option>
-<option>Dusun 4</option>
-<option>Dusun 5</option>
-
-</select>
-
-</div>
-
-<div class="field">
-
-<label>Alamat</label>
-
-<input
- id="k_alamat"
- placeholder="Alamat">
-
-</div>
-
-</div>
-
-<button
- class="primary"
- onclick="saveKK()">
-
-💾 Simpan KK
-
-</button>
-
-</div>
-
-
-<input
- class="search"
- id="searchKK"
- placeholder="🔎 Cari nomor KK, kepala keluarga atau dusun..."
- oninput="renderKK()">
-
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Nomor KK</th>
-<th>Kepala Keluarga</th>
-<th>Dusun</th>
-<th>Alamat</th>
-
-</tr>
-
-</thead>
-
-<tbody id="kkTable"></tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-<!-- ================= BULANAN ================= -->
-
-<section id="bulananPage" class="page">
-
-<div class="page-head">
-
-<h3>
-📅 Pendataan Bulanan
-</h3>
-
-<button class="back" onclick="closePages()">
-Kembali
-</button>
-
-</div>
-
-<div id="bulananMessage" class="message"></div>
-
-<div class="form">
-
-<div class="grid">
-
-<div class="field">
-
-<label>Tanggal</label>
-
-<input
- id="b_tanggal"
- type="date">
-
-</div>
-
-<div class="field">
-
-<label>Jenis Pendataan</label>
-
-<select id="b_jenis">
-
-<option>Kelahiran</option>
-<option>Kematian</option>
-<option>Penduduk Masuk</option>
-<option>Penduduk Pindah</option>
-<option>Perubahan Data</option>
-
-</select>
-
-</div>
-
-<div class="field">
-
-<label>Nama</label>
-
-<input
- id="b_nama"
- placeholder="Nama">
-
-</div>
-
-<div class="field">
-
-<label>Dusun</label>
-
-<select id="b_dusun">
-
-<option value="">
-Pilih Dusun
-</option>
-
-<option>Dusun 1</option>
-<option>Dusun 2</option>
-<option>Dusun 3</option>
-<option>Dusun 4</option>
-<option>Dusun 5</option>
-
-</select>
-
-</div>
-
-<div class="field full">
-
-<label>Keterangan</label>
-
-<textarea id="b_keterangan"></textarea>
-
-</div>
-
-</div>
-
-<button
- class="primary"
- onclick="saveBulanan()">
-
-💾 Simpan Pendataan
-
-</button>
-
-</div>
-
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Tanggal</th>
-<th>Jenis</th>
-<th>Nama</th>
-<th>Dusun</th>
-<th>Keterangan</th>
-
-</tr>
-
-</thead>
-
-<tbody id="bulananTable"></tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-<!-- ================= BANTUAN ================= -->
-
-<section id="bantuanPage" class="page">
-
-<div class="page-head">
-
-<h3>
-🤝 Data Bantuan
-</h3>
-
-<button class="back" onclick="closePages()">
-Kembali
-</button>
-
-</div>
-
-<div id="bantuanMessage" class="message"></div>
-
-<div class="form">
-
-<div class="grid">
-
-<div class="field">
-
-<label>Nama Penerima</label>
-
-<input id="ba_penerima">
-
-</div>
-
-<div class="field">
-
-<label>NIK</label>
-
-<input
- id="ba_nik"
- maxlength="16"
- inputmode="numeric">
-
-</div>
-
-<div class="field">
-
-<label>Dusun</label>
-
-<select id="ba_dusun">
-
-<option value="">
-Pilih Dusun
-</option>
-
-<option>Dusun 1</option>
-<option>Dusun 2</option>
-<option>Dusun 3</option>
-<option>Dusun 4</option>
-<option>Dusun 5</option>
-
-</select>
-
-</div>
-
-<div class="field">
-
-<label>Jenis Bantuan</label>
-
-<input
- id="ba_jenis"
- placeholder="Contoh: BLT, PKH">
-
-</div>
-
-<div class="field">
-
-<label>Tanggal</label>
-
-<input
- id="ba_tanggal"
- type="date">
-
-</div>
+    <button data-page="laporan">📊<br>Laporan</button>
 
-<div class="field">
-
-<label>Keterangan</label>
-
-<input id="ba_keterangan">
-
-</div>
-
-</div>
-
-<button
- class="primary"
- onclick="saveBantuan()">
-
-💾 Simpan Bantuan
-
-</button>
-
-</div>
-
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Penerima</th>
-<th>NIK</th>
-<th>Dusun</th>
-<th>Jenis Bantuan</th>
-<th>Tanggal</th>
-
-</tr>
-
-</thead>
-
-<tbody id="bantuanTable"></tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-<!-- ================= SURAT ================= -->
-
-<section id="suratPage" class="page">
-
-<div class="page-head">
-
-<h3>
-📄 Surat Desa
-</h3>
-
-<button class="back" onclick="closePages()">
-Kembali
-</button>
-
-</div>
-
-<div id="suratMessage" class="message"></div>
-
-<div class="form">
-
-<div class="grid">
-
-<div class="field">
-
-<label>Nama</label>
-
-<input id="s_nama">
-
-</div>
-
-<div class="field">
-
-<label>NIK</label>
-
-<input
- id="s_nik"
- maxlength="16"
- inputmode="numeric">
-
-</div>
-
-<div class="field">
-
-<label>Jenis Surat</label>
-
-<select id="s_jenis">
-
-<option>
-Surat Keterangan Domisili
-</option>
-
-<option>
-Surat Keterangan Usaha
-</option>
-
-<option>
-Surat Keterangan Tidak Mampu
-</option>
-
-<option>
-Surat Pengantar
-</option>
-
-<option>
-Surat Keterangan Lainnya
-</option>
-
-</select>
-
-</div>
-
-<div class="field">
-
-<label>Tanggal</label>
-
-<input
- id="s_tanggal"
- type="date">
-
-</div>
-
-<div class="field full">
-
-<label>Keterangan</label>
-
-<textarea id="s_keterangan"></textarea>
-
-</div>
-
-</div>
-
-<button
- class="primary"
- onclick="saveSurat()">
-
-💾 Simpan Surat
-
-</button>
-
-</div>
-
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Nama</th>
-<th>NIK</th>
-<th>Jenis Surat</th>
-<th>Tanggal</th>
-<th>Keterangan</th>
-
-</tr>
-
-</thead>
-
-<tbody id="suratTable"></tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-<!-- ================= PROGRAM ================= -->
-
-<section id="programPage" class="page">
-
-<div class="page-head">
-
-<h3>
-🏗️ Program Dusun
-</h3>
-
-<button class="back" onclick="closePages()">
-Kembali
-</button>
-
-</div>
-
-
-<div class="dusun">
-
-<button
- class="active"
- onclick="selectDusun('Dusun 1',this)">
-Dusun 1
-</button>
-
-<button
- onclick="selectDusun('Dusun 2',this)">
-Dusun 2
-</button>
-
-<button
- onclick="selectDusun('Dusun 3',this)">
-Dusun 3
-</button>
-
-<button
- onclick="selectDusun('Dusun 4',this)">
-Dusun 4
-</button>
-
-<button
- onclick="selectDusun('Dusun 5',this)">
-Dusun 5
-</button>
-
-</div>
-
-
-<div id="programMessage" class="message"></div>
-
-<div class="form">
-
-<div class="grid">
-
-<div class="field">
-
-<label>Dusun</label>
-
-<input
- id="pr_dusun"
- value="Dusun 1"
- readonly>
-
-</div>
-
-<div class="field">
-
-<label>Nama Program</label>
-
-<input
- id="pr_nama"
- placeholder="Nama program">
-
-</div>
-
-<div class="field">
-
-<label>Status</label>
-
-<select id="pr_status">
-
-<option>Rencana</option>
-<option>Berjalan</option>
-<option>Selesai</option>
-
-</select>
-
-</div>
-
-<div class="field full">
-
-<label>Keterangan</label>
-
-<textarea id="pr_keterangan"></textarea>
-
-</div>
-
-</div>
-
-<button
- class="primary"
- onclick="saveProgram()">
-
-💾 Simpan Program
-
-</button>
-
-</div>
-
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Dusun</th>
-<th>Program</th>
-<th>Status</th>
-<th>Keterangan</th>
-
-</tr>
-
-</thead>
-
-<tbody id="programTable"></tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-<!-- ================= ASPIRASI ================= -->
-
-<section id="aspirasiPage" class="page">
-
-<div class="page-head">
-
-<h3>
-💬 Kritik & Saran
-</h3>
-
-<button class="back" onclick="closePages()">
-Kembali
-</button>
-
-</div>
-
-<p style="font-size:13px;color:#68737d">
-
-Kritik, saran, aspirasi dan pengaduan warga akan dicatat untuk ditindaklanjuti oleh Kantor Desa.
-
-</p>
-
-<div id="aspirasiMessage" class="message"></div>
-
-<div class="form">
-
-<div class="grid">
-
-<div class="field">
-
-<label>Nama</label>
-
-<input id="a_nama">
-
-</div>
-
-<div class="field">
-
-<label>Dusun</label>
-
-<select id="a_dusun">
-
-<option value="">
-Pilih Dusun
-</option>
-
-<option>Dusun 1</option>
-<option>Dusun 2</option>
-<option>Dusun 3</option>
-<option>Dusun 4</option>
-<option>Dusun 5</option>
-
-</select>
-
-</div>
-
-<div class="field full">
-
-<label>Jenis</label>
-
-<select id="a_jenis">
-
-<option>Kritik</option>
-<option>Saran</option>
-<option>Aspirasi</option>
-<option>Pengaduan</option>
-
-</select>
-
-</div>
-
-<div class="field full">
-
-<label>Isi</label>
-
-<textarea
- id="a_isi"
- placeholder="Tuliskan kritik, saran, aspirasi atau pengaduan">
-</textarea>
-
-</div>
-
 </div>
 
-<button
- class="primary"
- onclick="saveAspirasi()">
 
-📨 Kirim ke Kantor Desa
+<!-- CONTENT -->
 
-</button>
+<div id="content">
 
-</div>
-
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
+    <div class="loading">
+        Memuat data desa...
+    </div>
 
-<th>Nama</th>
-<th>Dusun</th>
-<th>Jenis</th>
-<th>Isi</th>
-
-</tr>
-
-</thead>
-
-<tbody id="aspirasiTable"></tbody>
-
-</table>
-
 </div>
-
-</section>
-
 
-<!-- ================= LAPORAN ================= -->
-
-<section id="laporanPage" class="page">
-
-<div class="page-head">
-
-<h3>
-📊 Laporan Desa
-</h3>
-
-<button class="back" onclick="closePages()">
-Kembali
-</button>
-
 </div>
-
-<div id="laporanContent"></div>
-
-</section>
-
-
-<div class="footer">
-
-Sistem Informasi Desa Wawongkolono<br>
-
-Kecamatan Menui Kepulauan • Kabupaten Morowali • Sulawesi Tengah
-
 </div>
-
-</main>
-
-</section>
 
 
 <script>
 
-/* ==================================================
+/* =====================================================
    KONFIGURASI SUPABASE
-================================================== */
+===================================================== */
 
 const SUPABASE_URL =
-"https://xetmoemzrahwljfspxyp.supabase.co";
+    "https://xetmoemzrahwljfspxyp.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_HwM_id1TLL7FxRH89DHg_Q_nAn7jxGS";
+    "sb_publishable_HwM_id1TLL7FxRH89DHg_Q_nAn7jxGS";
 
 
-/* ==================================================
-   SESSION
-================================================== */
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY,
+        {
+            auth:{
+                autoRefreshToken:true,
+                persistSession:true,
+                detectSessionInUrl:false
+            }
+        }
+    );
 
-let accessToken =
-localStorage.getItem("desa_access_token") || "";
 
-let refreshToken =
-localStorage.getItem("desa_refresh_token") || "";
+/* =====================================================
+   DATA APLIKASI
+===================================================== */
 
-
-let data={
- penduduk:[],
- kk:[],
- bulanan:[],
- bantuan:[],
- surat:[],
- program:[],
- aspirasi:[]
+let DATA = {
+    penduduk:[],
+    kk:[],
+    bulanan:[],
+    bantuan:[],
+    surat:[],
+    program:[],
+    aspirasi:[]
 };
 
+let currentPage = "dashboard";
 
-let selectedDusun="Dusun 1";
+
+/* =====================================================
+   ELEMENT
+===================================================== */
+
+const loginPage =
+    document.getElementById("loginPage");
+
+const app =
+    document.getElementById("app");
+
+const content =
+    document.getElementById("content");
+
+const loginForm =
+    document.getElementById("loginForm");
+
+const loginError =
+    document.getElementById("loginError");
+
+const loginButton =
+    document.getElementById("loginButton");
 
 
-/* ==================================================
-   UTILITAS
-================================================== */
+/* =====================================================
+   ERROR SESSION
+===================================================== */
 
-function el(id){
- return document.getElementById(id);
+function isAuthError(error){
+
+    if(!error) return false;
+
+    const msg =
+        String(error.message || "").toLowerCase();
+
+    return (
+        msg.includes("jwt") ||
+        msg.includes("expired") ||
+        msg.includes("invalid jwt") ||
+        error.status === 401 ||
+        error.status === 403
+    );
 }
 
 
-function value(id){
- return el(id).value.trim();
-}
-
-
-function escapeHTML(text){
-
- return String(text ?? "")
- .replace(/&/g,"&amp;")
- .replace(/</g,"&lt;")
- .replace(/>/g,"&gt;")
- .replace(/"/g,"&quot;")
- .replace(/'/g,"&#039;");
-
-}
-
-
-function showMessage(id,text,success=false){
-
- const box=el(id);
-
- box.style.display="block";
-
- box.className=
-  "message "+(success?"success":"fail");
-
- box.textContent=text;
-
-}
-
-
-function hideMessage(id){
-
- el(id).style.display="none";
-
-}
-
-
-function today(){
-
- const d=new Date();
-
- return d.toISOString().slice(0,10);
-
-}
-
-
-/* ==================================================
-   SESSION MANAGEMENT
-================================================== */
-
-function saveSession(session){
-
- accessToken=
-  session.access_token || "";
-
- refreshToken=
-  session.refresh_token || "";
-
- if(accessToken){
-
-  localStorage.setItem(
-   "desa_access_token",
-   accessToken
-  );
-
- }
-
- if(refreshToken){
-
-  localStorage.setItem(
-   "desa_refresh_token",
-   refreshToken
-  );
-
- }
-
-}
-
-
-function clearSession(){
-
- accessToken="";
- refreshToken="";
-
- localStorage.removeItem(
-  "desa_access_token"
- );
-
- localStorage.removeItem(
-  "desa_refresh_token"
- );
-
-}
-
-
-/* ==================================================
-   CEK JWT
-================================================== */
-
-function jwtExpired(token){
-
- if(!token){
-  return true;
- }
-
- try{
-
-  const parts=token.split(".");
-
-  if(parts.length!==3){
-   return true;
-  }
-
-  const payload=
-   JSON.parse(
-    atob(
-     parts[1]
-      .replace(/-/g,"+")
-      .replace(/_/g,"/")
-    )
-   );
-
-  if(!payload.exp){
-   return true;
-  }
-
-  /* refresh 30 detik sebelum expired */
-
-  return Date.now() >=
-   ((payload.exp-30)*1000);
-
- }catch{
-
-  return true;
-
- }
-
-}
-
-
-/* ==================================================
-   REFRESH TOKEN
-================================================== */
-
-async function refreshSession(){
-
- if(!refreshToken){
-
-  return false;
-
- }
-
- try{
-
-  const response=
-   await fetch(
-    SUPABASE_URL+
-    "/auth/v1/token?grant_type=refresh_token",
-    {
-     method:"POST",
-
-     headers:{
-      "apikey":SUPABASE_KEY,
-      "Content-Type":
-       "application/json"
-     },
-
-     body:JSON.stringify({
-      refresh_token:
-       refreshToken
-     })
-    }
-   );
-
-
-  const result=
-   await response.json();
-
-
-  if(!response.ok){
-
-   clearSession();
-
-   return false;
-
-  }
-
-
-  saveSession(result);
-
-  return true;
-
-
- }catch(error){
-
-  return false;
-
- }
-
-}
-
-
-/* ==================================================
-   PASTIKAN SESSION VALID
-================================================== */
-
-async function ensureSession(){
-
- if(!accessToken){
-
-  return false;
-
- }
-
-
- if(!jwtExpired(accessToken)){
-
-  return true;
-
- }
-
-
- return await refreshSession();
-
-}
-
-
-/* ==================================================
-   LOGIN
-================================================== */
-
-async function login(){
-
- const email=value("email");
-
- const password=
-  el("password").value;
-
-
- if(!email || !password){
-
-  showLoginError(
-   "Email dan password wajib diisi."
-  );
-
-  return;
-
- }
-
-
- const btn=
-  el("loginButton");
-
- btn.disabled=true;
-
- btn.textContent=
-  "MEMERIKSA...";
-
-
- try{
-
-  const response=
-   await fetch(
-    SUPABASE_URL+
-    "/auth/v1/token?grant_type=password",
-    {
-     method:"POST",
-
-     headers:{
-      "apikey":SUPABASE_KEY,
-      "Content-Type":
-       "application/json"
-     },
-
-     body:JSON.stringify({
-      email:email,
-      password:password
-     })
-    }
-   );
-
-
-  const result=
-   await response.json();
-
-
-  if(!response.ok){
-
-   throw new Error(
-    result.error_description ||
-    result.msg ||
-    result.message ||
-    "Login gagal."
-   );
-
-  }
-
-
-  /* SIMPAN ACCESS TOKEN
-     DAN REFRESH TOKEN */
-
-  saveSession(result);
-
-
-  el("loginScreen")
-   .style.display="none";
-
-  el("appScreen")
-   .style.display="block";
-
-
-  await loadAll();
-
-
- }catch(error){
-
-  showLoginError(
-   "Login gagal:\n"+
-   error.message
-  );
-
-
- }finally{
-
-  btn.disabled=false;
-
-  btn.textContent="MASUK";
-
- }
-
-}
-
-
-function showLoginError(message){
-
- const box=
-  el("loginError");
-
- box.style.display="block";
-
- box.textContent=message;
-
-}
-
-
-/* ==================================================
+/* =====================================================
    LOGOUT
-================================================== */
+===================================================== */
 
-function logout(){
+async function logout(){
 
- clearSession();
+    await supabaseClient.auth.signOut();
 
- el("appScreen")
-  .style.display="none";
+    app.classList.add("hidden");
+    loginPage.classList.remove("hidden");
 
- el("loginScreen")
-  .style.display="flex";
-
- el("password").value="";
-
+    loginForm.reset();
 }
 
 
-/* ==================================================
-   API SUPABASE
-================================================== */
-
-async function api(
- table,
- method="GET",
- body=null
-){
-
- /* CEK SESSION */
-
- if(!await ensureSession()){
-
-  clearSession();
-
-  el("appScreen")
-   .style.display="none";
-
-  el("loginScreen")
-   .style.display="flex";
-
-  throw new Error(
-   "Sesi login sudah berakhir. Silakan login kembali."
-  );
-
- }
-
-
- async function request(){
-
-  const options={
-
-   method:method,
-
-   headers:{
-
-    "apikey":
-     SUPABASE_KEY,
-
-    "Authorization":
-     "Bearer "+accessToken,
-
-    "Content-Type":
-     "application/json",
-
-    "Accept":
-     "application/json",
-
-    "Prefer":
-     "return=representation"
-
-   }
-
-  };
-
-
-  if(body!==null){
-
-   options.body=
-    JSON.stringify(body);
-
-  }
-
-
-  return await fetch(
-
-   SUPABASE_URL+
-   "/rest/v1/"+
-   table,
-
-   options
-
-  );
-
- }
-
-
- /* REQUEST PERTAMA */
-
- let response=
-  await request();
-
-
- /* JIKA TOKEN EXPIRED */
-
- if(response.status===401){
-
-  const refreshed=
-   await refreshSession();
-
-
-  if(refreshed){
-
-   /* COBA LAGI */
-
-   response=
-    await request();
-
-  }else{
-
-   clearSession();
-
-   el("appScreen")
-    .style.display="none";
-
-   el("loginScreen")
-    .style.display="flex";
-
-   throw new Error(
-    "Sesi login sudah kedaluwarsa. Silakan login kembali."
-   );
-
-  }
-
- }
-
-
- const text=
-  await response.text();
-
-
- let result;
-
-
- try{
-
-  result=
-   text ?
-    JSON.parse(text) :
-    null;
-
- }catch{
-
-  result=text;
-
- }
-
-
- if(!response.ok){
-
-  let detail="";
-
-
-  if(
-   typeof result==="object" &&
-   result!==null
-  ){
-
-   detail=
-    result.message ||
-    result.details ||
-    result.hint ||
-    result.code ||
-    JSON.stringify(result);
-
-  }else{
-
-   detail=result;
-
-  }
-
-
-  throw new Error(
-
-   "Tabel: "+table+
-   "\nHTTP: "+response.status+
-   "\n"+detail
-
-  );
-
- }
-
-
- return result;
-
+/* =====================================================
+   LOAD TABLE
+===================================================== */
+
+async function loadTable(table){
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from(table)
+        .select("*")
+        .order("created_at",{ascending:false});
+
+    if(error){
+
+        if(isAuthError(error)){
+
+            await logout();
+
+            throw new Error(
+                "Sesi login sudah kedaluwarsa. Silakan login kembali."
+            );
+        }
+
+        throw new Error(
+            "Tabel " +
+            table +
+            "\nHTTP " +
+            (error.status || "-") +
+            "\n" +
+            error.message
+        );
+    }
+
+    return data || [];
 }
 
 
-/* ==================================================
+/* =====================================================
    LOAD SEMUA DATA
-================================================== */
+===================================================== */
 
 async function loadAll(){
 
- try{
-
-  const results=
-   await Promise.all([
-
-    api("penduduk"),
-
-    api("kk"),
-
-    api("pendataan_bulanan"),
-
-    api("bantuan"),
-
-    api("surat_desa"),
-
-    api("program_dusun"),
-
-    api("aspirasi")
-
-   ]);
-
-
-  data.penduduk=
-   results[0] || [];
-
-  data.kk=
-   results[1] || [];
-
-  data.bulanan=
-   results[2] || [];
-
-  data.bantuan=
-   results[3] || [];
-
-  data.surat=
-   results[4] || [];
-
-  data.program=
-   results[5] || [];
-
-  data.aspirasi=
-   results[6] || [];
-
-
-  renderAll();
-
-
- }catch(error){
-
-  alert(
-
-   "Data Supabase belum dapat dibaca.\n\n"+
-   error.message+
-   "\n\nPeriksa RLS, session login, dan nama kolom database."
-
-  );
-
- }
-
-}
-
-
-/* ==================================================
-   RENDER SEMUA
-================================================== */
-
-function renderAll(){
-
- el("statPenduduk")
-  .textContent=
-   data.penduduk.length;
-
- el("statKK")
-  .textContent=
-   data.kk.length;
-
- el("statBantuan")
-  .textContent=
-   data.bantuan.length;
-
- el("statProgram")
-  .textContent=
-   data.program.length;
-
-
- renderPenduduk();
- renderKK();
- renderBulanan();
- renderBantuan();
- renderSurat();
- renderProgram();
- renderAspirasi();
- renderLaporan();
-
-}
-
-
-/* ==================================================
-   PAGE
-================================================== */
-
-function showPage(id){
-
- document.querySelectorAll(".page")
-  .forEach(
-   p=>p.classList.remove("active")
-  );
-
-
- el(id)
-  .classList.add("active");
-
-
- window.scrollTo({
-  top:0,
-  behavior:"smooth"
- });
-
-}
-
-
-function closePages(){
-
- document.querySelectorAll(".page")
-  .forEach(
-   p=>p.classList.remove("active")
-  );
-
-
- window.scrollTo({
-  top:0,
-  behavior:"smooth"
- });
-
-}
-
-
-/* ==================================================
-   PENDUDUK
-================================================== */
-
-async function savePenduduk(){
-
- hideMessage("pendudukMessage");
-
-
- const nik=
-  value("p_nik");
-
- const nama=
-  value("p_nama");
-
- const dusun=
-  value("p_dusun");
-
- const nomor_kk=
-  value("p_kk");
-
- const status=
-  value("p_status");
-
- const tanggal=
-  value("p_tanggal");
-
-
- if(!nik || !nama || !dusun){
-
-  showMessage(
-   "pendudukMessage",
-   "NIK, nama dan dusun wajib diisi."
-  );
-
-  return;
-
- }
-
-
- if(!/^\d{16}$/.test(nik)){
-
-  showMessage(
-   "pendudukMessage",
-   "NIK harus terdiri dari 16 angka."
-  );
-
-  return;
-
- }
-
-
- try{
-
-  const hasil=
-   await api(
-    "penduduk",
-    "POST",
-    {
-     nik:nik,
-     nama:nama,
-     dusun:dusun,
-     nomor_kk:
-      nomor_kk || null,
-     status:status,
-     tanggal_status:
-      tanggal || null
+    try{
+
+        const [
+            penduduk,
+            kk,
+            bulanan,
+            bantuan,
+            surat,
+            program,
+            aspirasi
+        ] = await Promise.all([
+
+            loadTable("penduduk"),
+            loadTable("kk"),
+            loadTable("pendataan_bulanan"),
+            loadTable("bantuan"),
+            loadTable("surat_desa"),
+            loadTable("program_dusun"),
+            loadTable("aspirasi")
+
+        ]);
+
+        DATA = {
+            penduduk,
+            kk,
+            bulanan,
+            bantuan,
+            surat,
+            program,
+            aspirasi
+        };
+
+        return true;
+
+    }catch(error){
+
+        console.error(error);
+
+        content.innerHTML = `
+            <div class="card">
+
+                <h2>⚠️ Gagal Membaca Data</h2>
+
+                <div class="error-box">
+${escapeHTML(error.message)}
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    onclick="loadAll().then(()=>showPage(currentPage))"
+                >
+                    🔄 Coba Lagi
+                </button>
+
+            </div>
+        `;
+
+        return false;
     }
-   );
-
-
-  data.penduduk.push(
-   ...(hasil || [])
-  );
-
-
-  renderAll();
-
-
-  showMessage(
-   "pendudukMessage",
-   "Data penduduk berhasil disimpan.",
-   true
-  );
-
-
-  el("p_nik").value="";
-  el("p_nama").value="";
-  el("p_kk").value="";
-  el("p_tanggal").value="";
-
-
- }catch(error){
-
-  showMessage(
-   "pendudukMessage",
-   "Gagal menyimpan penduduk.\n\n"+
-   error.message
-  );
-
- }
-
 }
 
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value){
+
+    if(value === null || value === undefined)
+        return "";
+
+    return String(value)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+}
+
+
+/* =====================================================
+   INSERT
+===================================================== */
+
+async function insertData(table,data){
+
+    const {
+        data:result,
+        error
+    } = await supabaseClient
+        .from(table)
+        .insert([data])
+        .select();
+
+    if(error){
+
+        console.error(error);
+
+        if(isAuthError(error)){
+
+            await logout();
+
+            throw new Error(
+                "Sesi login sudah kedaluwarsa. Silakan login kembali."
+            );
+        }
+
+        throw new Error(
+            "Gagal menyimpan.\n\n" +
+            "Tabel: " + table + "\n" +
+            "HTTP: " + (error.status || "-") + "\n" +
+            "Kode: " + (error.code || "-") + "\n" +
+            "Pesan: " + error.message
+        );
+    }
+
+    return result;
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+loginForm.addEventListener("submit",async function(e){
+
+    e.preventDefault();
+
+    loginError.classList.add("hidden");
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    loginButton.disabled = true;
+    loginButton.textContent = "⏳ Memeriksa...";
+
+    try{
+
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
+
+        if(error)
+            throw error;
+
+        if(!data.session)
+            throw new Error("Session login tidak ditemukan.");
+
+        loginPage.classList.add("hidden");
+        app.classList.remove("hidden");
+
+        content.innerHTML = `
+            <div class="card">
+                <div class="loading">
+                    ⏳ Mengambil data desa...
+                </div>
+            </div>
+        `;
+
+        const berhasil =
+            await loadAll();
+
+        if(berhasil){
+            showPage("dashboard");
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        loginError.textContent =
+            "Login gagal: " +
+            error.message;
+
+        loginError.classList.remove("hidden");
+
+    }finally{
+
+        loginButton.disabled = false;
+        loginButton.textContent = "🔐 Masuk";
+    }
+
+});
+
+
+/* =====================================================
+   AUTH STATE
+===================================================== */
+
+supabaseClient.auth.onAuthStateChange(
+    async function(event,session){
+
+        console.log(
+            "Supabase Auth:",
+            event
+        );
+
+        if(event === "SIGNED_OUT"){
+
+            loginPage.classList.remove("hidden");
+            app.classList.add("hidden");
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+function pageDashboard(){
+
+    content.innerHTML = `
+
+        <div class="stats">
+
+            <div class="stat">
+                <div class="icon">👥</div>
+                <h3>${DATA.penduduk.length}</h3>
+                <p>Total Penduduk</p>
+            </div>
+
+            <div class="stat">
+                <div class="icon">👪</div>
+                <h3>${DATA.kk.length}</h3>
+                <p>Kartu Keluarga</p>
+            </div>
+
+            <div class="stat">
+                <div class="icon">🤝</div>
+                <h3>${DATA.bantuan.length}</h3>
+                <p>Data Bantuan</p>
+            </div>
+
+            <div class="stat">
+                <div class="icon">🏗️</div>
+                <h3>${DATA.program.length}</h3>
+                <p>Program Dusun</p>
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>🏘️ Sistem Informasi Desa</h2>
+
+            <div class="notice">
+
+                Selamat datang di Sistem Informasi &
+                Pendataan Desa Wawongkolono.
+
+                <br><br>
+
+                Kecamatan Menui Kepulauan,
+                Kabupaten Morowali,
+                Provinsi Sulawesi Tengah.
+
+            </div>
+
+            <div class="grid-3">
+
+                <div>
+                    <b>👥 Penduduk</b>
+                    <p>Data warga dan status kependudukan.</p>
+                </div>
+
+                <div>
+                    <b>👪 Keluarga</b>
+                    <p>Data KK dan anggota keluarga.</p>
+                </div>
+
+                <div>
+                    <b>📅 Bulanan</b>
+                    <p>Pendataan perubahan penduduk.</p>
+                </div>
+
+                <div>
+                    <b>🤝 Bantuan</b>
+                    <p>Pendataan penerima bantuan.</p>
+                </div>
+
+                <div>
+                    <b>📄 Surat</b>
+                    <p>Data pelayanan surat desa.</p>
+                </div>
+
+                <div>
+                    <b>🏗️ Program</b>
+                    <p>Program pembangunan dusun.</p>
+                </div>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   PENDUDUK
+===================================================== */
+
+function pagePenduduk(){
+
+    content.innerHTML = `
+
+        <div class="card">
+
+            <h2>👥 Pendataan Penduduk</h2>
+
+            <form id="pendudukForm">
+
+                <div class="grid-2">
+
+                    <div class="form-group">
+                        <label>NIK</label>
+                        <input
+                            id="p_nik"
+                            maxlength="16"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nama Lengkap</label>
+                        <input
+                            id="p_nama"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Dusun</label>
+
+                        <select id="p_dusun" required>
+
+                            <option value="">
+                                Pilih Dusun
+                            </option>
+
+                            <option>Dusun 1</option>
+                            <option>Dusun 2</option>
+                            <option>Dusun 3</option>
+                            <option>Dusun 4</option>
+                            <option>Dusun 5</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Nomor KK</label>
+
+                        <input
+                            id="p_kk"
+                            maxlength="16"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Status</label>
+
+                        <select id="p_status">
+
+                            <option value="Tetap">
+                                Tetap
+                            </option>
+
+                            <option value="Pendatang">
+                                Pendatang
+                            </option>
+
+                            <option value="Pindah">
+                                Pindah
+                            </option>
+
+                            <option value="Meninggal">
+                                Meninggal
+                            </option>
+
+                            <option value="Keluar">
+                                Keluar
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Tanggal Status</label>
+
+                        <input
+                            type="date"
+                            id="p_tanggal"
+                        >
+
+                    </div>
+
+                </div>
+
+                <div class="actions">
+
+                    <button
+                        class="btn btn-primary"
+                        type="submit"
+                    >
+                        💾 Simpan Penduduk
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>🔎 Data Penduduk</h2>
+
+            <input
+                id="searchPenduduk"
+                placeholder="Cari NIK atau nama..."
+            >
+
+            <div id="pendudukTable"></div>
+
+        </div>
+    `;
+
+    document
+        .getElementById("pendudukForm")
+        .addEventListener("submit",savePenduduk);
+
+    document
+        .getElementById("searchPenduduk")
+        .addEventListener("input",renderPenduduk);
+
+    renderPenduduk();
+}
+
+
+/* =====================================================
+   SIMPAN PENDUDUK
+===================================================== */
+
+async function savePenduduk(e){
+
+    e.preventDefault();
+
+    const data = {
+
+        nik:
+            document.getElementById("p_nik").value.trim(),
+
+        nama:
+            document.getElementById("p_nama").value.trim(),
+
+        dusun:
+            document.getElementById("p_dusun").value,
+
+        nomor_kk:
+            document.getElementById("p_kk").value.trim(),
+
+        status:
+            document.getElementById("p_status").value,
+
+        tanggal_status:
+            document.getElementById("p_tanggal").value || null
+
+    };
+
+    if(data.nik.length !== 16){
+
+        alert("NIK harus terdiri dari 16 angka.");
+        return;
+    }
+
+    try{
+
+        await insertData(
+            "penduduk",
+            data
+        );
+
+        alert(
+            "✅ Data penduduk berhasil disimpan."
+        );
+
+        e.target.reset();
+
+        await loadAll();
+
+        renderPenduduk();
+
+    }catch(error){
+
+        alert(error.message);
+
+    }
+}
+
+
+/* =====================================================
+   RENDER PENDUDUK
+===================================================== */
 
 function renderPenduduk(){
 
- const q=
-  value("searchPenduduk")
-   .toLowerCase();
+    const target =
+        document.getElementById("pendudukTable");
 
+    if(!target) return;
 
- const rows=
-  data.penduduk.filter(x=>
+    const search =
+        (
+            document
+            .getElementById("searchPenduduk")
+            ?.value || ""
+        ).toLowerCase();
 
-   String(x.nik||"")
-    .toLowerCase()
-    .includes(q) ||
+    const rows =
+        DATA.penduduk.filter(p =>
+            String(p.nik || "")
+                .toLowerCase()
+                .includes(search) ||
+            String(p.nama || "")
+                .toLowerCase()
+                .includes(search)
+        );
 
-   String(x.nama||"")
-    .toLowerCase()
-    .includes(q) ||
+    if(rows.length === 0){
 
-   String(x.nomor_kk||"")
-    .toLowerCase()
-    .includes(q) ||
+        target.innerHTML =
+            `<div class="empty">
+                Belum ada data penduduk.
+            </div>`;
 
-   String(x.dusun||"")
-    .toLowerCase()
-    .includes(q)
+        return;
+    }
 
-  );
+    target.innerHTML = `
 
+        <div class="table-wrap">
 
- if(!rows.length){
+        <table>
 
-  el("pendudukTable")
-   .innerHTML=
-    '<tr><td colspan="6" class="empty">Belum ada data penduduk.</td></tr>';
+            <thead>
 
-  return;
+                <tr>
+                    <th>No</th>
+                    <th>NIK</th>
+                    <th>Nama</th>
+                    <th>Dusun</th>
+                    <th>No. KK</th>
+                    <th>Status</th>
+                </tr>
 
- }
+            </thead>
 
+            <tbody>
 
- el("pendudukTable")
-  .innerHTML=
+                ${rows.map((p,i)=>`
 
-  rows.map(x=>`
+                    <tr>
 
-   <tr>
+                        <td>${i+1}</td>
 
-    <td>
-     ${escapeHTML(x.nik)}
-    </td>
+                        <td>
+                            ${escapeHTML(p.nik)}
+                        </td>
 
-    <td>
-     ${escapeHTML(x.nama)}
-    </td>
+                        <td>
+                            ${escapeHTML(p.nama)}
+                        </td>
 
-    <td>
-     ${escapeHTML(x.dusun)}
-    </td>
+                        <td>
+                            ${escapeHTML(p.dusun)}
+                        </td>
 
-    <td>
-     ${escapeHTML(x.nomor_kk)}
-    </td>
+                        <td>
+                            ${escapeHTML(p.nomor_kk || "-")}
+                        </td>
 
-    <td>
-     ${escapeHTML(x.status)}
-    </td>
+                        <td>
+                            <span class="badge">
+                                ${escapeHTML(p.status || "-")}
+                            </span>
+                        </td>
 
-    <td>
-     ${escapeHTML(x.tanggal_status)}
-    </td>
+                    </tr>
 
-   </tr>
+                `).join("")}
 
-  `).join("");
+            </tbody>
 
+        </table>
+
+        </div>
+    `;
 }
 
 
-/* ==================================================
+/* =====================================================
    KK
-================================================== */
+===================================================== */
 
-async function saveKK(){
+function pageKK(){
 
- hideMessage("kkMessage");
+    content.innerHTML = `
+
+        <div class="card">
+
+            <h2>👪 Pendataan Kartu Keluarga</h2>
+
+            <form id="kkForm">
+
+                <div class="grid-2">
+
+                    <div class="form-group">
+                        <label>Nomor KK</label>
+                        <input
+                            id="kk_nomor"
+                            maxlength="16"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Kepala Keluarga</label>
+                        <input
+                            id="kk_kepala"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Dusun</label>
+
+                        <select id="kk_dusun" required>
+
+                            <option value="">
+                                Pilih Dusun
+                            </option>
+
+                            <option>Dusun 1</option>
+                            <option>Dusun 2</option>
+                            <option>Dusun 3</option>
+                            <option>Dusun 4</option>
+                            <option>Dusun 5</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Alamat</label>
+
+                        <input id="kk_alamat">
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    💾 Simpan KK
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📋 Data KK</h2>
+
+            <div id="kkTable"></div>
+
+        </div>
+    `;
+
+    document
+        .getElementById("kkForm")
+        .addEventListener("submit",saveKK);
+
+    renderKK();
+}
 
 
- const nomor_kk=
-  value("k_nomor");
+async function saveKK(e){
 
- const kepala_keluarga=
-  value("k_kepala");
+    e.preventDefault();
 
- const dusun=
-  value("k_dusun");
+    const data = {
 
- const alamat=
-  value("k_alamat");
+        nomor_kk:
+            document.getElementById("kk_nomor").value.trim(),
 
+        kepala_keluarga:
+            document.getElementById("kk_kepala").value.trim(),
 
- if(
-  !nomor_kk ||
-  !kepala_keluarga ||
-  !dusun
- ){
+        dusun:
+            document.getElementById("kk_dusun").value,
 
-  showMessage(
-   "kkMessage",
-   "Nomor KK, kepala keluarga dan dusun wajib diisi."
-  );
+        alamat:
+            document.getElementById("kk_alamat").value.trim()
 
-  return;
+    };
 
- }
+    if(data.nomor_kk.length !== 16){
 
-
- try{
-
-  const hasil=
-   await api(
-    "kk",
-    "POST",
-    {
-     nomor_kk:nomor_kk,
-     kepala_keluarga:
-      kepala_keluarga,
-     dusun:dusun,
-     alamat:
-      alamat || null
+        alert("Nomor KK harus terdiri dari 16 angka.");
+        return;
     }
-   );
 
+    try{
 
-  data.kk.push(
-   ...(hasil || [])
-  );
+        await insertData("kk",data);
 
+        alert("✅ Data KK berhasil disimpan.");
 
-  renderAll();
+        e.target.reset();
 
+        await loadAll();
 
-  showMessage(
-   "kkMessage",
-   "Data KK berhasil disimpan.",
-   true
-  );
+        renderKK();
 
+    }catch(error){
 
-  el("k_nomor").value="";
-  el("k_kepala").value="";
-  el("k_alamat").value="";
+        alert(error.message);
 
-
- }catch(error){
-
-  showMessage(
-   "kkMessage",
-   "Gagal menyimpan KK.\n\n"+
-   error.message
-  );
-
- }
-
+    }
 }
 
 
 function renderKK(){
 
- const q=
-  value("searchKK")
-   .toLowerCase();
+    const target =
+        document.getElementById("kkTable");
 
+    if(!target) return;
 
- const rows=
-  data.kk.filter(x=>
+    if(DATA.kk.length === 0){
 
-   String(x.nomor_kk||"")
-    .toLowerCase()
-    .includes(q) ||
+        target.innerHTML =
+            `<div class="empty">
+                Belum ada data KK.
+            </div>`;
 
-   String(x.kepala_keluarga||"")
-    .toLowerCase()
-    .includes(q) ||
+        return;
+    }
 
-   String(x.dusun||"")
-    .toLowerCase()
-    .includes(q) ||
+    target.innerHTML = `
 
-   String(x.alamat||"")
-    .toLowerCase()
-    .includes(q)
+        <div class="table-wrap">
 
-  );
+        <table>
 
+            <thead>
 
- if(!rows.length){
+                <tr>
+                    <th>No</th>
+                    <th>Nomor KK</th>
+                    <th>Kepala Keluarga</th>
+                    <th>Dusun</th>
+                    <th>Alamat</th>
+                </tr>
 
-  el("kkTable")
-   .innerHTML=
-    '<tr><td colspan="4" class="empty">Belum ada data KK.</td></tr>';
+            </thead>
 
-  return;
+            <tbody>
 
- }
+                ${DATA.kk.map((p,i)=>`
 
+                    <tr>
 
- el("kkTable")
-  .innerHTML=
+                        <td>${i+1}</td>
 
-  rows.map(x=>`
+                        <td>${escapeHTML(p.nomor_kk)}</td>
 
-   <tr>
+                        <td>${escapeHTML(p.kepala_keluarga)}</td>
 
-    <td>
-     ${escapeHTML(x.nomor_kk)}
-    </td>
+                        <td>${escapeHTML(p.dusun)}</td>
 
-    <td>
-     ${escapeHTML(x.kepala_keluarga)}
-    </td>
+                        <td>${escapeHTML(p.alamat || "-")}</td>
 
-    <td>
-     ${escapeHTML(x.dusun)}
-    </td>
+                    </tr>
 
-    <td>
-     ${escapeHTML(x.alamat)}
-    </td>
+                `).join("")}
 
-   </tr>
+            </tbody>
 
-  `).join("");
+        </table>
 
+        </div>
+    `;
 }
 
 
-/* ==================================================
+/* =====================================================
    BULANAN
-================================================== */
+===================================================== */
 
-async function saveBulanan(){
+function pageBulanan(){
 
- hideMessage("bulananMessage");
+    content.innerHTML = `
+
+        <div class="card">
+
+            <h2>📅 Pendataan Penduduk Bulanan</h2>
+
+            <form id="bulananForm">
+
+                <div class="grid-2">
+
+                    <div class="form-group">
+
+                        <label>Tanggal</label>
+
+                        <input
+                            type="date"
+                            id="b_tanggal"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Jenis Pendataan</label>
+
+                        <select id="b_jenis" required>
+
+                            <option value="">
+                                Pilih
+                            </option>
+
+                            <option>Lahir</option>
+                            <option>Meninggal</option>
+                            <option>Datang</option>
+                            <option>Pindah</option>
+                            <option>Perubahan Data</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Nama</label>
+
+                        <input
+                            id="b_nama"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Dusun</label>
+
+                        <select id="b_dusun" required>
+
+                            <option value="">
+                                Pilih Dusun
+                            </option>
+
+                            <option>Dusun 1</option>
+                            <option>Dusun 2</option>
+                            <option>Dusun 3</option>
+                            <option>Dusun 4</option>
+                            <option>Dusun 5</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Keterangan</label>
+
+                    <textarea id="b_keterangan"></textarea>
+
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    💾 Simpan Pendataan
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📋 Riwayat Pendataan</h2>
+
+            <div id="bulananTable"></div>
+
+        </div>
+    `;
+
+    document
+        .getElementById("bulananForm")
+        .addEventListener("submit",saveBulanan);
+
+    renderBulanan();
+}
 
 
- const tanggal=
-  value("b_tanggal") ||
-  today();
+async function saveBulanan(e){
 
- const jenis=
-  value("b_jenis");
+    e.preventDefault();
 
- const nama=
-  value("b_nama");
+    const data = {
 
- const dusun=
-  value("b_dusun");
+        tanggal:
+            document.getElementById("b_tanggal").value,
 
- const keterangan=
-  value("b_keterangan");
+        jenis:
+            document.getElementById("b_jenis").value,
 
+        nama:
+            document.getElementById("b_nama").value.trim(),
 
- if(!nama || !dusun){
+        dusun:
+            document.getElementById("b_dusun").value,
 
-  showMessage(
-   "bulananMessage",
-   "Nama dan dusun wajib diisi."
-  );
+        keterangan:
+            document.getElementById("b_keterangan").value.trim()
 
-  return;
+    };
 
- }
+    try{
 
+        await insertData(
+            "pendataan_bulanan",
+            data
+        );
 
- try{
+        alert(
+            "✅ Pendataan bulanan berhasil disimpan."
+        );
 
-  const hasil=
-   await api(
-    "pendataan_bulanan",
-    "POST",
-    {
-     tanggal: tanggal,
-     jenis: jenis,
-     nama: nama,
-     dusun: dusun,
-     keterangan:
-      keterangan || null
+        e.target.reset();
+
+        await loadAll();
+
+        renderBulanan();
+
+    }catch(error){
+
+        alert(error.message);
+
     }
-   );
-
-
-  data.bulanan.push(
-   ...(hasil || [])
-  );
-
-
-  renderAll();
-
-
-  showMessage(
-   "bulananMessage",
-   "Pendataan bulanan berhasil disimpan.",
-   true
-  );
-
-
-  el("b_nama").value="";
-  el("b_keterangan").value="";
-
-
- }catch(error){
-
-  showMessage(
-   "bulananMessage",
-   "Gagal menyimpan pendataan.\n\n"+
-   error.message
-  );
-
- }
-
 }
 
 
 function renderBulanan(){
 
- if(!data.bulanan.length){
+    const target =
+        document.getElementById("bulananTable");
 
-  el("bulananTable")
-   .innerHTML=
-    '<tr><td colspan="5" class="empty">Belum ada pendataan.</td></tr>';
+    if(!target) return;
 
-  return;
+    if(DATA.bulanan.length === 0){
 
- }
+        target.innerHTML =
+            `<div class="empty">
+                Belum ada pendataan.
+            </div>`;
 
+        return;
+    }
 
- el("bulananTable")
-  .innerHTML=
+    target.innerHTML = `
 
-  data.bulanan.map(x=>`
+        <div class="table-wrap">
 
-   <tr>
+        <table>
 
-    <td>
-     ${escapeHTML(x.tanggal)}
-    </td>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Jenis</th>
+                    <th>Nama</th>
+                    <th>Dusun</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
 
-    <td>
-     ${escapeHTML(x.jenis)}
-    </td>
+            <tbody>
 
-    <td>
-     ${escapeHTML(x.nama)}
-    </td>
+                ${DATA.bulanan.map((p,i)=>`
 
-    <td>
-     ${escapeHTML(x.dusun)}
-    </td>
+                    <tr>
 
-    <td>
-     ${escapeHTML(x.keterangan)}
-    </td>
+                        <td>${i+1}</td>
 
-   </tr>
+                        <td>${escapeHTML(p.tanggal)}</td>
 
-  `).join("");
+                        <td>
+                            <span class="badge">
+                                ${escapeHTML(p.jenis)}
+                            </span>
+                        </td>
 
+                        <td>${escapeHTML(p.nama)}</td>
+
+                        <td>${escapeHTML(p.dusun)}</td>
+
+                        <td>${escapeHTML(p.keterangan || "-")}</td>
+
+                    </tr>
+
+                `).join("")}
+
+            </tbody>
+
+        </table>
+
+        </div>
+    `;
 }
 
 
-/* ==================================================
+/* =====================================================
    BANTUAN
-================================================== */
+===================================================== */
 
-async function saveBantuan(){
+function pageBantuan(){
 
- hideMessage("bantuanMessage");
+    content.innerHTML = `
+
+        <div class="card">
+
+            <h2>🤝 Pendataan Bantuan</h2>
+
+            <form id="bantuanForm">
+
+                <div class="grid-2">
+
+                    <div class="form-group">
+                        <label>Nama Penerima</label>
+                        <input id="ba_penerima" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>NIK</label>
+                        <input id="ba_nik" maxlength="16">
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Dusun</label>
+
+                        <select id="ba_dusun" required>
+
+                            <option value="">
+                                Pilih Dusun
+                            </option>
+
+                            <option>Dusun 1</option>
+                            <option>Dusun 2</option>
+                            <option>Dusun 3</option>
+                            <option>Dusun 4</option>
+                            <option>Dusun 5</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jenis Bantuan</label>
+                        <input id="ba_jenis" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="ba_tanggal" required>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label>Keterangan</label>
+                    <textarea id="ba_keterangan"></textarea>
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    💾 Simpan Bantuan
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📋 Data Bantuan</h2>
+
+            <div id="bantuanTable"></div>
+
+        </div>
+    `;
+
+    document
+        .getElementById("bantuanForm")
+        .addEventListener("submit",saveBantuan);
+
+    renderBantuan();
+}
 
 
- const penerima=
-  value("ba_penerima");
+async function saveBantuan(e){
 
- const nik=
-  value("ba_nik");
+    e.preventDefault();
 
- const dusun=
-  value("ba_dusun");
+    const data = {
 
- const jenis_bantuan=
-  value("ba_jenis");
+        penerima:
+            document.getElementById("ba_penerima").value.trim(),
 
- const tanggal=
-  value("ba_tanggal") ||
-  today();
+        nik:
+            document.getElementById("ba_nik").value.trim(),
 
- const keterangan=
-  value("ba_keterangan");
+        dusun:
+            document.getElementById("ba_dusun").value,
 
+        jenis_bantuan:
+            document.getElementById("ba_jenis").value.trim(),
 
- if(
-  !penerima ||
-  !dusun ||
-  !jenis_bantuan
- ){
+        tanggal:
+            document.getElementById("ba_tanggal").value,
 
-  showMessage(
-   "bantuanMessage",
-   "Penerima, dusun dan jenis bantuan wajib diisi."
-  );
+        keterangan:
+            document.getElementById("ba_keterangan").value.trim()
 
-  return;
+    };
 
- }
+    try{
 
+        await insertData("bantuan",data);
 
- try{
+        alert("✅ Data bantuan berhasil disimpan.");
 
-  const hasil=
-   await api(
-    "bantuan",
-    "POST",
-    {
-     penerima:penerima,
-     nik:nik || null,
-     dusun:dusun,
-     jenis_bantuan:
-      jenis_bantuan,
-     tanggal:tanggal,
-     keterangan:
-      keterangan || null
+        e.target.reset();
+
+        await loadAll();
+
+        renderBantuan();
+
+    }catch(error){
+
+        alert(error.message);
+
     }
-   );
-
-
-  data.bantuan.push(
-   ...(hasil || [])
-  );
-
-
-  renderAll();
-
-
-  showMessage(
-   "bantuanMessage",
-   "Data bantuan berhasil disimpan.",
-   true
-  );
-
-
-  el("ba_penerima").value="";
-  el("ba_nik").value="";
-  el("ba_jenis").value="";
-  el("ba_keterangan").value="";
-
-
- }catch(error){
-
-  showMessage(
-   "bantuanMessage",
-   "Gagal menyimpan bantuan.\n\n"+
-   error.message
-  );
-
- }
-
 }
 
 
 function renderBantuan(){
 
- if(!data.bantuan.length){
+    const target =
+        document.getElementById("bantuanTable");
 
-  el("bantuanTable")
-   .innerHTML=
-    '<tr><td colspan="5" class="empty">Belum ada data bantuan.</td></tr>';
+    if(!target) return;
 
-  return;
+    if(DATA.bantuan.length === 0){
 
- }
+        target.innerHTML =
+            `<div class="empty">
+                Belum ada data bantuan.
+            </div>`;
 
+        return;
+    }
 
- el("bantuanTable")
-  .innerHTML=
+    target.innerHTML = `
 
-  data.bantuan.map(x=>`
+        <div class="table-wrap">
 
-   <tr>
+        <table>
 
-    <td>
-     ${escapeHTML(x.penerima)}
-    </td>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Penerima</th>
+                    <th>NIK</th>
+                    <th>Dusun</th>
+                    <th>Jenis Bantuan</th>
+                    <th>Tanggal</th>
+                </tr>
+            </thead>
 
-    <td>
-     ${escapeHTML(x.nik)}
-    </td>
+            <tbody>
 
-    <td>
-     ${escapeHTML(x.dusun)}
-    </td>
+                ${DATA.bantuan.map((p,i)=>`
 
-    <td>
-     ${escapeHTML(x.jenis_bantuan)}
-    </td>
+                    <tr>
 
-    <td>
-     ${escapeHTML(x.tanggal)}
-    </td>
+                        <td>${i+1}</td>
 
-   </tr>
+                        <td>${escapeHTML(p.penerima)}</td>
 
-  `).join("");
+                        <td>${escapeHTML(p.nik || "-")}</td>
 
+                        <td>${escapeHTML(p.dusun)}</td>
+
+                        <td>${escapeHTML(p.jenis_bantuan)}</td>
+
+                        <td>${escapeHTML(p.tanggal)}</td>
+
+                    </tr>
+
+                `).join("")}
+
+            </tbody>
+
+        </table>
+
+        </div>
+    `;
 }
 
 
-/* ==================================================
-   SURAT
-================================================== */
+/* =====================================================
+   SURAT DESA
+===================================================== */
 
-async function saveSurat(){
+function pageSurat(){
 
- hideMessage("suratMessage");
+    content.innerHTML = `
+
+        <div class="card">
+
+            <h2>📄 Pelayanan Surat Desa</h2>
+
+            <form id="suratForm">
+
+                <div class="grid-2">
+
+                    <div class="form-group">
+                        <label>Nama</label>
+                        <input id="s_nama" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>NIK</label>
+                        <input id="s_nik" maxlength="16">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Jenis Surat</label>
+                        <input
+                            id="s_jenis"
+                            placeholder="Contoh: Surat Domisili"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input
+                            type="date"
+                            id="s_tanggal"
+                            required
+                        >
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label>Keterangan</label>
+                    <textarea id="s_keterangan"></textarea>
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    💾 Simpan Data Surat
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📋 Riwayat Surat</h2>
+
+            <div id="suratTable"></div>
+
+        </div>
+    `;
+
+    document
+        .getElementById("suratForm")
+        .addEventListener("submit",saveSurat);
+
+    renderSurat();
+}
 
 
- const nama=
-  value("s_nama");
+async function saveSurat(e){
 
- const nik=
-  value("s_nik");
+    e.preventDefault();
 
- const jenis_surat=
-  value("s_jenis");
+    const data = {
 
- const tanggal=
-  value("s_tanggal") ||
-  today();
+        nama:
+            document.getElementById("s_nama").value.trim(),
 
- const keterangan=
-  value("s_keterangan");
+        nik:
+            document.getElementById("s_nik").value.trim(),
 
+        jenis_surat:
+            document.getElementById("s_jenis").value.trim(),
 
- if(!nama || !jenis_surat){
+        tanggal:
+            document.getElementById("s_tanggal").value,
 
-  showMessage(
-   "suratMessage",
-   "Nama dan jenis surat wajib diisi."
-  );
+        keterangan:
+            document.getElementById("s_keterangan").value.trim()
 
-  return;
+    };
 
- }
+    try{
 
+        await insertData(
+            "surat_desa",
+            data
+        );
 
- try{
+        alert(
+            "✅ Data surat berhasil disimpan."
+        );
 
-  const hasil=
-   await api(
-    "surat_desa",
-    "POST",
-    {
-     nama:nama,
-     nik:nik || null,
-     jenis_surat:
-      jenis_surat,
-     tanggal:tanggal,
-     keterangan:
-      keterangan || null
+        e.target.reset();
+
+        await loadAll();
+
+        renderSurat();
+
+    }catch(error){
+
+        alert(error.message);
+
     }
-   );
-
-
-  data.surat.push(
-   ...(hasil || [])
-  );
-
-
-  renderAll();
-
-
-  showMessage(
-   "suratMessage",
-   "Data surat berhasil disimpan.",
-   true
-  );
-
-
-  el("s_nama").value="";
-  el("s_nik").value="";
-  el("s_keterangan").value="";
-
-
- }catch(error){
-
-  showMessage(
-   "suratMessage",
-   "Gagal menyimpan surat.\n\n"+
-   error.message
-  );
-
- }
-
 }
 
 
 function renderSurat(){
 
- if(!data.surat.length){
+    const target =
+        document.getElementById("suratTable");
 
-  el("suratTable")
-   .innerHTML=
-    '<tr><td colspan="5" class="empty">Belum ada data surat.</td></tr>';
+    if(!target) return;
 
-  return;
+    if(DATA.surat.length === 0){
 
- }
+        target.innerHTML =
+            `<div class="empty">
+                Belum ada data surat.
+            </div>`;
 
-
- el("suratTable")
-  .innerHTML=
-
-  data.surat.map(x=>`
-
-   <tr>
-
-    <td>
-     ${escapeHTML(x.nama)}
-    </td>
-
-    <td>
-     ${escapeHTML(x.nik)}
-    </td>
-
-    <td>
-     ${escapeHTML(x.jenis_surat)}
-    </td>
-
-    <td>
-     ${escapeHTML(x.tanggal)}
-    </td>
-
-    <td>
-     ${escapeHTML(x.keterangan)}
-    </td>
-
-   </tr>
-
-  `).join("");
-
-}
-
-
-/* ==================================================
-   PROGRAM
-================================================== */
-
-function selectDusun(dusun,button){
-
- selectedDusun=
-  dusun;
-
- el("pr_dusun")
-  .value=dusun;
-
-
- document.querySelectorAll(
-  ".dusun button"
- )
- .forEach(
-  b=>b.classList.remove("active")
- );
-
-
- button.classList.add("active");
-
-
- renderProgram();
-
-}
-
-
-async function saveProgram(){
-
- hideMessage("programMessage");
-
-
- const dusun=
-  value("pr_dusun");
-
- const nama_program=
-  value("pr_nama");
-
- const status=
-  value("pr_status");
-
- const keterangan=
-  value("pr_keterangan");
-
-
- if(!nama_program){
-
-  showMessage(
-   "programMessage",
-   "Nama program wajib diisi."
-  );
-
-  return;
-
- }
-
-
- try{
-
-  const hasil=
-   await api(
-    "program_dusun",
-    "POST",
-    {
-     dusun:dusun,
-     nama_program:
-      nama_program,
-     status:status,
-     keterangan:
-      keterangan || null
+        return;
     }
-   );
+
+    target.innerHTML = `
+
+        <div class="table-wrap">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Nama</th>
+                    <th>NIK</th>
+                    <th>Jenis Surat</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                ${DATA.surat.map((p,i)=>`
+
+                    <tr>
+
+                        <td>${i+1}</td>
+
+                        <td>${escapeHTML(p.tanggal)}</td>
+
+                        <td>${escapeHTML(p.nama)}</td>
+
+                        <td>${escapeHTML(p.nik || "-")}</td>
+
+                        <td>${escapeHTML(p.jenis_surat)}</td>
+
+                        <td>${escapeHTML(p.keterangan || "-")}</td>
+
+                    </tr>
+
+                `).join("")}
+
+            </tbody>
+
+        </table>
+
+        </div>
+    `;
+}
 
 
-  data.program.push(
-   ...(hasil || [])
-  );
+/* =====================================================
+   PROGRAM DUSUN
+===================================================== */
+
+function pageProgram(){
+
+    content.innerHTML = `
+
+        <div class="card">
+
+            <h2>🏗️ Program & Pembangunan Dusun</h2>
+
+            <form id="programForm">
+
+                <div class="grid-2">
+
+                    <div class="form-group">
+
+                        <label>Dusun</label>
+
+                        <select id="pr_dusun" required>
+
+                            <option value="">
+                                Pilih Dusun
+                            </option>
+
+                            <option>Dusun 1</option>
+                            <option>Dusun 2</option>
+                            <option>Dusun 3</option>
+                            <option>Dusun 4</option>
+                            <option>Dusun 5</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Nama Program</label>
+
+                        <input
+                            id="pr_nama"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Status</label>
+
+                        <select id="pr_status">
+
+                            <option>Rencana</option>
+                            <option>Berjalan</option>
+                            <option>Selesai</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Keterangan</label>
+
+                    <textarea id="pr_keterangan"></textarea>
+
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    💾 Simpan Program
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📋 Program Dusun</h2>
+
+            <div id="programTable"></div>
+
+        </div>
+    `;
+
+    document
+        .getElementById("programForm")
+        .addEventListener("submit",saveProgram);
+
+    renderProgram();
+}
 
 
-  renderAll();
+async function saveProgram(e){
 
+    e.preventDefault();
 
-  showMessage(
-   "programMessage",
-   "Program berhasil disimpan.",
-   true
-  );
+    const data = {
 
+        dusun:
+            document.getElementById("pr_dusun").value,
 
-  el("pr_nama").value="";
-  el("pr_keterangan").value="";
+        nama_program:
+            document.getElementById("pr_nama").value.trim(),
 
+        status:
+            document.getElementById("pr_status").value,
 
- }catch(error){
+        keterangan:
+            document.getElementById("pr_keterangan").value.trim()
 
-  showMessage(
-   "programMessage",
-   "Gagal menyimpan program.\n\n"+
-   error.message
-  );
+    };
 
- }
+    try{
 
+        await insertData(
+            "program_dusun",
+            data
+        );
+
+        alert(
+            "✅ Program berhasil disimpan."
+        );
+
+        e.target.reset();
+
+        await loadAll();
+
+        renderProgram();
+
+    }catch(error){
+
+        alert(error.message);
+
+    }
 }
 
 
 function renderProgram(){
 
- const rows=
-  data.program.filter(
-   x=>x.dusun===selectedDusun
-  );
+    const target =
+        document.getElementById("programTable");
 
+    if(!target) return;
 
- if(!rows.length){
+    if(DATA.program.length === 0){
 
-  el("programTable")
-   .innerHTML=
-    '<tr><td colspan="4" class="empty">Belum ada program untuk '+
-    escapeHTML(selectedDusun)+
-    '.</td></tr>';
+        target.innerHTML =
+            `<div class="empty">
+                Belum ada program.
+            </div>`;
 
-  return;
+        return;
+    }
 
- }
+    target.innerHTML = `
 
+        <div class="table-wrap">
 
- el("programTable")
-  .innerHTML=
+        <table>
 
-  rows.map(x=>`
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Dusun</th>
+                    <th>Program</th>
+                    <th>Status</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
 
-   <tr>
+            <tbody>
 
-    <td>
-     ${escapeHTML(x.dusun)}
-    </td>
+                ${DATA.program.map((p,i)=>`
 
-    <td>
-     ${escapeHTML(x.nama_program)}
-    </td>
+                    <tr>
 
-    <td>
-     ${escapeHTML(x.status)}
-    </td>
+                        <td>${i+1}</td>
 
-    <td>
-     ${escapeHTML(x.keterangan)}
-    </td>
+                        <td>${escapeHTML(p.dusun)}</td>
 
-   </tr>
+                        <td>${escapeHTML(p.nama_program)}</td>
 
-  `).join("");
+                        <td>
+                            <span class="badge">
+                                ${escapeHTML(p.status)}
+                            </span>
+                        </td>
 
+                        <td>${escapeHTML(p.keterangan || "-")}</td>
+
+                    </tr>
+
+                `).join("")}
+
+            </tbody>
+
+        </table>
+
+        </div>
+    `;
 }
 
 
-/* ==================================================
+/* =====================================================
    ASPIRASI
-================================================== */
+===================================================== */
 
-async function saveAspirasi(){
+function pageAspirasi(){
 
- hideMessage("aspirasiMessage");
+    content.innerHTML = `
+
+        <div class="card">
+
+            <h2>💬 Kritik, Saran & Aspirasi</h2>
+
+            <form id="aspirasiForm">
+
+                <div class="grid-2">
+
+                    <div class="form-group">
+
+                        <label>Nama</label>
+
+                        <input id="a_nama" required>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Dusun</label>
+
+                        <select id="a_dusun" required>
+
+                            <option value="">
+                                Pilih Dusun
+                            </option>
+
+                            <option>Dusun 1</option>
+                            <option>Dusun 2</option>
+                            <option>Dusun 3</option>
+                            <option>Dusun 4</option>
+                            <option>Dusun 5</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Jenis</label>
+
+                        <select id="a_jenis">
+
+                            <option>Kritik</option>
+                            <option>Saran</option>
+                            <option>Aspirasi</option>
+                            <option>Pengaduan</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Isi</label>
+
+                    <textarea
+                        id="a_isi"
+                        required
+                    ></textarea>
+
+                </div>
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    📤 Kirim Aspirasi
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="card">
+
+            <h2>📋 Aspirasi Masyarakat</h2>
+
+            <div id="aspirasiTable"></div>
+
+        </div>
+    `;
+
+    document
+        .getElementById("aspirasiForm")
+        .addEventListener("submit",saveAspirasi);
+
+    renderAspirasi();
+}
 
 
- const nama=
-  value("a_nama");
+async function saveAspirasi(e){
 
- const dusun=
-  value("a_dusun");
+    e.preventDefault();
 
- const jenis=
-  value("a_jenis");
+    const data = {
 
- const isi=
-  value("a_isi");
+        nama:
+            document.getElementById("a_nama").value.trim(),
 
+        dusun:
+            document.getElementById("a_dusun").value,
 
- if(!nama || !dusun || !isi){
+        jenis:
+            document.getElementById("a_jenis").value,
 
-  showMessage(
-   "aspirasiMessage",
-   "Nama, dusun dan isi aspirasi wajib diisi."
-  );
+        isi:
+            document.getElementById("a_isi").value.trim()
 
-  return;
+    };
 
- }
+    try{
 
+        await insertData(
+            "aspirasi",
+            data
+        );
 
- try{
+        alert(
+            "✅ Aspirasi berhasil dikirim."
+        );
 
-  const hasil=
-   await api(
-    "aspirasi",
-    "POST",
-    {
-     nama:nama,
-     dusun:dusun,
-     jenis:jenis,
-     isi:isi
+        e.target.reset();
+
+        await loadAll();
+
+        renderAspirasi();
+
+    }catch(error){
+
+        alert(error.message);
+
     }
-   );
-
-
-  data.aspirasi.push(
-   ...(hasil || [])
-  );
-
-
-  renderAll();
-
-
-  showMessage(
-   "aspirasiMessage",
-   "Kritik/saran berhasil dikirim ke Kantor Desa.",
-   true
-  );
-
-
-  el("a_nama").value="";
-  el("a_isi").value="";
-
-
- }catch(error){
-
-  showMessage(
-   "aspirasiMessage",
-   "Gagal mengirim aspirasi.\n\n"+
-   error.message
-  );
-
- }
-
 }
 
 
 function renderAspirasi(){
 
- if(!data.aspirasi.length){
+    const target =
+        document.getElementById("aspirasiTable");
 
-  el("aspirasiTable")
-   .innerHTML=
-    '<tr><td colspan="4" class="empty">Belum ada aspirasi.</td></tr>';
+    if(!target) return;
 
-  return;
+    if(DATA.aspirasi.length === 0){
 
- }
+        target.innerHTML =
+            `<div class="empty">
+                Belum ada aspirasi.
+            </div>`;
 
+        return;
+    }
 
- el("aspirasiTable")
-  .innerHTML=
+    target.innerHTML = `
 
-  data.aspirasi.map(x=>`
+        <div class="table-wrap">
 
-   <tr>
+        <table>
 
-    <td>
-     ${escapeHTML(x.nama)}
-    </td>
+            <thead>
 
-    <td>
-     ${escapeHTML(x.dusun)}
-    </td>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Dusun</th>
+                    <th>Jenis</th>
+                    <th>Isi</th>
+                    <th>Tanggal</th>
+                </tr>
 
-    <td>
-     ${escapeHTML(x.jenis)}
-    </td>
+            </thead>
 
-    <td>
-     ${escapeHTML(x.isi)}
-    </td>
+            <tbody>
 
-   </tr>
+                ${DATA.aspirasi.map((p,i)=>`
 
-  `).join("");
+                    <tr>
 
+                        <td>${i+1}</td>
+
+                        <td>${escapeHTML(p.nama)}</td>
+
+                        <td>${escapeHTML(p.dusun)}</td>
+
+                        <td>
+                            <span class="badge">
+                                ${escapeHTML(p.jenis)}
+                            </span>
+                        </td>
+
+                        <td>${escapeHTML(p.isi)}</td>
+
+                        <td>
+                            ${escapeHTML(
+                                p.created_at
+                                ? new Date(p.created_at)
+                                    .toLocaleDateString("id-ID")
+                                : "-"
+                            )}
+                        </td>
+
+                    </tr>
+
+                `).join("")}
+
+            </tbody>
+
+        </table>
+
+        </div>
+    `;
 }
 
 
-/* ==================================================
+/* =====================================================
    LAPORAN
-================================================== */
+===================================================== */
 
-function renderLaporan(){
+function pageLaporan(){
 
- const dusun=[
+    const tetap =
+        DATA.penduduk.filter(
+            x => x.status === "Tetap"
+        ).length;
 
-  "Dusun 1",
-  "Dusun 2",
-  "Dusun 3",
-  "Dusun 4",
-  "Dusun 5"
+    const pendatang =
+        DATA.penduduk.filter(
+            x => x.status === "Pendatang"
+        ).length;
 
- ];
+    const pindah =
+        DATA.penduduk.filter(
+            x => x.status === "Pindah"
+        ).length;
 
+    const meninggal =
+        DATA.penduduk.filter(
+            x => x.status === "Meninggal"
+        ).length;
 
- let html=`
-
- <div class="table-wrap">
-
- <table>
-
- <thead>
-
- <tr>
-
- <th>Dusun</th>
- <th>Penduduk</th>
- <th>KK</th>
- <th>Bantuan</th>
- <th>Program</th>
-
- </tr>
-
- </thead>
-
- <tbody>
-
- `;
+    const keluar =
+        DATA.penduduk.filter(
+            x => x.status === "Keluar"
+        ).length;
 
 
- dusun.forEach(d=>{
+    content.innerHTML = `
 
-  const penduduk=
-   data.penduduk
-    .filter(x=>x.dusun===d)
-    .length;
+        <div class="card">
 
-  const kk=
-   data.kk
-    .filter(x=>x.dusun===d)
-    .length;
+            <h2>📊 Laporan Desa</h2>
 
-  const bantuan=
-   data.bantuan
-    .filter(x=>x.dusun===d)
-    .length;
+            <div class="stats">
 
-  const program=
-   data.program
-    .filter(x=>x.dusun===d)
-    .length;
+                <div class="stat">
+                    <div class="icon">👥</div>
+                    <h3>${DATA.penduduk.length}</h3>
+                    <p>Total Penduduk</p>
+                </div>
 
+                <div class="stat">
+                    <div class="icon">🏠</div>
+                    <h3>${tetap}</h3>
+                    <p>Status Tetap</p>
+                </div>
 
-  html+=`
+                <div class="stat">
+                    <div class="icon">🚶</div>
+                    <h3>${pendatang}</h3>
+                    <p>Pendatang</p>
+                </div>
 
-  <tr>
+                <div class="stat">
+                    <div class="icon">📤</div>
+                    <h3>${pindah}</h3>
+                    <p>Pindah</p>
+                </div>
 
-   <td>${d}</td>
+            </div>
 
-   <td>${penduduk}</td>
-
-   <td>${kk}</td>
-
-   <td>${bantuan}</td>
-
-   <td>${program}</td>
-
-  </tr>
-
-  `;
-
- });
+        </div>
 
 
- html+=`
+        <div class="card">
 
- </tbody>
+            <h2>📋 Rekap Penduduk</h2>
 
- </table>
+            <div class="table-wrap">
 
- </div>
+            <table>
 
- `;
+                <tr>
+                    <th>Status</th>
+                    <th>Jumlah</th>
+                </tr>
+
+                <tr>
+                    <td>Tetap</td>
+                    <td>${tetap}</td>
+                </tr>
+
+                <tr>
+                    <td>Pendatang</td>
+                    <td>${pendatang}</td>
+                </tr>
+
+                <tr>
+                    <td>Pindah</td>
+                    <td>${pindah}</td>
+                </tr>
+
+                <tr>
+                    <td>Meninggal</td>
+                    <td>${meninggal}</td>
+                </tr>
+
+                <tr>
+                    <td>Keluar</td>
+                    <td>${keluar}</td>
+                </tr>
+
+            </table>
+
+            </div>
+
+        </div>
 
 
- el("laporanContent")
-  .innerHTML=html;
+        <div class="card">
+
+            <h2>📌 Rekap Sistem</h2>
+
+            <div class="table-wrap">
+
+            <table>
+
+                <tr>
+                    <td>Penduduk</td>
+                    <td>${DATA.penduduk.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Kartu Keluarga</td>
+                    <td>${DATA.kk.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Pendataan Bulanan</td>
+                    <td>${DATA.bulanan.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Bantuan</td>
+                    <td>${DATA.bantuan.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Surat Desa</td>
+                    <td>${DATA.surat.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Program Dusun</td>
+                    <td>${DATA.program.length}</td>
+                </tr>
+
+                <tr>
+                    <td>Aspirasi</td>
+                    <td>${DATA.aspirasi.length}</td>
+                </tr>
+
+            </table>
+
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =====================================================
+   NAVIGASI
+===================================================== */
+
+async function showPage(page){
+
+    currentPage = page;
+
+    document
+        .querySelectorAll(".menu button")
+        .forEach(btn => {
+
+            btn.classList.toggle(
+                "active",
+                btn.dataset.page === page
+            );
+
+        });
+
+
+    switch(page){
+
+        case "dashboard":
+            pageDashboard();
+            break;
+
+        case "penduduk":
+            pagePenduduk();
+            break;
+
+        case "kk":
+            pageKK();
+            break;
+
+        case "bulanan":
+            pageBulanan();
+            break;
+
+        case "bantuan":
+            pageBantuan();
+            break;
+
+        case "surat":
+            pageSurat();
+            break;
+
+        case "program":
+            pageProgram();
+            break;
+
+        case "aspirasi":
+            pageAspirasi();
+            break;
+
+        case "laporan":
+            pageLaporan();
+            break;
+
+        default:
+            pageDashboard();
+    }
+}
+
+
+document
+    .querySelectorAll(".menu button")
+    .forEach(button => {
+
+        button.addEventListener(
+            "click",
+            async function(){
+
+                await showPage(
+                    this.dataset.page
+                );
+
+            }
+        );
+
+    });
+
+
+document
+    .getElementById("logoutButton")
+    .addEventListener(
+        "click",
+        logout
+    );
+
+
+/* =====================================================
+   CEK SESSION SAAT HALAMAN DIBUKA
+===================================================== */
+
+async function startApp(){
+
+    try{
+
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.getSession();
+
+        if(error)
+            throw error;
+
+        if(data.session){
+
+            loginPage.classList.add("hidden");
+            app.classList.remove("hidden");
+
+            const berhasil =
+                await loadAll();
+
+            if(berhasil)
+                showPage("dashboard");
+
+        }else{
+
+            loginPage.classList.remove("hidden");
+            app.classList.add("hidden");
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "Start app error:",
+            error
+        );
+
+        loginPage.classList.remove("hidden");
+        app.classList.add("hidden");
+
+    }
 
 }
 
 
-/* ==================================================
-   AUTO LOGIN
-================================================== */
+/* JALANKAN */
 
-async function autoLogin(){
-
- if(!accessToken){
-
-  return;
-
- }
-
-
- const valid=
-  await ensureSession();
-
-
- if(!valid){
-
-  clearSession();
-
-  el("appScreen")
-   .style.display="none";
-
-  el("loginScreen")
-   .style.display="flex";
-
-  return;
-
- }
-
-
- el("loginScreen")
-  .style.display="none";
-
- el("appScreen")
-  .style.display="block";
-
-
- await loadAll();
-
-}
-
-
-/* ==================================================
-   TANGGAL DEFAULT
-================================================== */
-
-el("p_tanggal").value=today();
-
-el("b_tanggal").value=today();
-
-el("ba_tanggal").value=today();
-
-el("s_tanggal").value=today();
-
-
-/* ==================================================
-   MULAI APLIKASI
-================================================== */
-
-autoLogin();
+startApp();
 
 </script>
 
