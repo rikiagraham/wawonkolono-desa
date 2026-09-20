@@ -2,438 +2,1349 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Desa Wawongkolono</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Administrasi Desa Wawongkolono</title>
 
 <style>
-
-/* =========================
-   RESET
-========================= */
-
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:Arial, Helvetica, sans-serif;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f4f6f8;
+  color:#222;
 }
 
-/* =========================
-   LOGIN BACKGROUND
-========================= */
+button,input,select,textarea{font-family:inherit}
 
-.login{
+button{cursor:pointer}
+
+/* LOGIN */
+#loginPage{
   min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
   padding:20px;
-
   background:
-    radial-gradient(
-      circle at 15% 15%,
-      rgba(255,255,255,.25),
-      transparent 30%
-    ),
-    radial-gradient(
-      circle at 85% 85%,
-      rgba(255,255,255,.15),
-      transparent 30%
-    ),
-    linear-gradient(
-      135deg,
-      #8b0000 0%,
-      #c8102e 50%,
-      #ed1c24 100%
-    );
+    radial-gradient(circle at 15% 15%,#ffffff44,transparent 30%),
+    radial-gradient(circle at 85% 85%,#ff777744,transparent 30%),
+    linear-gradient(135deg,#8b0000,#d71920,#ed1c24);
 }
-
-/* =========================
-   LOGIN BOX
-========================= */
 
 .login-box{
   width:100%;
-  max-width:390px;
-
-  background:#ffffff;
-
+  max-width:400px;
   padding:32px;
-
+  background:#fff;
   border-radius:22px;
-
+  box-shadow:0 20px 50px #0005;
   text-align:center;
-
-  box-shadow:
-    0 20px 50px rgba(0,0,0,.30);
-
-  animation:loginMasuk .5s ease;
 }
-
-/* =========================
-   ANIMASI
-========================= */
-
-@keyframes loginMasuk{
-
-  from{
-    opacity:0;
-    transform:translateY(20px) scale(.97);
-  }
-
-  to{
-    opacity:1;
-    transform:translateY(0) scale(1);
-  }
-
-}
-
-/* =========================
-   LOGO
-========================= */
 
 .login-logo{
-
   width:85px;
   height:85px;
-
-  margin:0 auto 18px;
-
+  margin:0 auto 15px;
   display:flex;
   align-items:center;
   justify-content:center;
-
-  background:#fff0f0;
-
-  border:3px solid #ed1c24;
-
   border-radius:50%;
-
-  font-size:46px;
-
-  box-shadow:
-    0 8px 20px rgba(198,16,46,.20);
-
+  background:#fff0f0;
+  border:3px solid #d71920;
+  font-size:45px;
 }
-
-/* =========================
-   JUDUL
-========================= */
 
 .login-box h1{
-
   margin:0;
-
   color:#b00020;
-
-  font-size:26px;
-
-  font-weight:700;
-
+  font-size:25px;
 }
 
-.login-subtitle{
-
-  margin:8px 0 25px;
-
+.login-sub{
   color:#666;
-
   font-size:13px;
-
   line-height:1.6;
-
+  margin:8px 0 25px;
 }
-
-/* =========================
-   LABEL
-========================= */
 
 .login-box label{
-
   display:block;
-
   text-align:left;
-
-  margin:14px 0 7px;
-
-  color:#333;
-
+  margin:13px 0 6px;
+  font-weight:bold;
   font-size:14px;
-
-  font-weight:600;
-
 }
-
-/* =========================
-   INPUT
-========================= */
 
 .login-box input{
-
   width:100%;
-
   height:46px;
-
-  padding:0 14px;
-
   border:1px solid #ddd;
-
   border-radius:10px;
-
+  padding:0 13px;
   outline:none;
-
-  background:#fffafa;
-
-  color:#333;
-
-  font-size:14px;
-
-  transition:.2s;
-
-}
-
-.login-box input::placeholder{
-
-  color:#999;
-
 }
 
 .login-box input:focus{
-
   border-color:#d71920;
-
-  background:#fff;
-
-  box-shadow:
-    0 0 0 3px rgba(215,25,32,.12);
-
+  box-shadow:0 0 0 3px #d7192020;
 }
 
-/* =========================
-   TOMBOL MASUK
-========================= */
-
-.login-button{
-
+.btn-login{
   width:100%;
-
   height:48px;
-
   margin-top:20px;
-
   border:0;
-
-  border-radius:11px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #a90000,
-      #ed1c24
-    );
-
-  color:white;
-
-  font-size:15px;
-
-  font-weight:bold;
-
-  cursor:pointer;
-
-  box-shadow:
-    0 7px 18px rgba(169,0,0,.30);
-
-  transition:.2s;
-
-}
-
-.login-button:hover{
-
-  transform:translateY(-2px);
-
-  box-shadow:
-    0 10px 22px rgba(169,0,0,.38);
-
-}
-
-.login-button:active{
-
-  transform:translateY(0);
-
-}
-
-/* =========================
-   ERROR LOGIN
-========================= */
-
-#loginError{
-
-  min-height:20px;
-
-  margin-top:12px;
-
-  color:#b00020;
-
-  font-size:13px;
-
-}
-
-/* =========================
-   GARIS MERAH PUTIH
-========================= */
-
-.login-line{
-
-  width:60px;
-
-  height:4px;
-
-  margin:18px auto 0;
-
   border-radius:10px;
-
-  background:
-    linear-gradient(
-      to right,
-      #ed1c24 50%,
-      #ffffff 50%
-    );
-
-  border:1px solid #ed1c24;
-
+  background:linear-gradient(135deg,#a90000,#ed1c24);
+  color:white;
+  font-weight:bold;
+  font-size:15px;
 }
 
-/* =========================
-   TAMPILAN HP
-========================= */
-
-@media(max-width:480px){
-
-  .login{
-
-    padding:15px;
-
-  }
-
-  .login-box{
-
-    padding:27px 20px;
-
-    border-radius:18px;
-
-  }
-
-  .login-box h1{
-
-    font-size:23px;
-
-  }
-
+#errorLogin{
+  color:#b00020;
+  font-size:13px;
+  min-height:20px;
+  margin-top:10px;
 }
 
-/* =========================
-   HIDDEN APP
-========================= */
+/* APP */
+#app{display:none}
 
-#app{
+.header{
+  height:65px;
+  background:linear-gradient(135deg,#9b0000,#d71920);
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
 
+.header-title{
+  font-size:20px;
+  font-weight:bold;
+}
+
+.header-user{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.btn-logout{
+  border:1px solid #ffffff77;
+  background:#ffffff22;
+  color:white;
+  padding:8px 13px;
+  border-radius:8px;
+}
+
+/* LAYOUT */
+.layout{
+  display:flex;
+  min-height:calc(100vh - 65px);
+}
+
+.sidebar{
+  width:240px;
+  background:#fff;
+  border-right:1px solid #ddd;
+  padding:15px;
+}
+
+.sidebar h3{
+  color:#a90000;
+  margin:5px 10px 15px;
+}
+
+.menu{
+  width:100%;
+  border:0;
+  background:white;
+  text-align:left;
+  padding:12px;
+  margin:3px 0;
+  border-radius:8px;
+  font-size:14px;
+}
+
+.menu:hover,
+.menu.active{
+  background:#ffe7e7;
+  color:#b00020;
+  font-weight:bold;
+}
+
+.content{
+  flex:1;
+  padding:25px;
+  overflow:auto;
+}
+
+/* PAGE */
+.page{display:none}
+.page.active{display:block}
+
+.page-title{
+  margin-top:0;
+  color:#8d0018;
+}
+
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 3px 12px #00000010;
+  border-left:5px solid #d71920;
+}
+
+.card .number{
+  font-size:28px;
+  font-weight:bold;
+  color:#b00020;
+}
+
+.card .label{
+  color:#666;
+  font-size:13px;
+  margin-top:5px;
+}
+
+/* PANEL */
+.panel{
+  background:white;
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 3px 12px #00000010;
+  margin-bottom:20px;
+}
+
+.panel h3{
+  margin-top:0;
+  color:#8d0018;
+}
+
+/* FORM */
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.field label{
+  display:block;
+  font-weight:bold;
+  font-size:13px;
+  margin-bottom:5px;
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  outline:none;
+}
+
+.field textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color:#d71920;
+}
+
+.full{grid-column:1/-1}
+
+/* BUTTON */
+.btn{
+  border:0;
+  border-radius:8px;
+  padding:10px 15px;
+  font-weight:bold;
+}
+
+.btn-red{
+  background:#d71920;
+  color:white;
+}
+
+.btn-dark{
+  background:#333;
+  color:white;
+}
+
+.btn-green{
+  background:#16834b;
+  color:white;
+}
+
+.btn-blue{
+  background:#1769aa;
+  color:white;
+}
+
+.btn-gray{
+  background:#eee;
+  color:#333;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+/* TABLE */
+.table-wrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:700px;
+}
+
+th{
+  background:#a90000;
+  color:white;
+  padding:10px;
+  text-align:left;
+}
+
+td{
+  padding:9px;
+  border-bottom:1px solid #eee;
+}
+
+tr:hover td{
+  background:#fff8f8;
+}
+
+.search{
+  width:100%;
+  padding:11px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  margin-bottom:12px;
+}
+
+/* MODAL */
+.modal{
   display:none;
-
+  position:fixed;
+  inset:0;
+  background:#0008;
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 }
 
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  width:100%;
+  max-width:850px;
+  max-height:90vh;
+  overflow:auto;
+  background:white;
+  border-radius:12px;
+  padding:20px;
+}
+
+/* SURAT */
+.surat{
+  background:white;
+  color:#000;
+  padding:45px;
+  max-width:800px;
+  margin:auto;
+  font-family:"Times New Roman",serif;
+  line-height:1.5;
+}
+
+.kop{
+  text-align:center;
+  border-bottom:3px solid #000;
+  padding-bottom:10px;
+  margin-bottom:25px;
+}
+
+.kop h2,.kop h3{
+  margin:2px;
+}
+
+.surat-title{
+  text-align:center;
+  margin:25px 0;
+}
+
+.surat-body{
+  text-align:justify;
+}
+
+.ttd{
+  margin-top:60px;
+  width:250px;
+  margin-left:auto;
+  text-align:center;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+  .cards{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .sidebar{
+    width:200px;
+  }
+}
+
+@media(max-width:650px){
+  .header-title{
+    font-size:15px;
+  }
+
+  .header-user span{
+    display:none;
+  }
+
+  .layout{
+    display:block;
+  }
+
+  .sidebar{
+    width:100%;
+    border-right:0;
+    border-bottom:1px solid #ddd;
+    display:flex;
+    overflow:auto;
+    gap:5px;
+  }
+
+  .sidebar h3{
+    display:none;
+  }
+
+  .menu{
+    min-width:max-content;
+  }
+
+  .content{
+    padding:15px;
+  }
+
+  .cards{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+
+  .surat{
+    padding:20px;
+  }
+}
+
+/* PRINT */
+@media print{
+  body *{
+    visibility:hidden;
+  }
+
+  #printArea,
+  #printArea *{
+    visibility:visible;
+  }
+
+  #printArea{
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<!-- =========================
+<!-- =====================================================
      LOGIN
-========================= -->
+===================================================== -->
 
-<div id="loginPage" class="login">
+<div id="loginPage">
 
   <div class="login-box">
 
-    <div class="login-logo">
-      🏘️
-    </div>
+    <div class="login-logo">🏘️</div>
 
-    <h1>
-      Desa Wawongkolono
-    </h1>
+    <h1>Desa Wawongkolono</h1>
 
-    <div class="login-subtitle">
+    <div class="login-sub">
       Kecamatan Menui Kepulauan<br>
       Kabupaten Morowali<br>
       Sulawesi Tengah
     </div>
 
-    <label for="username">
-      Username
-    </label>
+    <label>Username</label>
+    <input id="username" type="text"
+      placeholder="Masukkan username">
 
-    <input
-      id="username"
-      type="text"
-      placeholder="Masukkan username"
-      autocomplete="username"
-    >
-
-    <label for="password">
-      Password
-    </label>
-
-    <input
-      id="password"
-      type="password"
+    <label>Password</label>
+    <input id="password" type="password"
       placeholder="Masukkan password"
-      autocomplete="current-password"
-      onkeydown="if(event.key==='Enter')login()"
-    >
+      onkeydown="if(event.key==='Enter')login()">
 
-    <button
-      class="login-button"
-      onclick="login()"
-    >
+    <button class="btn-login" onclick="login()">
       🔐 MASUK
     </button>
 
-    <div id="loginError"></div>
-
-    <div class="login-line"></div>
+    <div id="errorLogin"></div>
 
   </div>
 
 </div>
 
 
-<!-- =========================
-     CONTOH APP
-     Jangan diubah kalau sudah
-     ada aplikasi utama
-========================= -->
+<!-- =====================================================
+     APLIKASI
+===================================================== -->
 
 <div id="app">
+
+  <header class="header">
+
+    <div class="header-title">
+      🏘️ Desa Wawongkolono
+    </div>
+
+    <div class="header-user">
+      <span id="userInfo"></span>
+
+      <button class="btn-logout" onclick="logout()">
+        Keluar
+      </button>
+    </div>
+
+  </header>
+
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+      <h3>MENU DESA</h3>
+
+      <button class="menu active"
+        onclick="showPage('dashboard',this)">
+        🏠 Dashboard
+      </button>
+
+      <button class="menu"
+        onclick="showPage('penduduk',this)">
+        👥 Penduduk
+      </button>
+
+      <button class="menu"
+        onclick="showPage('kk',this)">
+        👨‍👩‍👧 Kartu Keluarga
+      </button>
+
+      <button class="menu"
+        onclick="showPage('dusun',this)">
+        🏘️ Dusun
+      </button>
+
+      <button class="menu"
+        onclick="showPage('bantuan',this)">
+        💰 Bantuan
+      </button>
+
+      <button class="menu"
+        onclick="showPage('program',this)">
+        📋 Program Desa
+      </button>
+
+      <button class="menu"
+        onclick="showPage('aspirasi',this)">
+        💬 Aspirasi
+      </button>
+
+      <button class="menu"
+        onclick="showPage('surat',this)">
+        📄 Surat
+      </button>
+
+    </aside>
+
+
+    <!-- CONTENT -->
+
+    <main class="content">
+
+
+      <!-- DASHBOARD -->
+
+      <section id="dashboard" class="page active">
+
+        <h2 class="page-title">
+          Dashboard Desa
+        </h2>
+
+        <div class="cards">
+
+          <div class="card">
+            <div class="number" id="totalPenduduk">0</div>
+            <div class="label">Total Penduduk</div>
+          </div>
+
+          <div class="card">
+            <div class="number" id="totalKK">0</div>
+            <div class="label">Kartu Keluarga</div>
+          </div>
+
+          <div class="card">
+            <div class="number" id="totalBantuan">0</div>
+            <div class="label">Data Bantuan</div>
+          </div>
+
+          <div class="card">
+            <div class="number" id="totalSurat">0</div>
+            <div class="label">Surat Dibuat</div>
+          </div>
+
+        </div>
+
+        <div class="panel">
+
+          <h3>Informasi Desa</h3>
+
+          <p>
+            Selamat datang di Sistem Administrasi
+            Desa Wawongkolono.
+          </p>
+
+          <p>
+            Sistem ini digunakan untuk mengelola
+            data penduduk, kartu keluarga, bantuan,
+            program desa, aspirasi masyarakat,
+            dan administrasi surat.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- PENDUDUK -->
+
+      <section id="penduduk" class="page">
+
+        <h2 class="page-title">
+          Data Penduduk
+        </h2>
+
+        <div class="panel">
+
+          <div class="form-grid">
+
+            <div class="field">
+              <label>NIK</label>
+              <input id="p_nik">
+            </div>
+
+            <div class="field">
+              <label>Nama Lengkap</label>
+              <input id="p_nama">
+            </div>
+
+            <div class="field">
+              <label>Jenis Kelamin</label>
+              <select id="p_jk">
+                <option value="">Pilih</option>
+                <option>Laki-laki</option>
+                <option>Perempuan</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Tempat/Tanggal Lahir</label>
+              <input id="p_lahir">
+            </div>
+
+            <div class="field">
+              <label>Dusun</label>
+              <select id="p_dusun">
+                <option>Dusun 1</option>
+                <option>Dusun 2</option>
+                <option>Dusun 3</option>
+                <option>Dusun 4</option>
+                <option>Dusun 5</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Agama</label>
+              <input id="p_agama">
+            </div>
+
+            <div class="field">
+              <label>Pekerjaan</label>
+              <input id="p_pekerjaan">
+            </div>
+
+            <div class="field">
+              <label>Status Perkawinan</label>
+              <input id="p_status">
+            </div>
+
+            <div class="field full">
+              <label>Alamat</label>
+              <textarea id="p_alamat"></textarea>
+            </div>
+
+          </div>
+
+          <div class="actions">
+
+            <button class="btn btn-red"
+              onclick="tambahPenduduk()">
+              + Simpan Data
+            </button>
+
+            <button class="btn btn-green"
+              onclick="exportPenduduk()">
+              📊 Export Excel
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="panel">
+
+          <input class="search"
+            placeholder="🔎 Cari NIK atau nama..."
+            oninput="renderPenduduk(this.value)">
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>NIK</th>
+                  <th>Nama</th>
+                  <th>JK</th>
+                  <th>Dusun</th>
+                  <th>Pekerjaan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="tabelPenduduk"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- KK -->
+
+      <section id="kk" class="page">
+
+        <h2 class="page-title">
+          Kartu Keluarga
+        </h2>
+
+        <div class="panel">
+
+          <div class="form-grid">
+
+            <div class="field">
+              <label>Nomor KK</label>
+              <input id="kk_nomor">
+            </div>
+
+            <div class="field">
+              <label>NIK Kepala Keluarga</label>
+              <input id="kk_nik">
+            </div>
+
+            <div class="field">
+              <label>Nama Kepala Keluarga</label>
+              <input id="kk_nama">
+            </div>
+
+            <div class="field">
+              <label>Dusun</label>
+              <select id="kk_dusun">
+                <option>Dusun 1</option>
+                <option>Dusun 2</option>
+                <option>Dusun 3</option>
+                <option>Dusun 4</option>
+                <option>Dusun 5</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="actions">
+
+            <button class="btn btn-red"
+              onclick="tambahKK()">
+              + Simpan KK
+            </button>
+
+            <button class="btn btn-green"
+              onclick="exportKK()">
+              📊 Export Excel
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="panel">
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>No. KK</th>
+                  <th>NIK Kepala</th>
+                  <th>Nama Kepala</th>
+                  <th>Dusun</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="tabelKK"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- DUSUN -->
+
+      <section id="dusun" class="page">
+
+        <h2 class="page-title">
+          Data Dusun
+        </h2>
+
+        <div class="cards">
+
+          <div class="card">
+            <div class="number" id="d1">0</div>
+            <div class="label">Dusun 1</div>
+          </div>
+
+          <div class="card">
+            <div class="number" id="d2">0</div>
+            <div class="label">Dusun 2</div>
+          </div>
+
+          <div class="card">
+            <div class="number" id="d3">0</div>
+            <div class="label">Dusun 3</div>
+          </div>
+
+          <div class="card">
+            <div class="number" id="d4">0</div>
+            <div class="label">Dusun 4</div>
+          </div>
+
+        </div>
+
+        <div class="panel">
+
+          <h3>Dusun 5</h3>
+
+          <div class="card">
+            <div class="number" id="d5">0</div>
+            <div class="label">Jumlah Penduduk</div>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- BANTUAN -->
+
+      <section id="bantuan" class="page">
+
+        <h2 class="page-title">
+          Data Bantuan
+        </h2>
+
+        <div class="panel">
+
+          <div class="form-grid">
+
+            <div class="field">
+              <label>NIK</label>
+              <input id="b_nik">
+            </div>
+
+            <div class="field">
+              <label>Nama Penerima</label>
+              <input id="b_nama">
+            </div>
+
+            <div class="field">
+              <label>Jenis Bantuan</label>
+              <input id="b_jenis">
+            </div>
+
+            <div class="field">
+              <label>Tahun</label>
+              <input id="b_tahun" type="number">
+            </div>
+
+          </div>
+
+          <div class="actions">
+
+            <button class="btn btn-red"
+              onclick="tambahBantuan()">
+              + Simpan Bantuan
+            </button>
+
+            <button class="btn btn-green"
+              onclick="exportBantuan()">
+              📊 Export Excel
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="panel">
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>NIK</th>
+                  <th>Nama</th>
+                  <th>Bantuan</th>
+                  <th>Tahun</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="tabelBantuan"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- PROGRAM -->
+
+      <section id="program" class="page">
+
+        <h2 class="page-title">
+          Program Desa
+        </h2>
+
+        <div class="panel">
+
+          <div class="form-grid">
+
+            <div class="field">
+              <label>Nama Program</label>
+              <input id="pr_nama">
+            </div>
+
+            <div class="field">
+              <label>Tahun</label>
+              <input id="pr_tahun">
+            </div>
+
+            <div class="field full">
+              <label>Keterangan</label>
+              <textarea id="pr_ket"></textarea>
+            </div>
+
+          </div>
+
+          <div class="actions">
+
+            <button class="btn btn-red"
+              onclick="tambahProgram()">
+              + Simpan Program
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="panel">
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Program</th>
+                  <th>Tahun</th>
+                  <th>Keterangan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="tabelProgram"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ASPIRASI -->
+
+      <section id="aspirasi" class="page">
+
+        <h2 class="page-title">
+          Aspirasi Masyarakat
+        </h2>
+
+        <div class="panel">
+
+          <div class="form-grid">
+
+            <div class="field">
+              <label>Nama</label>
+              <input id="a_nama">
+            </div>
+
+            <div class="field">
+              <label>Dusun</label>
+              <select id="a_dusun">
+                <option>Dusun 1</option>
+                <option>Dusun 2</option>
+                <option>Dusun 3</option>
+                <option>Dusun 4</option>
+                <option>Dusun 5</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label>Aspirasi</label>
+              <textarea id="a_isi"></textarea>
+            </div>
+
+          </div>
+
+          <button class="btn btn-red"
+            onclick="tambahAspirasi()">
+            + Simpan Aspirasi
+          </button>
+
+        </div>
+
+        <div class="panel">
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama</th>
+                  <th>Dusun</th>
+                  <th>Aspirasi</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+
+              <tbody id="tabelAspirasi"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- SURAT -->
+
+      <section id="surat" class="page">
+
+        <h2 class="page-title">
+          Administrasi Surat
+        </h2>
+
+        <div class="panel">
+
+          <div class="form-grid">
+
+            <div class="field">
+              <label>Nomor Surat</label>
+              <input id="s_nomor"
+                value="470/001/DWK/IX/2026">
+            </div>
+
+            <div class="field">
+              <label>Jenis Surat</label>
+
+              <select id="s_jenis">
+
+                <option>
+                  Surat Keterangan Domisili
+                </option>
+
+                <option>
+                  Surat Keterangan Tidak Mampu
+                </option>
+
+                <option>
+                  Surat Keterangan Usaha
+                </option>
+
+                <option>
+                  Surat Keterangan Penghasilan
+                </option>
+
+                <option>
+                  Surat Keterangan Umum
+                </option>
+
+              </select>
+
+            </div>
+
+            <div class="field">
+              <label>NIK Penduduk</label>
+              <input id="s_nik"
+                oninput="cariPendudukSurat()">
+            </div>
+
+            <div class="field">
+              <label>Nama</label>
+              <input id="s_nama">
+            </div>
+
+            <div class="field">
+              <label>Tempat/Tanggal Lahir</label>
+              <input id="s_lahir">
+            </div>
+
+            <div class="field">
+              <label>Jenis Kelamin</label>
+              <input id="s_jk">
+            </div>
+
+            <div class="field">
+              <label>Agama</label>
+              <input id="s_agama">
+            </div>
+
+            <div class="field">
+              <label>Pekerjaan</label>
+              <input id="s_pekerjaan">
+            </div>
+
+            <div class="field">
+              <label>Dusun</label>
+              <input id="s_dusun">
+            </div>
+
+            <div class="field">
+              <label>Tanggal Surat</label>
+              <input id="s_tanggal" type="date">
+            </div>
+
+            <div class="field full">
+              <label>Keperluan/Keterangan</label>
+              <textarea id="s_keterangan"></textarea>
+            </div>
+
+          </div>
+
+          <div class="actions">
+
+            <button class="btn btn-red"
+              onclick="previewSurat()">
+              👁️ Preview Surat
+            </button>
+
+            <button class="btn btn-blue"
+              onclick="printSurat()">
+              🖨️ Cetak / PDF
+            </button>
+
+            <button class="btn btn-green"
+              onclick="downloadWord()">
+              📝 Word
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="panel">
+
+          <h3>Surat yang Telah Dibuat</h3>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>No</th>
+                  <th>Nomor Surat</th>
+                  <th>Jenis</th>
+                  <th>Nama</th>
+                  <th>Tanggal</th>
+                  <th>Aksi</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="tabelSurat"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL PREVIEW SURAT
+===================================================== -->
+
+<div class="modal" id="modalSurat">
+
+  <div class="modal-box">
+
+    <div class="actions">
+
+      <button class="btn btn-red"
+        onclick="printSurat()">
+        🖨️ Cetak / PDF
+      </button>
+
+      <button class="btn btn-gray"
+        onclick="closeModal()">
+        Tutup
+      </button>
+
+    </div>
+
+    <div id="printArea" class="surat"></div>
+
+  </div>
+
 </div>
 
 
 <script>
 
-/* =========================
+/* =====================================================
+   DATABASE LOCAL
+===================================================== */
+
+const KEY="DESA_WAWONGKOLONO_V3";
+
+let db=JSON.parse(
+  localStorage.getItem(KEY)
+)||{
+  penduduk:[],
+  kk:[],
+  bantuan:[],
+  program:[],
+  aspirasi:[],
+  surat:[]
+};
+
+let currentUser=null;
+
+
+/* =====================================================
    AKUN
-========================= */
+===================================================== */
 
 const akun={
 
   "admin@wawongkolono.desa":{
     nama:"Administrator / Kepala Desa",
-    dusun:"ALL"
-  },
-
-  "kades":{
-    nama:"Kepala Desa",
     dusun:"ALL"
   },
 
@@ -469,103 +1380,1112 @@ const akun={
 
 };
 
-
-/* =========================
-   PASSWORD
-========================= */
-
 const PASSWORD="desa123";
 
 
-/* =========================
+/* =====================================================
    LOGIN
-========================= */
+===================================================== */
 
 function login(){
 
   const u=document
     .getElementById("username")
-    .value
-    .trim()
-    .toLowerCase();
+    .value.trim().toLowerCase();
 
   const p=document
     .getElementById("password")
     .value;
 
-  const error=document
-    .getElementById("loginError");
-
+  const err=document
+    .getElementById("errorLogin");
 
   if(!akun[u]){
-
-    error.textContent=
-      "Username tidak terdaftar.";
-
+    err.textContent="Username tidak terdaftar.";
     return;
-
   }
-
 
   if(p!==PASSWORD){
-
-    error.textContent=
-      "Password salah.";
-
+    err.textContent="Password salah.";
     return;
-
   }
 
-
-  const currentUser={
-
+  currentUser={
     username:u,
-
     nama:akun[u].nama,
-
     dusun:akun[u].dusun
-
   };
-
 
   sessionStorage.setItem(
     "DESA_USER",
     JSON.stringify(currentUser)
   );
 
-
-  document
-    .getElementById("loginPage")
-    .style.display="none";
+  bukaAplikasi();
+}
 
 
-  document
-    .getElementById("app")
-    .style.display="block";
+/* =====================================================
+   BUKA APLIKASI
+===================================================== */
+
+function bukaAplikasi(){
+
+  document.getElementById("loginPage").style.display="none";
+
+  document.getElementById("app").style.display="block";
+
+  document.getElementById("userInfo").textContent=
+    currentUser.nama;
+
+  renderAll();
 
 }
 
 
-/* =========================
-   ENTER LOGIN
-========================= */
+/* =====================================================
+   LOGOUT
+===================================================== */
 
-document
-  .getElementById("username")
-  .addEventListener(
-    "keydown",
-    function(event){
+function logout(){
 
-      if(event.key==="Enter"){
+  sessionStorage.removeItem("DESA_USER");
 
-        document
-          .getElementById("password")
-          .focus();
+  location.reload();
 
-      }
+}
 
+
+/* =====================================================
+   NAVIGASI
+===================================================== */
+
+function showPage(id,btn){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(p=>p.classList.remove("active"));
+
+  document
+    .getElementById(id)
+    .classList.add("active");
+
+  document
+    .querySelectorAll(".menu")
+    .forEach(b=>b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  renderAll();
+
+}
+
+
+/* =====================================================
+   SAVE
+===================================================== */
+
+function save(){
+
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(db)
+  );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function esc(v){
+
+  return String(v??"")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;");
+
+}
+
+
+/* =====================================================
+   PENDUDUK
+===================================================== */
+
+function tambahPenduduk(){
+
+  const data={
+
+    id:Date.now(),
+
+    nik:document.getElementById("p_nik").value,
+
+    nama:document.getElementById("p_nama").value,
+
+    jk:document.getElementById("p_jk").value,
+
+    lahir:document.getElementById("p_lahir").value,
+
+    dusun:document.getElementById("p_dusun").value,
+
+    agama:document.getElementById("p_agama").value,
+
+    pekerjaan:document.getElementById("p_pekerjaan").value,
+
+    status:document.getElementById("p_status").value,
+
+    alamat:document.getElementById("p_alamat").value
+
+  };
+
+  if(!data.nik||!data.nama){
+
+    alert("NIK dan nama wajib diisi.");
+
+    return;
+
+  }
+
+  db.penduduk.push(data);
+
+  save();
+
+  clearPenduduk();
+
+  renderAll();
+
+  alert("Data penduduk berhasil disimpan.");
+
+}
+
+
+function clearPenduduk(){
+
+  [
+    "p_nik","p_nama","p_lahir",
+    "p_agama","p_pekerjaan",
+    "p_status","p_alamat"
+  ].forEach(id=>{
+    document.getElementById(id).value="";
+  });
+
+}
+
+
+function hapus(type,id){
+
+  if(!confirm("Hapus data ini?"))return;
+
+  db[type]=db[type].filter(x=>x.id!==id);
+
+  save();
+
+  renderAll();
+
+}
+
+
+function renderPenduduk(filter=""){
+
+  const tbody=document.getElementById("tabelPenduduk");
+
+  const f=filter.toLowerCase();
+
+  const data=db.penduduk.filter(x=>
+    x.nik.toLowerCase().includes(f)||
+    x.nama.toLowerCase().includes(f)
+  );
+
+  tbody.innerHTML=data.map((x,i)=>`
+
+    <tr>
+
+      <td>${i+1}</td>
+
+      <td>${esc(x.nik)}</td>
+
+      <td>${esc(x.nama)}</td>
+
+      <td>${esc(x.jk)}</td>
+
+      <td>${esc(x.dusun)}</td>
+
+      <td>${esc(x.pekerjaan)}</td>
+
+      <td>
+        <button class="btn btn-red"
+          onclick="hapus('penduduk',${x.id})">
+          Hapus
+        </button>
+      </td>
+
+    </tr>
+
+  `).join("");
+
+}
+
+
+/* =====================================================
+   KK
+===================================================== */
+
+function tambahKK(){
+
+  const data={
+
+    id:Date.now(),
+
+    nomor:document.getElementById("kk_nomor").value,
+
+    nik:document.getElementById("kk_nik").value,
+
+    nama:document.getElementById("kk_nama").value,
+
+    dusun:document.getElementById("kk_dusun").value
+
+  };
+
+  if(!data.nomor||!data.nama){
+
+    alert("Nomor KK dan nama wajib diisi.");
+
+    return;
+
+  }
+
+  db.kk.push(data);
+
+  save();
+
+  renderAll();
+
+  ["kk_nomor","kk_nik","kk_nama"]
+    .forEach(id=>document.getElementById(id).value="");
+
+}
+
+
+function renderKK(){
+
+  document.getElementById("tabelKK").innerHTML=
+    db.kk.map((x,i)=>`
+
+    <tr>
+
+      <td>${i+1}</td>
+      <td>${esc(x.nomor)}</td>
+      <td>${esc(x.nik)}</td>
+      <td>${esc(x.nama)}</td>
+      <td>${esc(x.dusun)}</td>
+
+      <td>
+        <button class="btn btn-red"
+          onclick="hapus('kk',${x.id})">
+          Hapus
+        </button>
+      </td>
+
+    </tr>
+
+  `).join("");
+
+}
+
+
+/* =====================================================
+   BANTUAN
+===================================================== */
+
+function tambahBantuan(){
+
+  const data={
+
+    id:Date.now(),
+
+    nik:document.getElementById("b_nik").value,
+
+    nama:document.getElementById("b_nama").value,
+
+    jenis:document.getElementById("b_jenis").value,
+
+    tahun:document.getElementById("b_tahun").value
+
+  };
+
+  if(!data.nama||!data.jenis){
+
+    alert("Nama dan jenis bantuan wajib diisi.");
+
+    return;
+
+  }
+
+  db.bantuan.push(data);
+
+  save();
+
+  renderAll();
+
+}
+
+
+function renderBantuan(){
+
+  document.getElementById("tabelBantuan").innerHTML=
+    db.bantuan.map((x,i)=>`
+
+    <tr>
+
+      <td>${i+1}</td>
+      <td>${esc(x.nik)}</td>
+      <td>${esc(x.nama)}</td>
+      <td>${esc(x.jenis)}</td>
+      <td>${esc(x.tahun)}</td>
+
+      <td>
+        <button class="btn btn-red"
+          onclick="hapus('bantuan',${x.id})">
+          Hapus
+        </button>
+      </td>
+
+    </tr>
+
+  `).join("");
+
+}
+
+
+/* =====================================================
+   PROGRAM
+===================================================== */
+
+function tambahProgram(){
+
+  db.program.push({
+
+    id:Date.now(),
+
+    nama:document.getElementById("pr_nama").value,
+
+    tahun:document.getElementById("pr_tahun").value,
+
+    ket:document.getElementById("pr_ket").value
+
+  });
+
+  save();
+
+  renderAll();
+
+}
+
+
+function renderProgram(){
+
+  document.getElementById("tabelProgram").innerHTML=
+    db.program.map((x,i)=>`
+
+    <tr>
+
+      <td>${i+1}</td>
+      <td>${esc(x.nama)}</td>
+      <td>${esc(x.tahun)}</td>
+      <td>${esc(x.ket)}</td>
+
+      <td>
+        <button class="btn btn-red"
+          onclick="hapus('program',${x.id})">
+          Hapus
+        </button>
+      </td>
+
+    </tr>
+
+  `).join("");
+
+}
+
+
+/* =====================================================
+   ASPIRASI
+===================================================== */
+
+function tambahAspirasi(){
+
+  db.aspirasi.push({
+
+    id:Date.now(),
+
+    nama:document.getElementById("a_nama").value,
+
+    dusun:document.getElementById("a_dusun").value,
+
+    isi:document.getElementById("a_isi").value
+
+  });
+
+  save();
+
+  renderAll();
+
+}
+
+
+function renderAspirasi(){
+
+  document.getElementById("tabelAspirasi").innerHTML=
+    db.aspirasi.map((x,i)=>`
+
+    <tr>
+
+      <td>${i+1}</td>
+      <td>${esc(x.nama)}</td>
+      <td>${esc(x.dusun)}</td>
+      <td>${esc(x.isi)}</td>
+
+      <td>
+        <button class="btn btn-red"
+          onclick="hapus('aspirasi',${x.id})">
+          Hapus
+        </button>
+      </td>
+
+    </tr>
+
+  `).join("");
+
+}
+
+
+/* =====================================================
+   SURAT - CARI PENDUDUK
+===================================================== */
+
+function cariPendudukSurat(){
+
+  const nik=document.getElementById("s_nik").value;
+
+  const p=db.penduduk.find(x=>x.nik===nik);
+
+  if(!p)return;
+
+  document.getElementById("s_nama").value=p.nama;
+  document.getElementById("s_lahir").value=p.lahir;
+  document.getElementById("s_jk").value=p.jk;
+  document.getElementById("s_agama").value=p.agama;
+  document.getElementById("s_pekerjaan").value=p.pekerjaan;
+  document.getElementById("s_dusun").value=p.dusun;
+
+}
+
+
+/* =====================================================
+   SURAT HTML
+===================================================== */
+
+function isiSurat(){
+
+  const nomor=document.getElementById("s_nomor").value;
+
+  const jenis=document.getElementById("s_jenis").value;
+
+  const nik=document.getElementById("s_nik").value;
+
+  const nama=document.getElementById("s_nama").value;
+
+  const lahir=document.getElementById("s_lahir").value;
+
+  const jk=document.getElementById("s_jk").value;
+
+  const agama=document.getElementById("s_agama").value;
+
+  const pekerjaan=document.getElementById("s_pekerjaan").value;
+
+  const dusun=document.getElementById("s_dusun").value;
+
+  const tanggal=document.getElementById("s_tanggal").value;
+
+  const ket=document.getElementById("s_keterangan").value;
+
+  return `
+
+    <div class="kop">
+
+      <h2>PEMERINTAH KABUPATEN MOROWALI</h2>
+
+      <h3>KECAMATAN MENUI KEPULAUAN</h3>
+
+      <h2>DESA WAWONGKOLONO</h2>
+
+      <div>
+        Alamat Kantor Desa Wawongkolono
+      </div>
+
+    </div>
+
+    <div class="surat-title">
+
+      <strong>
+        SURAT KETERANGAN
+      </strong>
+
+      <br>
+
+      Nomor: ${esc(nomor)}
+
+    </div>
+
+    <p class="surat-body">
+
+      Yang bertanda tangan di bawah ini, Pemerintah
+      Desa Wawongkolono, Kecamatan Menui Kepulauan,
+      Kabupaten Morowali, menerangkan bahwa:
+
+    </p>
+
+    <table style="min-width:0">
+
+      <tr>
+        <td width="180">Nama</td>
+        <td>: ${esc(nama)}</td>
+      </tr>
+
+      <tr>
+        <td>NIK</td>
+        <td>: ${esc(nik)}</td>
+      </tr>
+
+      <tr>
+        <td>Tempat/Tanggal Lahir</td>
+        <td>: ${esc(lahir)}</td>
+      </tr>
+
+      <tr>
+        <td>Jenis Kelamin</td>
+        <td>: ${esc(jk)}</td>
+      </tr>
+
+      <tr>
+        <td>Agama</td>
+        <td>: ${esc(agama)}</td>
+      </tr>
+
+      <tr>
+        <td>Pekerjaan</td>
+        <td>: ${esc(pekerjaan)}</td>
+      </tr>
+
+      <tr>
+        <td>Dusun</td>
+        <td>: ${esc(dusun)}</td>
+      </tr>
+
+    </table>
+
+    <p class="surat-body">
+
+      Nama tersebut di atas benar merupakan penduduk
+      Desa Wawongkolono dan surat ini dibuat untuk
+      keperluan <strong>${esc(ket||jenis)}</strong>.
+
+    </p>
+
+    <p class="surat-body">
+
+      Demikian surat keterangan ini dibuat dengan
+      sebenarnya untuk dapat dipergunakan sebagaimana
+      mestinya.
+
+    </p>
+
+    <div class="ttd">
+
+      Wawongkolono, ${formatTanggal(tanggal)}
+
+      <br><br><br><br>
+
+      <strong>
+        KEPALA DESA WAWONGKOLONO
+      </strong>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   PREVIEW SURAT
+===================================================== */
+
+function previewSurat(){
+
+  const html=isiSurat();
+
+  document.getElementById("printArea").innerHTML=html;
+
+  document
+    .getElementById("modalSurat")
+    .classList.add("show");
+
+  simpanSurat();
+
+}
+
+
+function closeModal(){
+
+  document
+    .getElementById("modalSurat")
+    .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   SIMPAN SURAT
+===================================================== */
+
+function simpanSurat(){
+
+  const nomor=document.getElementById("s_nomor").value;
+
+  if(!nomor)return;
+
+  const sudah=db.surat.some(x=>x.nomor===nomor);
+
+  if(sudah)return;
+
+  db.surat.push({
+
+    id:Date.now(),
+
+    nomor,
+
+    jenis:document.getElementById("s_jenis").value,
+
+    nama:document.getElementById("s_nama").value,
+
+    tanggal:document.getElementById("s_tanggal").value
+
+  });
+
+  save();
+
+  renderSurat();
+
+}
+
+
+/* =====================================================
+   PRINT / PDF
+===================================================== */
+
+function printSurat(){
+
+  const html=isiSurat();
+
+  const win=window.open("","_blank");
+
+  win.document.write(`
+
+    <!DOCTYPE html>
+
+    <html>
+
+    <head>
+
+      <title>Surat Desa Wawongkolono</title>
+
+      <style>
+
+        body{
+          margin:0;
+          font-family:"Times New Roman",serif;
+        }
+
+        .surat{
+          padding:35px;
+          max-width:800px;
+          margin:auto;
+          line-height:1.5;
+        }
+
+        .kop{
+          text-align:center;
+          border-bottom:3px solid #000;
+          padding-bottom:10px;
+          margin-bottom:25px;
+        }
+
+        .kop h2,.kop h3{
+          margin:2px;
+        }
+
+        .surat-title{
+          text-align:center;
+          margin:25px 0;
+        }
+
+        .surat-body{
+          text-align:justify;
+        }
+
+        table{
+          width:100%;
+          border-collapse:collapse;
+        }
+
+        td{
+          padding:4px;
+          vertical-align:top;
+        }
+
+        .ttd{
+          margin-top:60px;
+          margin-left:auto;
+          width:250px;
+          text-align:center;
+        }
+
+        @page{
+          size:A4;
+          margin:20mm;
+        }
+
+      </style>
+
+    </head>
+
+    <body>
+
+      <div class="surat">
+        ${html}
+      </div>
+
+      <script>
+
+        window.onload=function(){
+          window.print();
+        }
+
+      <\/script>
+
+    </body>
+
+    </html>
+
+  `);
+
+  win.document.close();
+
+}
+
+
+/* =====================================================
+   WORD
+===================================================== */
+
+function downloadWord(){
+
+  const html=isiSurat();
+
+  const content=`
+
+    <html>
+
+    <head>
+      <meta charset="UTF-8">
+    </head>
+
+    <body>
+
+      ${html}
+
+    </body>
+
+    </html>
+
+  `;
+
+  const blob=new Blob(
+    [content],
+    {type:"application/msword"}
+  );
+
+  const url=URL.createObjectURL(blob);
+
+  const a=document.createElement("a");
+
+  a.href=url;
+
+  a.download=
+    "Surat-Desa-Wawongkolono.doc";
+
+  a.click();
+
+  URL.revokeObjectURL(url);
+
+}
+
+
+/* =====================================================
+   RENDER SURAT
+===================================================== */
+
+function renderSurat(){
+
+  document.getElementById("tabelSurat").innerHTML=
+    db.surat.map((x,i)=>`
+
+    <tr>
+
+      <td>${i+1}</td>
+
+      <td>${esc(x.nomor)}</td>
+
+      <td>${esc(x.jenis)}</td>
+
+      <td>${esc(x.nama)}</td>
+
+      <td>${formatTanggal(x.tanggal)}</td>
+
+      <td>
+
+        <button
+          class="btn btn-red"
+          onclick="hapus('surat',${x.id})">
+          Hapus
+        </button>
+
+      </td>
+
+    </tr>
+
+  `).join("");
+
+}
+
+
+/* =====================================================
+   DUSUN
+===================================================== */
+
+function renderDusun(){
+
+  for(let i=1;i<=5;i++){
+
+    const jumlah=db.penduduk.filter(
+      x=>x.dusun==="Dusun "+i
+    ).length;
+
+    const el=document.getElementById("d"+i);
+
+    if(el)el.textContent=jumlah;
+
+  }
+
+}
+
+
+/* =====================================================
+   EXPORT CSV / EXCEL
+===================================================== */
+
+function downloadCSV(data,filename){
+
+  if(!data.length){
+
+    alert("Tidak ada data untuk diekspor.");
+
+    return;
+
+  }
+
+  const keys=Object.keys(data[0]);
+
+  const rows=[keys];
+
+  data.forEach(item=>{
+
+    rows.push(
+      keys.map(k=>
+        String(item[k]??"")
+          .replace(/"/g,'""')
+      )
+    );
+
+  });
+
+  const csv=rows.map(row=>
+    row.map(v=>`"${v}"`).join(";")
+  ).join("\n");
+
+  const blob=new Blob(
+    ["\ufeff"+csv],
+    {type:"text/csv;charset=utf-8;"}
+  );
+
+  const url=URL.createObjectURL(blob);
+
+  const a=document.createElement("a");
+
+  a.href=url;
+  a.download=filename;
+
+  a.click();
+
+  URL.revokeObjectURL(url);
+
+}
+
+
+function exportPenduduk(){
+
+  downloadCSV(
+    db.penduduk,
+    "Data-Penduduk-Wawongkolono.csv"
+  );
+
+}
+
+
+function exportKK(){
+
+  downloadCSV(
+    db.kk,
+    "Data-KK-Wawongkolono.csv"
+  );
+
+}
+
+
+function exportBantuan(){
+
+  downloadCSV(
+    db.bantuan,
+    "Data-Bantuan-Wawongkolono.csv"
+  );
+
+}
+
+
+/* =====================================================
+   FORMAT TANGGAL
+===================================================== */
+
+function formatTanggal(t){
+
+  if(!t)return "........................";
+
+  const d=new Date(t+"T00:00:00");
+
+  return d.toLocaleDateString(
+    "id-ID",
+    {
+      day:"numeric",
+      month:"long",
+      year:"numeric"
     }
   );
+
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+function renderDashboard(){
+
+  document.getElementById("totalPenduduk")
+    .textContent=db.penduduk.length;
+
+  document.getElementById("totalKK")
+    .textContent=db.kk.length;
+
+  document.getElementById("totalBantuan")
+    .textContent=db.bantuan.length;
+
+  document.getElementById("totalSurat")
+    .textContent=db.surat.length;
+
+}
+
+
+/* =====================================================
+   RENDER SEMUA
+===================================================== */
+
+function renderAll(){
+
+  renderDashboard();
+
+  renderPenduduk();
+
+  renderKK();
+
+  renderBantuan();
+
+  renderProgram();
+
+  renderAspirasi();
+
+  renderSurat();
+
+  renderDusun();
+
+}
+
+
+/* =====================================================
+   SESSION
+===================================================== */
+
+(function(){
+
+  const saved=sessionStorage.getItem("DESA_USER");
+
+  if(saved){
+
+    try{
+
+      currentUser=JSON.parse(saved);
+
+      bukaAplikasi();
+
+    }catch(e){
+
+      sessionStorage.removeItem("DESA_USER");
+
+    }
+
+  }
+
+})();
+
+
+/* =====================================================
+   TANGGAL DEFAULT
+===================================================== */
+
+(function(){
+
+  const el=document.getElementById("s_tanggal");
+
+  if(el){
+
+    el.value=
+      new Date().toISOString().split("T")[0];
+
+  }
+
+})();
 
 </script>
 
