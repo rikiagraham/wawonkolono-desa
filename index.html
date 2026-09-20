@@ -963,19 +963,28 @@ pendudukForm.addEventListener("submit", async function(e){
         const nomor_kk =
             document.getElementById("nomor_kk").value.trim();
 
-        const dusunValue =
-            document.getElementById("dusun").value;
+        // Ambil nilai dusun dan normalkan sebelum dikirim ke Supabase.
+        // Kode ini aman jika nilai yang datang berupa "2", "Dusun 2",
+        // atau nilai kosong.
+        const dusunRaw =
+            document.getElementById("dusun").value.trim();
 
-        /* 
-           INI BAGIAN PENTING:
-           Dusun yang dipilih "Dusun 2"
-           dikirim ke database sebagai angka 2.
-        */
+        let dusun = null;
 
-        const dusun =
-            dusunValue === ""
-            ? null
-            : Number(dusunValue);
+        if (dusunRaw !== "") {
+            // Jika value berupa "Dusun 2", ambil angka 2.
+            const matchDusun = dusunRaw.match(/(?:dusun\\s*)?(\\d+)/i);
+
+            if (!matchDusun) {
+                throw new Error("Dusun tidak valid. Pilih Dusun 1 sampai Dusun 10.");
+            }
+
+            dusun = Number(matchDusun[1]);
+
+            if (!Number.isInteger(dusun) || dusun < 1 || dusun > 10) {
+                throw new Error("Nomor dusun harus antara 1 sampai 10.");
+            }
+        }
 
         if(!nik){
 
@@ -1165,9 +1174,20 @@ pendudukForm.addEventListener("submit", async function(e){
 
         console.error(error);
 
+        let pesan = error.message || "Terjadi kesalahan.";
+
+        // Pesan khusus untuk error integer dari PostgreSQL/Supabase.
+        if (
+            pesan.includes("invalid input syntax for type integer") &&
+            pesan.includes("Dusun")
+        ) {
+            pesan =
+                "Nilai Dusun harus berupa angka (1-10). " +
+                "Kode sudah diperbaiki agar 'Dusun 2' otomatis menjadi 2.";
+        }
+
         showMessage(
-            "Gagal menyimpan data: " +
-            error.message,
+            "Gagal menyimpan data: " + pesan,
             "error"
         );
 
@@ -1346,8 +1366,15 @@ function namaDusun(value){
         return "-";
     }
 
-    return "Dusun " + value;
+    // Database seharusnya menyimpan angka, tetapi tetap toleran
+    // jika data lama tersimpan sebagai "Dusun 2".
+    const match = String(value).match(/(?:dusun\\s*)?(\\d+)/i);
 
+    if (match) {
+        return "Dusun " + Number(match[1]);
+    }
+
+    return escapeHTML(String(value));
 }
 
 
@@ -1392,7 +1419,11 @@ function editData(id){
         item.dusun === null ||
         item.dusun === undefined
         ? ""
-        : String(item.dusun);
+        : (
+            String(item.dusun).match(/(?:dusun\\s*)?(\\d+)/i)
+            ? String(Number(String(item.dusun).match(/(?:dusun\\s*)?(\\d+)/i)[1]))
+            : ""
+        );
 
     document.getElementById("rt").value =
         item.rt || "";
