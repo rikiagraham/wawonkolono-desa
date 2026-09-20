@@ -544,84 +544,6 @@ th{
     color:#0f4c81;
 }
 
-
-/* =========================
-   BACKGROUND & PROFIL
-========================= */
-
-.login-page{
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-attachment:fixed;
-}
-
-.app{
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    background-attachment:fixed;
-}
-
-.profile-photo{
-    width:90px;
-    height:90px;
-    border-radius:50%;
-    object-fit:cover;
-    display:block;
-    margin:0 auto 14px;
-    border:4px solid #eaf3fb;
-    background:#e2e8f0;
-}
-
-.profile-placeholder{
-    width:90px;
-    height:90px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin:0 auto 14px;
-    background:#eaf3fb;
-    color:#0f4c81;
-    font-size:34px;
-    border:4px solid #eaf3fb;
-}
-
-.profile-card{
-    text-align:center;
-}
-
-.settings-image-preview{
-    width:110px;
-    height:110px;
-    border-radius:50%;
-    object-fit:cover;
-    border:4px solid #e2e8f0;
-    background:#f1f5f9;
-}
-
-.settings-bg-preview{
-    width:100%;
-    height:150px;
-    border-radius:12px;
-    object-fit:cover;
-    background:#e2e8f0;
-    border:1px solid #cbd5e1;
-}
-
-.image-setting-row{
-    display:flex;
-    align-items:center;
-    gap:18px;
-    flex-wrap:wrap;
-    padding:15px;
-    background:#f8fafc;
-    border:1px solid #e2e8f0;
-    border-radius:12px;
-    margin-bottom:12px;
-}
-
 /* =========================
    MOBILE
 ========================= */
@@ -920,47 +842,9 @@ let db = JSON.parse(
         namaDesa:"Desa Wawongkolono",
         kepalaDesa:"Joko",
         whatsappDesa:"",
-        whatsappBPD:"",
-        backgroundLogin:"",
-        backgroundApp:"",
-        profil:{
-            kepala:{nama:"Joko",jabatan:"Kepala Desa Wawongkolono",foto:""},
-            sekretaris:{nama:"",jabatan:"Sekretaris Desa",foto:""},
-            operator:{nama:"",jabatan:"Operator Desa",foto:""},
-            dusun1:{nama:"",jabatan:"Kepala Dusun 1",foto:""},
-            dusun2:{nama:"",jabatan:"Kepala Dusun 2",foto:""},
-            dusun3:{nama:"",jabatan:"Kepala Dusun 3",foto:""},
-            dusun4:{nama:"",jabatan:"Kepala Dusun 4",foto:""},
-            dusun5:{nama:"",jabatan:"Kepala Dusun 5",foto:""},
-            bpd:{nama:"",jabatan:"BPD Desa Wawongkolono",foto:""}
-        }
+        whatsappBPD:""
     }
 };
-
-/* Pastikan pengaturan lama tetap kompatibel */
-db.pengaturan = db.pengaturan || {};
-db.pengaturan.backgroundLogin = db.pengaturan.backgroundLogin || "";
-db.pengaturan.backgroundApp = db.pengaturan.backgroundApp || "";
-db.pengaturan.profil = db.pengaturan.profil || {};
-
-const profilDefault = {
-    kepala:{nama:db.pengaturan.kepalaDesa || "Joko",jabatan:"Kepala Desa Wawongkolono",foto:""},
-    sekretaris:{nama:"",jabatan:"Sekretaris Desa",foto:""},
-    operator:{nama:"",jabatan:"Operator Desa",foto:""},
-    dusun1:{nama:"",jabatan:"Kepala Dusun 1",foto:""},
-    dusun2:{nama:"",jabatan:"Kepala Dusun 2",foto:""},
-    dusun3:{nama:"",jabatan:"Kepala Dusun 3",foto:""},
-    dusun4:{nama:"",jabatan:"Kepala Dusun 4",foto:""},
-    dusun5:{nama:"",jabatan:"Kepala Dusun 5",foto:""},
-    bpd:{nama:"",jabatan:"BPD Desa Wawongkolono",foto:""}
-};
-
-Object.keys(profilDefault).forEach(function(k){
-    db.pengaturan.profil[k] = {
-        ...profilDefault[k],
-        ...(db.pengaturan.profil[k] || {})
-    };
-});
 
 
 /* =====================================================
@@ -1236,152 +1120,10 @@ function logout(){
 
 
 /* =====================================================
-   TAMPILAN BACKGROUND & GAMBAR PROFIL
-===================================================== */
-
-function terapkanTampilan(){
-
-    const loginPage = document.getElementById("loginPage");
-    const app = document.getElementById("app");
-
-    if(loginPage){
-        if(db.pengaturan.backgroundLogin){
-            loginPage.style.backgroundImage =
-                "linear-gradient(rgba(15,76,129,.35),rgba(14,165,233,.35)),url('" +
-                db.pengaturan.backgroundLogin + "')";
-        }else{
-            loginPage.style.backgroundImage = "";
-        }
-    }
-
-    if(app){
-        if(db.pengaturan.backgroundApp){
-            app.style.backgroundImage =
-                "linear-gradient(rgba(241,245,249,.88),rgba(241,245,249,.88)),url('" +
-                db.pengaturan.backgroundApp + "')";
-        }else{
-            app.style.backgroundImage = "";
-        }
-    }
-}
-
-function gambarProfil(kunci){
-
-    const p = db.pengaturan.profil[kunci];
-
-    if(p && p.foto){
-        return `
-            <img
-                class="profile-photo"
-                src="${p.foto}"
-                alt="${p.nama || p.jabatan}">
-        `;
-    }
-
-    return `
-        <div class="profile-placeholder">👤</div>
-    `;
-}
-
-function bacaGambar(input, callback){
-
-    const file = input.files && input.files[0];
-
-    if(!file) return;
-
-    if(!file.type.startsWith("image/")){
-        alert("File harus berupa gambar.");
-        input.value = "";
-        return;
-    }
-
-    const reader = new FileReader();
-
-    reader.onload = function(e){
-
-        const img = new Image();
-
-        img.onload = function(){
-
-            const maxSize = 1000;
-            let w = img.width;
-            let h = img.height;
-
-            if(w > maxSize || h > maxSize){
-
-                if(w >= h){
-                    h = Math.round(h * maxSize / w);
-                    w = maxSize;
-                }else{
-                    w = Math.round(w * maxSize / h);
-                    h = maxSize;
-                }
-
-            }
-
-            const canvas = document.createElement("canvas");
-            canvas.width = w;
-            canvas.height = h;
-
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img,0,0,w,h);
-
-            callback(
-                canvas.toDataURL("image/jpeg",0.82)
-            );
-
-        };
-
-        img.src = e.target.result;
-
-    };
-
-    reader.readAsDataURL(file);
-}
-
-function simpanBackground(input, jenis){
-
-    bacaGambar(input,function(data){
-
-        if(jenis === "login"){
-            db.pengaturan.backgroundLogin = data;
-        }else{
-            db.pengaturan.backgroundApp = data;
-        }
-
-        saveDB();
-        terapkanTampilan();
-        halamanPengaturan();
-
-        alert("Background berhasil diganti.");
-
-    });
-
-}
-
-function simpanFotoProfil(input, kunci){
-
-    bacaGambar(input,function(data){
-
-        db.pengaturan.profil[kunci].foto = data;
-
-        saveDB();
-        halamanPengaturan();
-
-        alert("Foto profil berhasil diganti.");
-
-    });
-
-}
-
-
-/* =====================================================
    INIT
 ===================================================== */
 
 function init(){
-
-    terapkanTampilan();
 
     const saved =
         sessionStorage.getItem(
@@ -1401,8 +1143,6 @@ function init(){
 
 
 function tampilkanApp(){
-
-    terapkanTampilan();
 
     document
         .getElementById("loginPage")
@@ -4500,8 +4240,6 @@ function simpanRapat(e){
 
 function halamanPemerintah(){
 
-    const p = db.pengaturan.profil;
-
     document.getElementById("content").innerHTML = `
 
     <div class="public-banner">
@@ -4518,67 +4256,50 @@ function halamanPemerintah(){
 
     <div class="public-grid">
 
-        <div class="public-card profile-card">
-            ${gambarProfil("kepala")}
+        <div class="public-card">
             <h3>🏛️ Kepala Desa</h3>
-            <p><strong>${p.kepala.nama || "Belum diisi"}</strong></p>
-            <p>${p.kepala.jabatan}</p>
+            <p><strong>Joko</strong></p>
+            <p>Kepala Desa Wawongkolono</p>
         </div>
 
-        <div class="public-card profile-card">
-            ${gambarProfil("sekretaris")}
+        <div class="public-card">
             <h3>📄 Sekretaris Desa</h3>
-            <p><strong>${p.sekretaris.nama || "Belum diisi"}</strong></p>
-            <p>${p.sekretaris.jabatan}</p>
+            <p>Data belum diisi.</p>
         </div>
 
-        <div class="public-card profile-card">
-            ${gambarProfil("operator")}
+        <div class="public-card">
             <h3>🖥️ Operator</h3>
-            <p><strong>${p.operator.nama || "Belum diisi"}</strong></p>
-            <p>${p.operator.jabatan}</p>
+            <p>Data belum diisi.</p>
         </div>
 
-        <div class="public-card profile-card">
-            ${gambarProfil("dusun1")}
+        <div class="public-card">
             <h3>🏘️ Kepala Dusun 1</h3>
-            <p><strong>${p.dusun1.nama || "Belum diisi"}</strong></p>
-            <p>${p.dusun1.jabatan}</p>
+            <p>Data belum diisi.</p>
         </div>
 
-        <div class="public-card profile-card">
-            ${gambarProfil("dusun2")}
+        <div class="public-card">
             <h3>🏘️ Kepala Dusun 2</h3>
-            <p><strong>${p.dusun2.nama || "Belum diisi"}</strong></p>
-            <p>${p.dusun2.jabatan}</p>
+            <p>Data belum diisi.</p>
         </div>
 
-        <div class="public-card profile-card">
-            ${gambarProfil("dusun3")}
+        <div class="public-card">
             <h3>🏘️ Kepala Dusun 3</h3>
-            <p><strong>${p.dusun3.nama || "Belum diisi"}</strong></p>
-            <p>${p.dusun3.jabatan}</p>
+            <p>Data belum diisi.</p>
         </div>
 
-        <div class="public-card profile-card">
-            ${gambarProfil("dusun4")}
+        <div class="public-card">
             <h3>🏘️ Kepala Dusun 4</h3>
-            <p><strong>${p.dusun4.nama || "Belum diisi"}</strong></p>
-            <p>${p.dusun4.jabatan}</p>
+            <p>Data belum diisi.</p>
         </div>
 
-        <div class="public-card profile-card">
-            ${gambarProfil("dusun5")}
+        <div class="public-card">
             <h3>🏘️ Kepala Dusun 5</h3>
-            <p><strong>${p.dusun5.nama || "Belum diisi"}</strong></p>
-            <p>${p.dusun5.jabatan}</p>
+            <p>Data belum diisi.</p>
         </div>
 
-        <div class="public-card profile-card">
-            ${gambarProfil("bpd")}
+        <div class="public-card">
             <h3>🏛️ BPD</h3>
-            <p><strong>${p.bpd.nama || "Belum diisi"}</strong></p>
-            <p>${p.bpd.jabatan}</p>
+            <p>Data belum diisi.</p>
         </div>
 
     </div>
@@ -5153,33 +4874,13 @@ function halamanPengaturan(){
         return;
     }
 
-    const p = db.pengaturan.profil;
-
-    const profilRows = [
-        ["kepala","Kepala Desa"],
-        ["sekretaris","Sekretaris Desa"],
-        ["operator","Operator Desa"],
-        ["dusun1","Kepala Dusun 1"],
-        ["dusun2","Kepala Dusun 2"],
-        ["dusun3","Kepala Dusun 3"],
-        ["dusun4","Kepala Dusun 4"],
-        ["dusun5","Kepala Dusun 5"],
-        ["bpd","BPD"]
-    ];
-
     document.getElementById("content").innerHTML = `
 
     <h1 class="page-title">
         ⚙️ Pengaturan Desa
     </h1>
 
-    <p class="page-subtitle">
-        Ganti informasi desa, background aplikasi, dan foto profil pemerintah desa.
-    </p>
-
     <div class="card">
-
-        <h3 class="card-title">🏛️ Informasi Desa</h3>
 
         <form onsubmit="simpanPengaturan(event)">
 
@@ -5211,143 +4912,18 @@ function halamanPengaturan(){
                     value="${db.pengaturan.whatsappBPD}">
             </div>
 
-            <button class="btn btn-primary" type="submit">
-                💾 Simpan Informasi
+            <button
+                class="btn btn-primary">
+                💾 Simpan Pengaturan
             </button>
 
         </form>
 
     </div>
 
-    <div class="card">
-
-        <h3 class="card-title">🖼️ Background Aplikasi</h3>
-
-        <div class="form-group">
-            <label>Background Halaman Login</label>
-
-            ${
-                db.pengaturan.backgroundLogin
-                ?
-                `<img class="settings-bg-preview" src="${db.pengaturan.backgroundLogin}" alt="Background Login">`
-                :
-                `<div class="settings-bg-preview"></div>`
-            }
-
-            <br>
-
-            <input
-                type="file"
-                accept="image/*"
-                onchange="simpanBackground(this,'login')">
-        </div>
-
-        <div class="form-group">
-            <label>Background Setelah Login</label>
-
-            ${
-                db.pengaturan.backgroundApp
-                ?
-                `<img class="settings-bg-preview" src="${db.pengaturan.backgroundApp}" alt="Background Aplikasi">`
-                :
-                `<div class="settings-bg-preview"></div>`
-            }
-
-            <br>
-
-            <input
-                type="file"
-                accept="image/*"
-                onchange="simpanBackground(this,'app')">
-        </div>
-
-    </div>
-
-    <div class="card">
-
-        <h3 class="card-title">👤 Profil Pemerintah Desa</h3>
-
-        ${
-            profilRows.map(([key,label])=>`
-
-                <div class="image-setting-row">
-
-                    ${
-                        p[key].foto
-                        ?
-                        `<img
-                            id="preview_${key}"
-                            class="settings-image-preview"
-                            src="${p[key].foto}"
-                            alt="${label}">`
-                        :
-                        `<div
-                            id="preview_${key}"
-                            class="profile-placeholder"
-                            style="margin:0;">
-                            👤
-                        </div>`
-                    }
-
-                    <div style="flex:1;min-width:220px;">
-
-                        <strong>${label}</strong>
-
-                        <div class="form-group" style="margin-top:10px;">
-                            <label>Nama</label>
-                            <input
-                                value="${p[key].nama || ""}"
-                                onchange="ubahNamaProfil('${key}',this.value)">
-                        </div>
-
-                        <label>Ganti Foto</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onchange="simpanFotoProfil(this,'${key}')">
-
-                    </div>
-
-                </div>
-
-            `).join("")
-        }
-
-    </div>
-
     `;
 
 }
-
-
-function ubahNamaProfil(kunci,nama){
-
-    db.pengaturan.profil[kunci].nama = nama;
-
-    if(kunci === "kepala"){
-        db.pengaturan.kepalaDesa = nama;
-    }
-
-    saveDB();
-
-}
-
-function hapusBackground(jenis){
-
-    if(!confirm("Hapus background ini?")) return;
-
-    if(jenis === "login"){
-        db.pengaturan.backgroundLogin = "";
-    }else{
-        db.pengaturan.backgroundApp = "";
-    }
-
-    saveDB();
-    terapkanTampilan();
-    halamanPengaturan();
-
-}
-
 
 
 function simpanPengaturan(e){
@@ -5364,9 +4940,6 @@ function simpanPengaturan(e){
             "set_kepala"
         ).value;
 
-    db.pengaturan.profil.kepala.nama =
-        db.pengaturan.kepalaDesa;
-
     db.pengaturan.whatsappDesa =
         document.getElementById(
             "set_wa"
@@ -5378,13 +4951,10 @@ function simpanPengaturan(e){
         ).value;
 
     saveDB();
-    terapkanTampilan();
 
     alert(
         "Pengaturan berhasil disimpan."
     );
-
-    halamanPengaturan();
 
 }
 
