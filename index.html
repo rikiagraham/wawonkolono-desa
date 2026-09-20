@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#0f766e">
+<title>Desa Wawongkolono</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f1f5f9;
+  color:#172033;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0}
+.hidden{display:none!important}
+
+#login{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:linear-gradient(145deg,#0f766e,#164e63);
+}
+.login-box{
+  width:100%;
+  max-width:380px;
+  background:white;
+  border-radius:22px;
+  padding:28px 22px;
+  box-shadow:0 15px 40px #0004;
+  text-align:center;
+}
+.logo{
+  width:72px;height:72px;border-radius:50%;
+  margin:auto;
+  display:flex;align-items:center;justify-content:center;
+  background:#0f766e;color:white;font-size:34px;
+}
+.login-box h1{font-size:21px;margin:15px 0 4px}
+.login-box p{color:#64748b;font-size:13px}
+.form{
+  width:100%;
+  padding:12px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  margin:7px 0;
+  outline:none;
+}
+.form:focus{border-color:#0f766e}
+.btn{
+  padding:11px 15px;
+  border-radius:10px;
+  background:#0f766e;
+  color:white;
+  font-weight:bold;
+}
+.btn.secondary{background:#e2e8f0;color:#172033}
+.btn.danger{background:#dc2626}
+.btn.small{padding:8px 10px;font-size:12px}
+
+#app{display:none;min-height:100vh}
+.top{
+  background:#0f766e;
+  color:white;
+  padding:14px 16px;
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+.top-row{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.brand b{font-size:17px}
+.brand small{display:block;font-size:11px;opacity:.85;margin-top:3px}
+.logout{background:#ffffff22;color:white;padding:8px 10px;border-radius:9px}
+
+main{
+  max-width:1100px;
+  margin:auto;
+  padding:14px;
+}
+.hero{
+  background:white;
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:13px;
+  border:1px solid #e2e8f0;
+}
+.hero h2{margin:0;font-size:20px}
+.hero p{margin:6px 0 0;color:#64748b;font-size:13px}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+  margin-bottom:13px;
+}
+.stat{
+  background:white;
+  border:1px solid #e2e8f0;
+  border-radius:13px;
+  padding:12px;
+}
+.stat span{display:block;font-size:11px;color:#64748b}
+.stat strong{display:block;font-size:22px;margin-top:4px}
+
+.menu{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:15px;
+}
+.menu button{
+  min-height:58px;
+  padding:8px 5px;
+  border-radius:12px;
+  background:white;
+  border:1px solid #dbe3ea;
+  color:#172033;
+  font-size:12px;
+}
+.menu button span{display:block;font-size:21px;margin-bottom:4px}
+
+.page{
+  display:none;
+  background:white;
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  padding:15px;
+}
+.page.active{display:block}
+.page-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.page-head h3{margin:0;font-size:18px}
+
+.grid-form{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+.full{grid-column:1/-1}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{
+  border-bottom:1px solid #e2e8f0;
+  padding:9px 7px;
+  text-align:left;
+  vertical-align:top;
+}
+th{background:#f8fafc}
+.table-wrap{overflow:auto}
+
+.search{
+  width:100%;
+  padding:11px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  margin-bottom:10px;
+}
+.badge{
+  display:inline-block;
+  padding:4px 7px;
+  border-radius:20px;
+  background:#e2e8f0;
+  font-size:10px;
+}
+.empty{
+  text-align:center;
+  color:#64748b;
+  padding:25px 10px;
+}
+.alert{
+  padding:10px;
+  border-radius:9px;
+  margin:8px 0;
+  font-size:12px;
+}
+.alert.error{background:#fee2e2;color:#991b1b}
+.alert.ok{background:#dcfce7;color:#166534}
+
+.dusun{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px;
+  margin-bottom:12px;
+}
+.dusun button{
+  padding:10px 4px;
+  border-radius:9px;
+  background:#f1f5f9;
+  border:1px solid #dbe3ea;
+  font-size:12px;
+}
+.dusun button.active{background:#0f766e;color:white}
+
+.footer{
+  text-align:center;
+  color:#94a3b8;
+  font-size:11px;
+  padding:25px 0;
+}
+
+@media(max-width:650px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .menu{grid-template-columns:repeat(4,1fr)}
+  .grid-form{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .dusun{grid-template-columns:repeat(5,1fr)}
+  .stat strong{font-size:19px}
+}
+@media(max-width:380px){
+  .menu button{font-size:10px}
+  .menu button span{font-size:18px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<section id="login">
+  <div class="login-box">
+    <div class="logo">🏘️</div>
+    <h1>Desa Wawongkolono</h1>
+    <p>Kecamatan Menui Kepulauan<br>Kabupaten Morowali • Sulawesi Tengah</p>
+
+    <div id="loginMsg"></div>
+
+    <input id="email" class="form" type="email"
+      placeholder="Email">
+    <input id="password" class="form" type="password"
+      placeholder="Password">
+
+    <button class="btn" style="width:100%;margin-top:7px"
+      onclick="login()">🔐 Masuk Aplikasi</button>
+  </div>
+</section>
+
+<!-- APP -->
+<section id="app">
+
+<header class="top">
+  <div class="top-row">
+    <div class="brand">
+      <b>🏘️ Desa Wawongkolono</b>
+      <small>Sistem Informasi & Pendataan Desa</small>
+    </div>
+    <button class="logout" onclick="logout()">Keluar</button>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <h2>Selamat Datang 👋</h2>
+  <p>Desa Wawongkolono • Kecamatan Menui Kepulauan • Kabupaten Morowali</p>
+</section>
+
+<section class="stats">
+  <div class="stat"><span>👥 Penduduk</span><strong id="statPenduduk">0</strong></div>
+  <div class="stat"><span>👪 Keluarga / KK</span><strong id="statKK">0</strong></div>
+  <div class="stat"><span>🤝 Bantuan</span><strong id="statBantuan">0</strong></div>
+  <div class="stat"><span>🏗️ Program</span><strong id="statProgram">0</strong></div>
+</section>
+
+<nav class="menu">
+  <button onclick="showPage('penduduk')"><span>👥</span>Penduduk</button>
+  <button onclick="showPage('kk')"><span>👪</span>Keluarga / KK</button>
+  <button onclick="showPage('bulanan')"><span>📅</span>Bulanan</button>
+  <button onclick="showPage('bantuan')"><span>🤝</span>Bantuan</button>
+
+  <button onclick="showPage('surat')"><span>📄</span>Surat Desa</button>
+  <button onclick="showPage('program')"><span>🏗️</span>Program Dusun</button>
+  <button onclick="showPage('aspirasi')"><span>💬</span>Kritik & Saran</button>
+  <button onclick="showPage('laporan')"><span>📊</span>Laporan</button>
+</nav>
+
+<!-- PENDUDUK -->
+<section id="page-penduduk" class="page">
+ <div class="page-head">
+  <h3>👥 Data Penduduk</h3>
+  <button class="btn small" onclick="toggleForm('formPenduduk')">＋ Tambah</button>
+ </div>
+
+ <div id="formPenduduk" class="hidden">
+  <div class="grid-form">
+   <input id="pNIK" class="form" placeholder="NIK">
+   <input id="pNama" class="form" placeholder="Nama lengkap">
+   <select id="pDusun" class="form">
+    <option value="">Pilih Dusun</option>
+    <option>Dusun 1</option><option>Dusun 2</option>
+    <option>Dusun 3</option><option>Dusun 4</option>
+    <option>Dusun 5</option>
+   </select>
+   <input id="pKK" class="form" placeholder="Nomor KK">
+   <select id="pStatus" class="form">
+    <option>Aktif</option>
+    <option>Pindah</option>
+    <option>Meninggal</option>
+   </select>
+   <input id="pTanggal" class="form" type="date">
+   <button class="btn full" onclick="addPenduduk()">Simpan Penduduk</button>
+  </div>
+  <hr>
+ </div>
+
+ <input id="searchPenduduk" class="search"
+   placeholder="🔎 Cari NIK atau nama..."
+   oninput="renderPenduduk()">
+
+ <div class="table-wrap">
+  <table>
+   <thead>
+    <tr><th>NIK</th><th>Nama</th><th>Dusun</th><th>Status</th></tr>
+   </thead>
+   <tbody id="tablePenduduk"></tbody>
+  </table>
+ </div>
+</section>
+
+<!-- KK -->
+<section id="page-kk" class="page">
+ <div class="page-head">
+  <h3>👪 Data Keluarga / KK</h3>
+  <button class="btn small" onclick="toggleForm('formKK')">＋ Tambah</button>
+ </div>
+
+ <div id="formKK" class="hidden">
+  <div class="grid-form">
+   <input id="kkNomor" class="form" placeholder="Nomor KK">
+   <input id="kkKepala" class="form" placeholder="Kepala Keluarga">
+   <select id="kkDusun" class="form">
+    <option value="">Pilih Dusun</option>
+    <option>Dusun 1</option><option>Dusun 2</option>
+    <option>Dusun 3</option><option>Dusun 4</option>
+    <option>Dusun 5</option>
+   </select>
+   <input id="kkAlamat" class="form" placeholder="Alamat">
+   <button class="btn full" onclick="addKK()">Simpan KK</button>
+  </div>
+  <hr>
+ </div>
+
+ <input id="searchKK" class="search"
+   placeholder="🔎 Cari nomor KK atau kepala keluarga..."
+   oninput="renderKK">
+
+ <div class="table-wrap">
+  <table>
+   <thead><tr><th>Nomor KK</th><th>Kepala Keluarga</th><th>Dusun</th><th>Alamat</th></tr></thead>
+   <tbody id="tableKK"></tbody>
+  </table>
+ </div>
+</section>
+
+<!-- BULANAN -->
+<section id="page-bulanan" class="page">
+ <div class="page-head">
+  <h3>📅 Pendataan Bulanan</h3>
+ </div>
+
+ <div class="grid-form">
+  <input id="bTanggal" class="form" type="date">
+  <select id="bJenis" class="form">
+   <option>Kelahiran</option>
+   <option>Kematian</option>
+   <option>Penduduk Masuk</option>
+   <option>Penduduk Pindah</option>
+   <option>Perubahan Data</option>
+  </select>
+  <input id="bNama" class="form" placeholder="Nama penduduk">
+  <select id="bDusun" class="form">
+   <option>Dusun 1</option><option>Dusun 2</option>
+   <option>Dusun 3</option><option>Dusun 4</option>
+   <option>Dusun 5</option>
+  </select>
+  <textarea id="bKeterangan" class="form full"
+   placeholder="Keterangan"></textarea>
+  <button class="btn full" onclick="addBulanan()">Simpan Pendataan</button>
+ </div>
+
+ <hr>
+ <div class="table-wrap">
+  <table>
+   <thead><tr><th>Tanggal</th><th>Jenis</th><th>Nama</th><th>Dusun</th></tr></thead>
+   <tbody id="tableBulanan"></tbody>
+  </table>
+ </div>
+</section>
+
+<!-- BANTUAN -->
+<section id="page-bantuan" class="page">
+ <div class="page-head">
+  <h3>🤝 Data Bantuan</h3>
+ </div>
+
+ <div class="grid-form">
+  <input id="btNama" class="form" placeholder="Nama penerima">
+  <input id="btNIK" class="form" placeholder="NIK">
+  <select id="btDusun" class="form">
+   <option>Dusun 1</option><option>Dusun 2</option>
+   <option>Dusun 3</option><option>Dusun 4</option>
+   <option>Dusun 5</option>
+  </select>
+  <input id="btJenis" class="form" placeholder="Jenis bantuan">
+  <input id="btTanggal" class="form" type="date">
+  <textarea id="btKet" class="form full" placeholder="Keterangan"></textarea>
+  <button class="btn full" onclick="addBantuan()">Simpan Bantuan</button>
+ </div>
+
+ <hr>
+ <div class="table-wrap">
+  <table>
+   <thead><tr><th>Penerima</th><th>Jenis</th><th>Dusun</th><th>Tanggal</th></tr></thead>
+   <tbody id="tableBantuan"></tbody>
+  </table>
+ </div>
+</section>
+
+<!-- SURAT -->
+<section id="page-surat" class="page">
+ <div class="page-head">
+  <h3>📄 Surat Desa</h3>
+ </div>
+
+ <div class="grid-form">
+  <input id="sNama" class="form" placeholder="Nama pemohon">
+  <input id="sNIK" class="form" placeholder="NIK">
+  <input id="sJenis" class="form" placeholder="Jenis surat">
+  <input id="sTanggal" class="form" type="date">
+  <textarea id="sKet" class="form full" placeholder="Keterangan"></textarea>
+  <button class="btn full" onclick="addSurat()">Simpan Permohonan Surat</button>
+ </div>
+
+ <hr>
+ <div class="table-wrap">
+  <table>
+   <thead><tr><th>Nama</th><th>NIK</th><th>Jenis Surat</th><th>Tanggal</th></tr></thead>
+   <tbody id="tableSurat"></tbody>
+  </table>
+ </div>
+</section>
+
+<!-- PROGRAM -->
+<section id="page-program" class="page">
+ <div class="page-head">
+  <h3>🏗️ Program Dusun</h3>
+ </div>
+
+ <div class="dusun">
+  <button class="active" onclick="pilihDusun(this,'Dusun 1')">Dusun 1</button>
+  <button onclick="pilihDusun(this,'Dusun 2')">Dusun 2</button>
+  <button onclick="pilihDusun(this,'Dusun 3')">Dusun 3</button>
+  <button onclick="pilihDusun(this,'Dusun 4')">Dusun 4</button>
+  <button onclick="pilihDusun(this,'Dusun 5')">Dusun 5</button>
+ </div>
+
+ <div class="grid-form">
+  <input id="prNama" class="form" placeholder="Nama program">
+  <select id="prStatus" class="form">
+   <option>Rencana</option>
+   <option>Berjalan</option>
+   <option>Selesai</option>
+  </select>
+  <textarea id="prKet" class="form full"
+   placeholder="Keterangan program"></textarea>
+  <button class="btn full" onclick="addProgram()">Simpan Program</button>
+ </div>
+
+ <hr>
+ <div id="programList"></div>
+</section>
+
+<!-- ASPIRASI -->
+<section id="page-aspirasi" class="page">
+ <div class="page-head">
+  <h3>💬 Kritik & Saran</h3>
+ </div>
+
+ <div class="alert ok">
+  Pesan ini ditujukan langsung untuk menjadi bahan perhatian Kantor Desa Wawongkolono.
+ </div>
+
+ <div class="grid-form">
+  <input id="aNama" class="form" placeholder="Nama">
+  <select id="aDusun" class="form">
+   <option>Dusun 1</option><option>Dusun 2</option>
+   <option>Dusun 3</option><option>Dusun 4</option>
+   <option>Dusun 5</option>
+  </select>
+  <select id="aJenis" class="form">
+   <option>Kritik</option>
+   <option>Saran</option>
+   <option>Aspirasi</option>
+   <option>Pengaduan</option>
+  </select>
+  <textarea id="aIsi" class="form full"
+   placeholder="Tuliskan kritik, saran, aspirasi atau pengaduan..."></textarea>
+  <button class="btn full" onclick="addAspirasi()">Kirim ke Kantor Desa</button>
+ </div>
+
+ <hr>
+ <div id="aspirasiList"></div>
+</section>
+
+<!-- LAPORAN -->
+<section id="page-laporan" class="page">
+ <div class="page-head">
+  <h3>📊 Laporan Desa</h3>
+ </div>
+
+ <div class="stats">
+  <div class="stat"><span>Total Penduduk</span><strong id="lapPenduduk">0</strong></div>
+  <div class="stat"><span>Total KK</span><strong id="lapKK">0</strong></div>
+  <div class="stat"><span>Data Bulanan</span><strong id="lapBulanan">0</strong></div>
+  <div class="stat"><span>Bantuan</span><strong id="lapBantuan">0</strong></div>
+ </div>
+
+ <div id="lapDusun"></div>
+</section>
+
+<footer class="footer">
+ Sistem Informasi Desa Wawongkolono<br>
+ Kecamatan Menui Kepulauan • Kabupaten Morowali
+</footer>
+
+</main>
+</section>
+
+<script>
+/* ================================
+   KONFIGURASI SUPABASE
+================================ */
+const SUPABASE_URL =
+"https://xetmoemzrahwljfspxyp.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_HwM_id1TLL7FxRH89DHg_Q_nAn7jxGS";
+
+let token = localStorage.getItem("desa_access_token");
+
+let data = {
+ penduduk:[],
+ kk:[],
+ bulanan:[],
+ bantuan:[],
+ surat:[],
+ program:[],
+ aspirasi:[]
+};
+
+let dusunAktif="Dusun 1";
+
+/* ================================
+   SUPABASE REQUEST
+================================ */
+async function api(table,method="GET",body=null){
+
+ const url=SUPABASE_URL+"/rest/v1/"+table;
+
+ const headers={
+  "apikey":SUPABASE_KEY,
+  "Authorization":"Bearer "+(token||SUPABASE_KEY),
+  "Content-Type":"application/json",
+  "Prefer":"return=representation"
+ };
+
+ const opt={method,headers};
+
+ if(body) opt.body=JSON.stringify(body);
+
+ const res=await fetch(url,opt);
+
+ if(!res.ok){
+   const txt=await res.text();
+   throw new Error(txt||"Database error");
+ }
+
+ if(res.status===204) return [];
+ return await res.json();
+}
+
+/* ================================
+   LOGIN
+================================ */
+async function login(){
+
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+
+ const msg=document.getElementById("loginMsg");
+
+ if(!email||!password){
+  msg.innerHTML='<div class="alert error">Email dan password wajib diisi.</div>';
+  return;
+ }
+
+ msg.innerHTML='<div class="alert">Sedang masuk...</div>';
+
+ try{
+
+  const res=await fetch(
+   SUPABASE_URL+"/auth/v1/token?grant_type=password",
+   {
+    method:"POST",
+    headers:{
+     "apikey":SUPABASE_KEY,
+     "Content-Type":"application/json"
+    },
+    body:JSON.stringify({email,password})
+   }
+  );
+
+  const result=await res.json();
+
+  if(!res.ok){
+   throw new Error(result.error_description||result.msg||"Login gagal");
+  }
+
+  token=result.access_token;
+
+  localStorage.setItem("desa_access_token",token);
+
+  openApp();
+
+ }catch(e){
+  msg.innerHTML='<div class="alert error">'+esc(e.message)+'</div>';
+ }
+}
+
+function openApp(){
+ document.getElementById("login").style.display="none";
+ document.getElementById("app").style.display="block";
+ loadAll();
+}
+
+function logout(){
+ localStorage.removeItem("desa_access_token");
+ location.reload();
+}
+
+/* ================================
+   LOAD DATA
+================================ */
+async function loadAll(){
+
+ try{
+
+  data.penduduk=await api("penduduk");
+  data.kk=await api("kk");
+  data.bulanan=await api("pendataan_bulanan");
+  data.bantuan=await api("bantuan");
+  data.surat=await api("surat_desa");
+  data.program=await api("program_dusun");
+  data.aspirasi=await api("aspirasi");
+
+  renderAll();
+
+ }catch(e){
+
+  console.error(e);
+
+  alert(
+   "Aplikasi berhasil dibuka, tetapi ada data/tabel Supabase yang belum dapat dibaca. "+
+   "Periksa RLS dan nama kolom database."
+  );
+ }
+}
+
+/* ================================
+   DASHBOARD
+================================ */
+function renderAll(){
+
+ document.getElementById("statPenduduk").textContent=data.penduduk.length;
+ document.getElementById("statKK").textContent=data.kk.length;
+ document.getElementById("statBantuan").textContent=data.bantuan.length;
+ document.getElementById("statProgram").textContent=data.program.length;
+
+ document.getElementById("lapPenduduk").textContent=data.penduduk.length;
+ document.getElementById("lapKK").textContent=data.kk.length;
+ document.getElementById("lapBulanan").textContent=data.bulanan.length;
+ document.getElementById("lapBantuan").textContent=data.bantuan.length;
+
+ renderPenduduk();
+ renderKK();
+ renderBulanan();
+ renderBantuan();
+ renderSurat();
+ renderProgram();
+ renderAspirasi();
+ renderLaporan();
+}
+
+/* ================================
+   NAVIGASI
+================================ */
+function showPage(name){
+
+ document.querySelectorAll(".page")
+  .forEach(x=>x.classList.remove("active"));
+
+ const page=document.getElementById("page-"+name);
+
+ if(page) page.classList.add("active");
+
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ================================
+   PENDUDUK
+================================ */
+async function addPenduduk(){
+
+ const obj={
+  nik:val("pNIK"),
+  nama:val("pNama"),
+  dusun:val("pDusun"),
+  nomor_kk:val("pKK"),
+  status:val("pStatus")
+ };
+
+ if(!obj.nik||!obj.nama){
+  alert("NIK dan nama wajib diisi.");
+  return;
+ }
+
+ try{
+  await api("penduduk","POST",obj);
+  clearInputs(["pNIK","pNama","pDusun","pKK","pStatus","pTanggal"]);
+  await loadAll();
+  alert("Penduduk berhasil disimpan.");
+ }catch(e){
+  alert("Gagal menyimpan penduduk.\n"+e.message);
+ }
+}
+
+function renderPenduduk(){
+
+ const q=(document.getElementById("searchPenduduk")?.value||"").toLowerCase();
+
+ const rows=data.penduduk.filter(x=>
+   String(x.nik||"").toLowerCase().includes(q) ||
+   String(x.nama||"").toLowerCase().includes(q)
+ );
+
+ document.getElementById("tablePenduduk").innerHTML=
+ rows.map(x=>`
+  <tr>
+   <td>${esc(x.nik)}</td>
+   <td>${esc(x.nama)}</td>
+   <td>${esc(x.dusun)}</td>
+   <td><span class="badge">${esc(x.status||"Aktif")}</span></td>
+  </tr>
+ `).join("")||emptyRow(4,"Belum ada data penduduk.");
+}
+
+/* ================================
+   KK
+================================ */
+async function addKK(){
+
+ const obj={
+  nomor_kk:val("kkNomor"),
+  kepala_keluarga:val("kkKepala"),
+  dusun:val("kkDusun"),
+  alamat:val("kkAlamat")
+ };
+
+ if(!obj.nomor_kk||!obj.kepala_keluarga){
+  alert("Nomor KK dan kepala keluarga wajib diisi.");
+  return;
+ }
+
+ try{
+  await api("kk","POST",obj);
+  clearInputs(["kkNomor","kkKepala","kkDusun","kkAlamat"]);
+  await loadAll();
+  alert("Data KK berhasil disimpan.");
+ }catch(e){
+  alert("Gagal menyimpan KK.\n"+e.message);
+ }
+}
+
+function renderKK(){
+
+ const q=(document.getElementById("searchKK")?.value||"").toLowerCase();
+
+ const rows=data.kk.filter(x=>
+  String(x.nomor_kk||"").toLowerCase().includes(q) ||
+  String(x.kepala_keluarga||"").toLowerCase().includes(q)
+ );
+
+ document.getElementById("tableKK").innerHTML=
+ rows.map(x=>`
+ <tr>
+  <td>${esc(x.nomor_kk)}</td>
+  <td>${esc(x.kepala_keluarga)}</td>
+  <td>${esc(x.dusun)}</td>
+  <td>${esc(x.alamat)}</td>
+ </tr>
+ `).join("")||emptyRow(4,"Belum ada data KK.");
+}
+
+/* ================================
+   BULANAN
+================================ */
+async function addBulanan(){
+
+ const obj={
+  tanggal:val("bTanggal")||new Date().toISOString().slice(0,10),
+  jenis:val("bJenis"),
+  nama:val("bNama"),
+  dusun:val("bDusun"),
+  keterangan:val("bKeterangan")
+ };
+
+ if(!obj.nama){
+  alert("Nama wajib diisi.");
+  return;
+ }
+
+ try{
+  await api("pendataan_bulanan","POST",obj);
+  clearInputs(["bTanggal","bNama","bKeterangan"]);
+  await loadAll();
+  alert("Pendataan bulanan berhasil disimpan.");
+ }catch(e){
+  alert("Gagal menyimpan.\n"+e.message);
+ }
+}
+
+function renderBulanan(){
+
+ document.getElementById("tableBulanan").innerHTML=
+ data.bulanan.map(x=>`
+ <tr>
+  <td>${esc(x.tanggal)}</td>
+  <td>${esc(x.jenis)}</td>
+  <td>${esc(x.nama)}</td>
+  <td>${esc(x.dusun)}</td>
+ </tr>
+ `).join("")||emptyRow(4,"Belum ada pendataan.");
+}
+
+/* ================================
+   BANTUAN
+================================ */
+async function addBantuan(){
+
+ const obj={
+  nama_penerima:val("btNama"),
+  nik:val("btNIK"),
+  dusun:val("btDusun"),
+  jenis_bantuan:val("btJenis"),
+  tanggal:val("btTanggal"),
+  keterangan:val("btKet")
+ };
+
+ if(!obj.nama_penerima){
+  alert("Nama penerima wajib diisi.");
+  return;
+ }
+
+ try{
+  await api("bantuan","POST",obj);
+  clearInputs(["btNama","btNIK","btJenis","btTanggal","btKet"]);
+  await loadAll();
+  alert("Data bantuan berhasil disimpan.");
+ }catch(e){
+  alert("Gagal menyimpan bantuan.\n"+e.message);
+ }
+}
+
+function renderBantuan(){
+
+ document.getElementById("tableBantuan").innerHTML=
+ data.bantuan.map(x=>`
+ <tr>
+  <td>${esc(x.nama_penerima)}</td>
+  <td>${esc(x.jenis_bantuan)}</td>
+  <td>${esc(x.dusun)}</td>
+  <td>${esc(x.tanggal)}</td>
+ </tr>
+ `).join("")||emptyRow(4,"Belum ada data bantuan.");
+}
+
+/* ================================
+   SURAT
+================================ */
+async function addSurat(){
+
+ const obj={
+  nama:val("sNama"),
+  nik:val("sNIK"),
+  jenis_surat:val("sJenis"),
+  tanggal:val("sTanggal"),
+  keterangan:val("sKet")
+ };
+
+ if(!obj.nama||!obj.jenis_surat){
+  alert("Nama dan jenis surat wajib diisi.");
+  return;
+ }
+
+ try{
+  await api("surat_desa","POST",obj);
+  clearInputs(["sNama","sNIK","sJenis","sTanggal","sKet"]);
+  await loadAll();
+  alert("Permohonan surat disimpan.");
+ }catch(e){
+  alert("Gagal menyimpan surat.\n"+e.message);
+ }
+}
+
+function renderSurat(){
+
+ document.getElementById("tableSurat").innerHTML=
+ data.surat.map(x=>`
+ <tr>
+  <td>${esc(x.nama)}</td>
+  <td>${esc(x.nik)}</td>
+  <td>${esc(x.jenis_surat)}</td>
+  <td>${esc(x.tanggal)}</td>
+ </tr>
+ `).join("")||emptyRow(4,"Belum ada permohonan surat.");
+}
+
+/* ================================
+   PROGRAM DUSUN
+================================ */
+function pilihDusun(btn,dusun){
+
+ dusunAktif=dusun;
+
+ document.querySelectorAll(".dusun button")
+  .forEach(x=>x.classList.remove("active"));
+
+ btn.classList.add("active");
+
+ renderProgram();
+}
+
+async function addProgram(){
+
+ const obj={
+  nama_program:val("prNama"),
+  status:val("prStatus"),
+  dusun:dusunAktif,
+  keterangan:val("prKet")
+ };
+
+ if(!obj.nama_program){
+  alert("Nama program wajib diisi.");
+  return;
+ }
+
+ try{
+  await api("program_dusun","POST",obj);
+  clearInputs(["prNama","prKet"]);
+  await loadAll();
+  alert("Program dusun berhasil disimpan.");
+ }catch(e){
+  alert("Gagal menyimpan program.\n"+e.message);
+ }
+}
+
+function renderProgram(){
+
+ const rows=data.program.filter(x=>
+  String(x.dusun||"")===dusunAktif
+ );
+
+ document.getElementById("programList").innerHTML=
+ rows.map(x=>`
+ <div class="hero">
+  <b>🏗️ ${esc(x.nama_program)}</b>
+  <div style="margin-top:6px">
+   <span class="badge">${esc(x.status)}</span>
+  </div>
+  <p>${esc(x.keterangan||"")}</p>
+ </div>
+ `).join("")||
+ '<div class="empty">Belum ada program untuk '+esc(dusunAktif)+'.</div>';
+}
+
+/* ================================
+   ASPIRASI
+================================ */
+async function addAspirasi(){
+
+ const obj={
+  nama:val("aNama"),
+  dusun:val("aDusun"),
+  jenis:val("aJenis"),
+  isi:val("aIsi")
+ };
+
+ if(!obj.isi){
+  alert("Isi kritik/saran wajib diisi.");
+  return;
+ }
+
+ try{
+  await api("aspirasi","POST",obj);
+  clearInputs(["aNama","aIsi"]);
+  await loadAll();
+  alert("Kritik/saran berhasil dikirim ke Kantor Desa.");
+ }catch(e){
+  alert("Gagal mengirim.\n"+e.message);
+ }
+}
+
+function renderAspirasi(){
+
+ document.getElementById("aspirasiList").innerHTML=
+ data.aspirasi.map(x=>`
+ <div class="hero">
+  <b>${esc(x.jenis||"Aspirasi")}</b>
+  <small style="display:block;color:#64748b;margin-top:4px">
+   ${esc(x.nama||"Warga")} • ${esc(x.dusun||"")}
+  </small>
+  <p>${esc(x.isi)}</p>
+ </div>
+ `).join("")||
+ '<div class="empty">Belum ada kritik dan saran.</div>';
+}
+
+/* ================================
+   LAPORAN
+================================ */
+function renderLaporan(){
+
+ const box=document.getElementById("lapDusun");
+
+ box.innerHTML=
+ [1,2,3,4,5].map(n=>{
+
+  const d="Dusun "+n;
+
+  const penduduk=data.penduduk.filter(x=>x.dusun===d).length;
+  const kk=data.kk.filter(x=>x.dusun===d).length;
+  const program=data.program.filter(x=>x.dusun===d).length;
+
+  return `
+  <div class="hero">
+   <b>🏘️ ${d}</b>
+   <p>
+    Penduduk: <strong>${penduduk}</strong> |
+    KK: <strong>${kk}</strong> |
+    Program: <strong>${program}</strong>
+   </p>
+  </div>
+  `;
+ }).join("");
+}
+
+/* ================================
+   UTILITAS
+================================ */
+function val(id){
+ const e=document.getElementById(id);
+ return e?e.value.trim():"";
+}
+
+function clearInputs(ids){
+ ids.forEach(id=>{
+  const e=document.getElementById(id);
+  if(e)e.value="";
+ });
+}
+
+function toggleForm(id){
+ document.getElementById(id).classList.toggle("hidden");
+}
+
+function emptyRow(cols,text){
+ return `<tr><td colspan="${cols}" class="empty">${text}</td></tr>`;
+}
+
+function esc(value){
+ return String(value??"")
+  .replace(/&/g,"&amp;")
+  .replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;")
+  .replace(/"/g,"&quot;")
+  .replace(/'/g,"&#039;");
+}
+
+/* ================================
+   AUTO LOGIN
+================================ */
+if(token){
+ openApp();
+}
+</script>
+
+</body>
+</html>
