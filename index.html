@@ -8,7 +8,648 @@ html = r'''<!DOCTYPE html>
 <meta name="theme-color" content="#0f766e">
 <meta name="description" content="Sistem Informasi Desa Pintar Desa Wawongkolono">
 <title>Sistem Informasi Desa Pintar - Wawongkolono</title>
+<div id="page-kk" class="page">
 
+  <div id="page-kk" class="page">
+
+    <div class="page-header">
+        <div>
+            <h2>Data Kartu Keluarga</h2>
+            <p>
+                Kelola data Kartu Keluarga Desa Wawongkolono
+            </p>
+        </div>
+
+        <div class="page-actions">
+
+            <button
+                class="btn btn-primary"
+                type="button"
+                onclick="openKKForm()">
+                ➕ Tambah KK
+            </button>
+
+            <button
+                class="btn btn-success"
+                type="button"
+                onclick="exportKKCSV()">
+                📥 Export CSV
+            </button>
+
+            <button
+                class="btn"
+                type="button"
+                onclick="loadKK()">
+                🔄 Refresh
+            </button>
+
+            <button
+                class="btn"
+                type="button"
+                onclick="printKK()">
+                🖨️ Cetak
+            </button>
+
+        </div>
+    </div>
+
+
+    <!-- STATISTIK KK -->
+    <div class="kk-stat-grid">
+
+        <div class="kk-stat-card">
+            <div class="kk-stat-icon">🏠</div>
+            <div>
+                <span>Total KK</span>
+                <strong id="kkTotal">0</strong>
+            </div>
+        </div>
+
+        <div class="kk-stat-card">
+            <div class="kk-stat-icon">👨‍👩‍👧‍👦</div>
+            <div>
+                <span>Total Anggota</span>
+                <strong id="kkAnggota">0</strong>
+            </div>
+        </div>
+
+        <div class="kk-stat-card">
+            <div class="kk-stat-icon">✅</div>
+            <div>
+                <span>KK Aktif</span>
+                <strong id="kkAktif">0</strong>
+            </div>
+        </div>
+
+        <div class="kk-stat-card">
+            <div class="kk-stat-icon">📍</div>
+            <div>
+                <span>Dusun</span>
+                <strong id="kkDusun">-</strong>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- PENCARIAN -->
+    <div class="card kk-search-box">
+
+        <div class="search-wrapper">
+
+            <span class="search-icon">🔎</span>
+
+            <input
+                type="search"
+                id="searchKK"
+                placeholder="Cari No. KK, NIK atau nama kepala keluarga..."
+                oninput="filterKK()">
+
+        </div>
+
+    </div>
+
+
+    <!-- TABEL KK -->
+    <div class="card">
+
+        <div class="table-responsive">
+
+            <table id="tableKK">
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+
+                        <th>Nomor KK</th>
+
+                        <th>NIK Kepala Keluarga</th>
+
+                        <th>Kepala Keluarga</th>
+
+                        <th>Dusun</th>
+
+                        <th>Alamat</th>
+
+                        <th>Anggota</th>
+
+                        <th>Status</th>
+
+                        <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="kkTableBody">
+
+                    <tr>
+
+                        <td
+                            colspan="9"
+                            class="empty-state">
+
+                            Memuat data Kartu Keluarga...
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     MODAL FORM KK
+===================================================== -->
+
+<div
+    id="modalKK"
+    class="modal">
+
+    <div class="modal-content kk-modal">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h3 id="kkModalTitle">
+                    Tambah Kartu Keluarga
+                </h3>
+
+                <p>
+                    Masukkan data Kartu Keluarga
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeKKForm()">
+                ×
+            </button>
+
+        </div>
+
+
+        <form
+            id="formKK"
+            onsubmit="saveKK(event)">
+
+            <input
+                type="hidden"
+                id="kkId">
+
+
+            <div class="form-grid">
+
+
+                <!-- NOMOR KK -->
+                <div class="form-group">
+
+                    <label for="kkNoKK">
+                        Nomor Kartu Keluarga
+                    </label>
+
+                    <input
+                        type="text"
+                        id="kkNoKK"
+                        maxlength="16"
+                        inputmode="numeric"
+                        placeholder="Masukkan 16 digit Nomor KK"
+                        required>
+
+                </div>
+
+
+                <!-- NIK -->
+                <div class="form-group">
+
+                    <label for="kkNIK">
+
+                        NIK Kepala Keluarga
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="kkNIK"
+                        maxlength="16"
+                        inputmode="numeric"
+                        placeholder="Masukkan NIK kepala keluarga">
+
+                </div>
+
+
+                <!-- NAMA -->
+                <div class="form-group form-full">
+
+                    <label for="kkNama">
+
+                        Nama Kepala Keluarga
+
+                    </label>
+
+                    <input
+                        type="text"
+                        id="kkNama"
+                        maxlength="200"
+                        placeholder="Nama lengkap kepala keluarga"
+                        required>
+
+                </div>
+
+
+                <!-- DUSUN -->
+                <div class="form-group">
+
+                    <label for="kkDusun">
+                        Dusun
+                    </label>
+
+                    <select
+                        id="kkDusun"
+                        required>
+
+                        <option value="">
+                            Pilih Dusun
+                        </option>
+
+                        <option value="1">
+                            Dusun 1
+                        </option>
+
+                        <option value="2">
+                            Dusun 2
+                        </option>
+
+                        <option value="3">
+                            Dusun 3
+                        </option>
+
+                        <option value="4">
+                            Dusun 4
+                        </option>
+
+                        <option value="5">
+                            Dusun 5
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- JUMLAH ANGGOTA -->
+                <div class="form-group">
+
+                    <label for="kkJumlah">
+
+                        Jumlah Anggota Keluarga
+
+                    </label>
+
+                    <input
+                        type="number"
+                        id="kkJumlah"
+                        min="0"
+                        value="0"
+                        required>
+
+                </div>
+
+
+                <!-- STATUS -->
+                <div class="form-group">
+
+                    <label for="kkStatus">
+                        Status
+                    </label>
+
+                    <select id="kkStatus">
+
+                        <option value="Aktif">
+                            Aktif
+                        </option>
+
+                        <option value="Tidak Aktif">
+                            Tidak Aktif
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- ALAMAT -->
+                <div class="form-group form-full">
+
+                    <label for="kkAlamat">
+                        Alamat
+                    </label>
+
+                    <textarea
+                        id="kkAlamat"
+                        rows="3"
+                        placeholder="Alamat lengkap keluarga"></textarea>
+
+                </div>
+
+
+                <!-- KETERANGAN -->
+                <div class="form-group form-full">
+
+                    <label for="kkKeterangan">
+                        Keterangan
+                    </label>
+
+                    <textarea
+                        id="kkKeterangan"
+                        rows="3"
+                        placeholder="Keterangan tambahan"></textarea>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn"
+                    onclick="closeKKForm()">
+
+                    Batal
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="btnSaveKK">
+
+                    💾 Simpan Data KK
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+  /* =====================================================
+   DATA KARTU KELUARGA
+===================================================== */
+
+.kk-stat-grid{
+    display:grid;
+    grid-template-columns:
+        repeat(4,minmax(0,1fr));
+    gap:16px;
+    margin-bottom:20px;
+}
+
+.kk-stat-card{
+    background:#fff;
+    border-radius:16px;
+    padding:20px;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.07);
+    border:1px solid #e5e7eb;
+}
+
+.kk-stat-icon{
+    width:50px;
+    height:50px;
+    border-radius:14px;
+    background:#ecfdf5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:25px;
+}
+
+.kk-stat-card span{
+    display:block;
+    color:#64748b;
+    font-size:13px;
+    margin-bottom:5px;
+}
+
+.kk-stat-card strong{
+    display:block;
+    font-size:25px;
+    color:#0f172a;
+}
+
+.kk-search-box{
+    margin-bottom:20px;
+}
+
+.search-wrapper{
+    position:relative;
+}
+
+.search-wrapper input{
+    width:100%;
+    padding:
+        13px
+        15px
+        13px
+        45px;
+
+    border:
+        1px solid #d1d5db;
+
+    border-radius:12px;
+
+    outline:none;
+
+    font-size:14px;
+
+    transition:.2s;
+}
+
+.search-wrapper input:focus{
+    border-color:#16a34a;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(22,163,74,.12);
+}
+
+.search-icon{
+    position:absolute;
+    left:16px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:18px;
+    z-index:2;
+}
+
+.kk-modal{
+    max-width:850px;
+    width:95%;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:
+        repeat(2,minmax(0,1fr));
+    gap:16px;
+}
+
+.form-full{
+    grid-column:
+        1 / -1;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.form-group label{
+    font-size:14px;
+    font-weight:600;
+    color:#334155;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+    width:100%;
+    padding:12px 13px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    font-family:inherit;
+    font-size:14px;
+    background:#fff;
+    outline:none;
+}
+
+.form-group textarea{
+    resize:vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+    border-color:#16a34a;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(22,163,74,.10);
+}
+
+.empty-state{
+    text-align:center;
+    padding:40px 20px !important;
+    color:#64748b;
+}
+
+.kk-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:5px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.kk-badge-active{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.kk-badge-inactive{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.kk-action{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+}
+
+.kk-action button{
+    border:0;
+    border-radius:8px;
+    padding:7px 9px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.kk-btn-view{
+    background:#e0f2fe;
+    color:#0369a1;
+}
+
+.kk-btn-edit{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.kk-btn-delete{
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+    .kk-stat-grid{
+        grid-template-columns:
+            repeat(2,minmax(0,1fr));
+    }
+
+}
+
+@media(max-width:650px){
+
+    .kk-stat-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .form-full{
+        grid-column:auto;
+    }
+
+    .table-responsive{
+        overflow-x:auto;
+    }
+
+    #tableKK{
+        min-width:1050px;
+    }
+
+}
 <style>
 *{box-sizing:border-box}
 :root{
@@ -1312,8 +1953,1627 @@ renderModules();
 setInterval(updateClock,1000);
 updateClock();
 restoreSession();
+  /* =========================================================
+   DATA KARTU KELUARGA - SUPABASE
+========================================================= */
+
+let kkCache = [];
+let editingKKId = null;
+
+
+/* =========================================================
+   HELPER
+========================================================= */
+
+function kkValue(id){
+
+    const el = document.getElementById(id);
+
+    if(!el){
+        return "";
+    }
+
+    return String(el.value || "").trim();
+
+}
+
+
+/* =========================================================
+   LOAD DATA KK
+========================================================= */
+
+async function loadKK(){
+
+    const tbody =
+        document.getElementById("kkTableBody");
+
+    if(tbody){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="empty-state">
+                    ⏳ Memuat data Kartu Keluarga...
+                </td>
+            </tr>
+        `;
+
+    }
+
+
+    try{
+
+        let path =
+            "kk" +
+            "?select=id,no_kk,kepala_keluarga_nik,kepala_keluarga_nama,dusun_id,alamat,jumlah_anggota,status,keterangan,created_at,updated_at" +
+            "&order=created_at.desc";
+
+
+        /*
+         * Kepala Dusun hanya melihat dusunnya.
+         */
+        if(
+            currentUser &&
+            currentUser.dusun_id !== null &&
+            currentUser.dusun_id !== undefined &&
+            currentUser.dusun_id !== ""
+        ){
+
+            const dusun =
+                Number(currentUser.dusun_id);
+
+            if(
+                Number.isInteger(dusun) &&
+                dusun >= 1 &&
+                dusun <= 5
+            ){
+
+                path +=
+                    "&dusun_id=eq." +
+                    encodeURIComponent(dusun);
+
+            }
+
+        }
+
+
+        const data =
+            await sb(path);
+
+
+        kkCache =
+            Array.isArray(data)
+                ? data
+                : [];
+
+
+        renderKK(kkCache);
+
+        updateKKStats(kkCache);
+
+
+    }catch(error){
+
+        console.error(
+            "Gagal memuat data KK:",
+            error
+        );
+
+
+        kkCache = [];
+
+
+        if(tbody){
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="empty-state">
+                        ❌ Gagal memuat data Kartu Keluarga.
+                        <br><br>
+                        ${escapeHTML(
+                            error.message ||
+                            "Periksa koneksi Supabase."
+                        )}
+                    </td>
+                </tr>
+            `;
+
+        }
+
+        showToast(
+            "Gagal memuat data Kartu Keluarga."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER KK
+========================================================= */
+
+function renderKK(data){
+
+    const tbody =
+        document.getElementById(
+            "kkTableBody"
+        );
+
+    if(!tbody){
+        return;
+    }
+
+
+    if(
+        !data ||
+        !data.length
+    ){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="empty-state">
+                    📭 Belum ada data Kartu Keluarga.
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        data.map(
+            function(k,index){
+
+                const statusClass =
+                    k.status === "Aktif"
+                        ? "kk-badge-active"
+                        : "kk-badge-inactive";
+
+
+                return `
+                    <tr>
+
+                        <td>
+                            ${index + 1}
+                        </td>
+
+                        <td>
+                            <strong>
+                                ${escapeHTML(
+                                    k.no_kk || "-"
+                                )}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                k.kepala_keluarga_nik || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            <strong>
+                                ${escapeHTML(
+                                    k.kepala_keluarga_nama || "-"
+                                )}
+                            </strong>
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                dusunName(k.dusun_id)
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                k.alamat || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            <strong>
+                                ${Number(
+                                    k.jumlah_anggota || 0
+                                )}
+                            </strong>
+                            orang
+                        </td>
+
+                        <td>
+                            <span
+                                class="kk-badge ${statusClass}">
+                                ${escapeHTML(
+                                    k.status || "-"
+                                )}
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <div class="kk-action">
+
+                                <button
+                                    type="button"
+                                    class="kk-btn-view"
+                                    onclick="viewKK('${k.id}')">
+                                    👁️
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="kk-btn-edit"
+                                    onclick="openKKForm('${k.id}')">
+                                    ✏️
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="kk-btn-delete"
+                                    onclick="deleteKK('${k.id}')">
+                                    🗑️
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+/* =========================================================
+   STATISTIK
+========================================================= */
+
+function updateKKStats(data){
+
+    const total =
+        data.length;
+
+
+    const anggota =
+        data.reduce(
+            function(sum,k){
+
+                return sum +
+                    Number(
+                        k.jumlah_anggota || 0
+                    );
+
+            },
+            0
+        );
+
+
+    const aktif =
+        data.filter(
+            function(k){
+
+                return k.status === "Aktif";
+
+            }
+        ).length;
+
+
+    const dusun =
+        new Set(
+            data
+                .map(
+                    function(k){
+                        return k.dusun_id;
+                    }
+                )
+                .filter(
+                    function(x){
+                        return x !== null &&
+                               x !== undefined;
+                    }
+                )
+        ).size;
+
+
+    const totalEl =
+        document.getElementById(
+            "kkTotal"
+        );
+
+    const anggotaEl =
+        document.getElementById(
+            "kkAnggota"
+        );
+
+    const aktifEl =
+        document.getElementById(
+            "kkAktif"
+        );
+
+    const dusunEl =
+        document.getElementById(
+            "kkDusun"
+        );
+
+
+    if(totalEl){
+        totalEl.textContent = total;
+    }
+
+    if(anggotaEl){
+        anggotaEl.textContent = anggota;
+    }
+
+    if(aktifEl){
+        aktifEl.textContent = aktif;
+    }
+
+    if(dusunEl){
+
+        if(
+            currentUser &&
+            currentUser.dusun_id
+        ){
+
+            dusunEl.textContent =
+                dusunName(
+                    currentUser.dusun_id
+                );
+
+        }else{
+
+            dusunEl.textContent =
+                dusun;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   BUKA FORM KK
+========================================================= */
+
+function openKKForm(id = null){
+
+    const modal =
+        document.getElementById(
+            "modalKK"
+        );
+
+    const form =
+        document.getElementById(
+            "formKK"
+        );
+
+
+    if(!modal || !form){
+        return;
+    }
+
+
+    editingKKId = id;
+
+
+    form.reset();
+
+
+    document.getElementById(
+        "kkId"
+    ).value = id || "";
+
+
+    document.getElementById(
+        "kkJumlah"
+    ).value = "0";
+
+
+    document.getElementById(
+        "kkStatus"
+    ).value = "Aktif";
+
+
+    if(id){
+
+        const data =
+            kkCache.find(
+                function(k){
+                    return String(k.id) ===
+                        String(id);
+                }
+            );
+
+
+        if(!data){
+
+            showToast(
+                "Data KK tidak ditemukan."
+            );
+
+            return;
+
+        }
+
+
+        document.getElementById(
+            "kkModalTitle"
+        ).textContent =
+            "Edit Kartu Keluarga";
+
+
+        document.getElementById(
+            "kkNoKK"
+        ).value =
+            data.no_kk || "";
+
+
+        document.getElementById(
+            "kkNIK"
+        ).value =
+            data.kepala_keluarga_nik || "";
+
+
+        document.getElementById(
+            "kkNama"
+        ).value =
+            data.kepala_keluarga_nama || "";
+
+
+        document.getElementById(
+            "kkDusun"
+        ).value =
+            data.dusun_id || "";
+
+
+        document.getElementById(
+            "kkAlamat"
+        ).value =
+            data.alamat || "";
+
+
+        document.getElementById(
+            "kkJumlah"
+        ).value =
+            Number(
+                data.jumlah_anggota || 0
+            );
+
+
+        document.getElementById(
+            "kkStatus"
+        ).value =
+            data.status || "Aktif";
+
+
+        document.getElementById(
+            "kkKeterangan"
+        ).value =
+            data.keterangan || "";
+
+
+    }else{
+
+        document.getElementById(
+            "kkModalTitle"
+        ).textContent =
+            "Tambah Kartu Keluarga";
+
+
+        /*
+         * Jika user adalah Kepala Dusun,
+         * otomatis pilih dusunnya.
+         */
+        if(
+            currentUser &&
+            currentUser.dusun_id !== null &&
+            currentUser.dusun_id !== undefined &&
+            currentUser.dusun_id !== ""
+        ){
+
+            document.getElementById(
+                "kkDusun"
+            ).value =
+                String(
+                    currentUser.dusun_id
+                );
+
+        }
+
+    }
+
+
+    modal.classList.add("show");
+
+    modal.style.display = "flex";
+
+
+    setTimeout(
+        function(){
+
+            document.getElementById(
+                "kkNoKK"
+            ).focus();
+
+        },
+        100
+    );
+
+}
+
+
+/* =========================================================
+   TUTUP FORM
+========================================================= */
+
+function closeKKForm(){
+
+    const modal =
+        document.getElementById(
+            "modalKK"
+        );
+
+    if(!modal){
+        return;
+    }
+
+
+    modal.classList.remove("show");
+
+    modal.style.display = "none";
+
+
+    editingKKId = null;
+
+}
+
+
+/* =========================================================
+   SIMPAN KK
+========================================================= */
+
+async function saveKK(event){
+
+    event.preventDefault();
+
+
+    const noKK =
+        kkValue("kkNoKK");
+
+
+    const nik =
+        kkValue("kkNIK");
+
+
+    const nama =
+        kkValue("kkNama");
+
+
+    const dusun =
+        Number(
+            kkValue("kkDusun")
+        );
+
+
+    const alamat =
+        kkValue("kkAlamat");
+
+
+    const jumlah =
+        Number(
+            kkValue("kkJumlah")
+        );
+
+
+    const status =
+        kkValue("kkStatus") ||
+        "Aktif";
+
+
+    const keterangan =
+        kkValue("kkKeterangan");
+
+
+    /* VALIDASI NOMOR KK */
+
+    if(!/^\d{16}$/.test(noKK)){
+
+        alert(
+            "Nomor KK harus terdiri dari 16 digit angka."
+        );
+
+        return;
+
+    }
+
+
+    /* VALIDASI NIK */
+
+    if(
+        nik &&
+        !/^\d{16}$/.test(nik)
+    ){
+
+        alert(
+            "NIK Kepala Keluarga harus terdiri dari 16 digit angka."
+        );
+
+        return;
+
+    }
+
+
+    /* VALIDASI DUSUN */
+
+    if(
+        !Number.isInteger(dusun) ||
+        dusun < 1 ||
+        dusun > 5
+    ){
+
+        alert(
+            "Silakan pilih Dusun 1 sampai Dusun 5."
+        );
+
+        return;
+
+    }
+
+
+    /* VALIDASI JUMLAH */
+
+    if(
+        !Number.isInteger(jumlah) ||
+        jumlah < 0
+    ){
+
+        alert(
+            "Jumlah anggota keluarga tidak valid."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Kepala Dusun hanya boleh menyimpan
+     * data di dusunnya sendiri.
+     */
+
+    if(
+        currentUser &&
+        currentUser.dusun_id !== null &&
+        currentUser.dusun_id !== undefined &&
+        currentUser.dusun_id !== ""
+    ){
+
+        const userDusun =
+            Number(
+                currentUser.dusun_id
+            );
+
+
+        if(
+            userDusun !== dusun
+        ){
+
+            alert(
+                "Anda hanya dapat mengelola data KK pada dusun Anda."
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    const payload = {
+
+        no_kk:
+            noKK,
+
+        kepala_keluarga_nik:
+            nik || null,
+
+        kepala_keluarga_nama:
+            nama,
+
+        dusun_id:
+            dusun,
+
+        alamat:
+            alamat || null,
+
+        jumlah_anggota:
+            jumlah,
+
+        status:
+            status,
+
+        keterangan:
+            keterangan || null
+
+    };
+
+
+    const button =
+        document.getElementById(
+            "btnSaveKK"
+        );
+
+
+    if(button){
+
+        button.disabled = true;
+
+        button.textContent =
+            "⏳ Menyimpan...";
+
+    }
+
+
+    try{
+
+        if(editingKKId){
+
+            await sb(
+                "kk?id=eq." +
+                encodeURIComponent(
+                    editingKKId
+                ),
+                {
+                    method:"PATCH",
+                    headers:{
+                        "Prefer":"return=minimal"
+                    },
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+            showToast(
+                "Data KK berhasil diperbarui."
+            );
+
+
+        }else{
+
+            await sb(
+                "kk",
+                {
+                    method:"POST",
+                    headers:{
+                        "Prefer":"return=minimal"
+                    },
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+                }
+            );
+
+
+            showToast(
+                "Data KK berhasil disimpan."
+            );
+
+        }
+
+
+        closeKKForm();
+
+
+        await loadKK();
+
+
+        /*
+         * Refresh dashboard jika fungsi tersedia.
+         */
+
+        if(
+            typeof loadDashboard ===
+            "function"
+        ){
+
+            loadDashboard();
+
+        }
+
+
+    }catch(error){
+
+        console.error(
+            "Gagal menyimpan KK:",
+            error
+        );
+
+
+        let message =
+            error.message ||
+            "Gagal menyimpan data KK.";
+
+
+        if(
+            message.includes(
+                "duplicate"
+            ) ||
+            message.includes(
+                "unique"
+            )
+        ){
+
+            message =
+                "Nomor KK tersebut sudah terdaftar.";
+
+        }
+
+
+        if(
+            message.includes(
+                "permission denied"
+            )
+        ){
+
+            message =
+                "Akses database KK ditolak. Jalankan SQL izin Supabase yang diberikan.";
+
+        }
+
+
+        if(
+            message.includes(
+                "foreign key"
+            )
+        ){
+
+            message =
+                "Dusun yang dipilih tidak tersedia di database.";
+
+        }
+
+
+        alert(
+            message
+        );
+
+
+    }finally{
+
+        if(button){
+
+            button.disabled = false;
+
+            button.textContent =
+                "💾 Simpan Data KK";
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   LIHAT DETAIL KK
+========================================================= */
+
+function viewKK(id){
+
+    const data =
+        kkCache.find(
+            function(k){
+                return String(k.id) ===
+                    String(id);
+            }
+        );
+
+
+    if(!data){
+
+        showToast(
+            "Data KK tidak ditemukan."
+        );
+
+        return;
+
+    }
+
+
+    const detail =
+
+        "DATA KARTU KELUARGA\n\n" +
+
+        "Nomor KK: " +
+        (data.no_kk || "-") +
+
+        "\nNIK Kepala Keluarga: " +
+        (data.kepala_keluarga_nik || "-") +
+
+        "\nKepala Keluarga: " +
+        (data.kepala_keluarga_nama || "-") +
+
+        "\nDusun: " +
+        dusunName(data.dusun_id) +
+
+        "\nAlamat: " +
+        (data.alamat || "-") +
+
+        "\nJumlah Anggota: " +
+        Number(
+            data.jumlah_anggota || 0
+        ) +
+
+        " orang" +
+
+        "\nStatus: " +
+        (data.status || "-") +
+
+        "\nKeterangan: " +
+        (data.keterangan || "-");
+
+
+    alert(detail);
+
+}
+
+
+/* =========================================================
+   HAPUS KK
+========================================================= */
+
+async function deleteKK(id){
+
+    const data =
+        kkCache.find(
+            function(k){
+                return String(k.id) ===
+                    String(id);
+            }
+        );
+
+
+    if(!data){
+
+        showToast(
+            "Data KK tidak ditemukan."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * Konfirmasi
+     */
+
+    const yakin =
+        confirm(
+            "Hapus data KK berikut?\n\n" +
+            "No. KK: " +
+            (data.no_kk || "-") +
+            "\nKepala Keluarga: " +
+            (data.kepala_keluarga_nama || "-")
+        );
+
+
+    if(!yakin){
+        return;
+    }
+
+
+    try{
+
+        await sb(
+            "kk?id=eq." +
+            encodeURIComponent(id),
+            {
+                method:"DELETE"
+            }
+        );
+
+
+        showToast(
+            "Data KK berhasil dihapus."
+        );
+
+
+        await loadKK();
+
+
+        if(
+            typeof loadDashboard ===
+            "function"
+        ){
+
+            loadDashboard();
+
+        }
+
+
+    }catch(error){
+
+        console.error(
+            "Gagal menghapus KK:",
+            error
+        );
+
+
+        alert(
+            "Gagal menghapus data KK.\n\n" +
+            (
+                error.message ||
+                "Terjadi kesalahan."
+            )
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SEARCH KK
+========================================================= */
+
+function filterKK(){
+
+    const input =
+        document.getElementById(
+            "searchKK"
+        );
+
+
+    if(!input){
+        return;
+    }
+
+
+    const keyword =
+        input.value
+            .toLowerCase()
+            .trim();
+
+
+    if(!keyword){
+
+        renderKK(
+            kkCache
+        );
+
+        return;
+
+    }
+
+
+    const filtered =
+        kkCache.filter(
+            function(k){
+
+                return (
+
+                    String(
+                        k.no_kk || ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
+
+                    ||
+
+                    String(
+                        k.kepala_keluarga_nik || ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
+
+                    ||
+
+                    String(
+                        k.kepala_keluarga_nama || ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
+
+                    ||
+
+                    String(
+                        dusunName(
+                            k.dusun_id
+                        )
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
+
+                    ||
+
+                    String(
+                        k.alamat || ""
+                    )
+                    .toLowerCase()
+                    .includes(keyword)
+
+                );
+
+            }
+        );
+
+
+    renderKK(
+        filtered
+    );
+
+}
+
+
+/* =========================================================
+   EXPORT CSV
+========================================================= */
+
+function exportKKCSV(){
+
+    if(
+        !kkCache ||
+        !kkCache.length
+    ){
+
+        alert(
+            "Tidak ada data KK untuk diekspor."
+        );
+
+        return;
+
+    }
+
+
+    const cols = [
+
+        "no_kk",
+
+        "kepala_keluarga_nik",
+
+        "kepala_keluarga_nama",
+
+        "dusun_id",
+
+        "alamat",
+
+        "jumlah_anggota",
+
+        "status",
+
+        "keterangan"
+
+    ];
+
+
+    const header =
+        cols
+            .map(
+                function(c){
+
+                    return csvCell(
+                        c === "dusun_id"
+                            ? "Dusun"
+                            : c
+                    );
+
+                }
+            )
+            .join(",");
+
+
+    const rows =
+        kkCache.map(
+            function(k){
+
+                return cols
+                    .map(
+                        function(c){
+
+                            if(
+                                c ===
+                                "dusun_id"
+                            ){
+
+                                return csvCell(
+                                    dusunName(
+                                        k[c]
+                                    )
+                                );
+
+                            }
+
+
+                            return csvCell(
+                                k[c]
+                            );
+
+                        }
+                    )
+                    .join(",");
+
+            }
+        );
+
+
+    const csv =
+        [
+            header,
+            ...rows
+        ]
+        .join("\r\n");
+
+
+    const blob =
+        new Blob(
+            [
+                "\ufeff" +
+                csv
+            ],
+            {
+                type:
+                    "text/csv;charset=utf-8;"
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const a =
+        document.createElement(
+            "a"
+        );
+
+
+    a.href = url;
+
+    a.download =
+        "data-kartu-keluarga-wawongkolono.csv";
+
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    document.body.removeChild(a);
+
+
+    setTimeout(
+        function(){
+
+            URL.revokeObjectURL(
+                url
+            );
+
+        },
+        500
+    );
+
+
+    showToast(
+        "Data KK berhasil diekspor."
+    );
+
+}
+
+
+/* =========================================================
+   CETAK DATA KK
+========================================================= */
+
+function printKK(){
+
+    if(
+        !kkCache ||
+        !kkCache.length
+    ){
+
+        alert(
+            "Tidak ada data KK untuk dicetak."
+        );
+
+        return;
+
+    }
+
+
+    const rows =
+        kkCache.map(
+            function(k,index){
+
+                return `
+                    <tr>
+
+                        <td>
+                            ${index + 1}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                k.no_kk || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                k.kepala_keluarga_nik || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                k.kepala_keluarga_nama || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                dusunName(
+                                    k.dusun_id
+                                )
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                k.alamat || "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${Number(
+                                k.jumlah_anggota || 0
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(
+                                k.status || "-"
+                            )}
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        )
+        .join("");
+
+
+    const win =
+        window.open(
+            "",
+            "_blank"
+        );
+
+
+    if(!win){
+
+        alert(
+            "Popup diblokir browser. Izinkan popup untuk mencetak."
+        );
+
+        return;
+
+    }
+
+
+    win.document.write(`
+
+        <!DOCTYPE html>
+
+        <html>
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <title>
+                Data Kartu Keluarga
+                Desa Wawongkolono
+            </title>
+
+            <style>
+
+                body{
+                    font-family:Arial,sans-serif;
+                    padding:25px;
+                    color:#111;
+                }
+
+                h1{
+                    text-align:center;
+                    margin-bottom:5px;
+                }
+
+                p{
+                    text-align:center;
+                    margin-top:0;
+                    margin-bottom:25px;
+                }
+
+                table{
+                    width:100%;
+                    border-collapse:collapse;
+                    font-size:12px;
+                }
+
+                th,
+                td{
+                    border:1px solid #333;
+                    padding:7px;
+                    text-align:left;
+                }
+
+                th{
+                    background:#eee;
+                }
+
+                @media print{
+
+                    body{
+                        padding:0;
+                    }
+
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <h1>
+                DATA KARTU KELUARGA
+            </h1>
+
+            <p>
+                DESA WAWONGKOLONO
+            </p>
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+
+                        <th>No. KK</th>
+
+                        <th>NIK Kepala Keluarga</th>
+
+                        <th>Kepala Keluarga</th>
+
+                        <th>Dusun</th>
+
+                        <th>Alamat</th>
+
+                        <th>Anggota</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${rows}
+
+                </tbody>
+
+            </table>
+
+        </body>
+
+        </html>
+
+    `);
+
+
+    win.document.close();
+
+
+    setTimeout(
+        function(){
+
+            win.focus();
+
+            win.print();
+
+        },
+        500
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value){
+
+    if(
+        value === null ||
+        value === undefined
+    ){
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   MODAL CLICK OUTSIDE
+========================================================= */
+
+document.addEventListener(
+    "click",
+    function(event){
+
+        const modal =
+            document.getElementById(
+                "modalKK"
+            );
+
+
+        if(
+            modal &&
+            event.target === modal
+        ){
+
+            closeKKForm();
+
+        }
+
+    }
+);
 </script>
 </body>
+  
 </html>
 '''
 
