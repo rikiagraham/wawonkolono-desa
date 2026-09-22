@@ -1114,18 +1114,14 @@ th{
     .panel{
         border:0;
     }
+
 }
 </style>
 </head>
 
 <body>
 
-<!-- =========================================================
-     ERROR JAVASCRIPT
-========================================================= -->
-
 <div id="jsError" class="js-error"></div>
-
 <div id="toast" class="toast"></div>
 
 <!-- =========================================================
@@ -1307,10 +1303,7 @@ th{
 
     </div>
 
-    <div
-        id="publicAiAnswer"
-        style="margin-top:15px;">
-    </div>
+    <div id="publicAiAnswer" style="margin-top:15px;"></div>
 
 </section>
 
@@ -1487,13 +1480,9 @@ th{
 
     </div>
 
-    <form
-        id="pendudukForm"
-        class="data-form">
+    <form id="pendudukForm" class="data-form">
 
-        <input
-            type="hidden"
-            id="pendudukId">
+        <input type="hidden" id="pendudukId">
 
         <div>
             <label for="pNIK">NIK *</label>
@@ -1577,6 +1566,135 @@ th{
                 type="submit"
                 class="btn-green">
                 💾 Simpan
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+<!-- =========================================================
+     FORM KK
+========================================================= -->
+
+<div id="kkModal" class="modal">
+
+<div class="login-panel" style="max-width:700px;">
+
+    <div class="login-head">
+
+        <div>
+
+            <h2 id="kkFormTitle">
+                ➕ Tambah Kartu Keluarga
+            </h2>
+
+            <p style="color:#64748b;font-size:13px;margin-top:5px;">
+                Data KK disimpan langsung ke Supabase.
+            </p>
+
+        </div>
+
+        <button
+            type="button"
+            id="btnCloseKK"
+            class="close">
+            ×
+        </button>
+
+    </div>
+
+    <form id="kkForm" class="data-form">
+
+        <input type="hidden" id="kkId">
+
+        <div>
+            <label for="kkNo">
+                Nomor KK *
+            </label>
+
+            <input
+                id="kkNo"
+                maxlength="30"
+                required
+                placeholder="Masukkan nomor KK">
+        </div>
+
+        <div>
+            <label for="kkKepala">
+                Kepala Keluarga *
+            </label>
+
+            <input
+                id="kkKepala"
+                required
+                placeholder="Nama kepala keluarga">
+        </div>
+
+        <div>
+            <label for="kkDusun">
+                Dusun *
+            </label>
+
+            <select id="kkDusun" required>
+
+                <option value="">
+                    Pilih Dusun
+                </option>
+
+                <option value="1">
+                    Dusun 1
+                </option>
+
+                <option value="2">
+                    Dusun 2
+                </option>
+
+                <option value="3">
+                    Dusun 3
+                </option>
+
+                <option value="4">
+                    Dusun 4
+                </option>
+
+                <option value="5">
+                    Dusun 5
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="full">
+
+            <label for="kkAlamat">
+                Alamat
+            </label>
+
+            <textarea
+                id="kkAlamat"
+                placeholder="Alamat keluarga">
+            </textarea>
+
+        </div>
+
+        <div class="full form-actions">
+
+            <button
+                type="button"
+                id="btnCancelKK"
+                class="btn-gray">
+                Batal
+            </button>
+
+            <button
+                type="submit"
+                class="btn-green">
+                💾 Simpan KK
             </button>
 
         </div>
@@ -1757,39 +1875,91 @@ th{
     <div class="stats">
 
         <div class="stat">
+
             <div class="stat-top">
+
                 <small>Penduduk</small>
-                <span class="stat-icon">👥</span>
+
+                <span class="stat-icon">
+                    👥
+                </span>
+
             </div>
-            <h3 id="statPenduduk">0</h3>
-            <small>Data Supabase</small>
+
+            <h3 id="statPenduduk">
+                0
+            </h3>
+
+            <small>
+                Data Supabase
+            </small>
+
         </div>
 
         <div class="stat">
+
             <div class="stat-top">
+
                 <small>KK</small>
-                <span class="stat-icon">👨‍👩‍👧</span>
+
+                <span class="stat-icon">
+                    👨‍👩‍👧
+                </span>
+
             </div>
-            <h3 id="statKK">0</h3>
-            <small>Data Supabase</small>
+
+            <h3 id="statKK">
+                0
+            </h3>
+
+            <small>
+                Data Supabase
+            </small>
+
         </div>
 
         <div class="stat">
+
             <div class="stat-top">
+
                 <small>Pendataan</small>
-                <span class="stat-icon">📄</span>
+
+                <span class="stat-icon">
+                    📄
+                </span>
+
             </div>
-            <h3 id="statBulanan">0</h3>
-            <small>Data masuk</small>
+
+            <h3 id="statBulanan">
+                0
+            </h3>
+
+            <small>
+                Data masuk
+            </small>
+
         </div>
 
         <div class="stat">
+
             <div class="stat-top">
+
                 <small>Pengaduan</small>
-                <span class="stat-icon">💬</span>
+
+                <span class="stat-icon">
+                    💬
+                </span>
+
             </div>
-            <h3 id="statAspirasi">0</h3>
-            <small>Baru</small>
+
+            <h3 id="statAspirasi">
+                0
+            </h3>
+
+            <small>
+                Baru
+            </small>
+
         </div>
 
     </div>
@@ -1800,14 +1970,18 @@ th{
 
             <div class="panel">
 
-                <h3>📈 Statistik Desa</h3>
+                <h3>
+                    📈 Statistik Desa
+                </h3>
 
                 <div class="chart">
+
                     <div class="bar"></div>
                     <div class="bar"></div>
                     <div class="bar"></div>
                     <div class="bar"></div>
                     <div class="bar"></div>
+
                 </div>
 
                 <p style="margin-top:12px;color:#64748b;font-size:13px;">
@@ -1818,14 +1992,27 @@ th{
 
             <div class="panel">
 
-                <h3>📌 Aktivitas Terbaru</h3>
+                <h3>
+                    📌 Aktivitas Terbaru
+                </h3>
 
                 <div style="line-height:2;color:#475569;font-size:14px;">
 
-                    <div>🟢 Data penduduk diperbarui</div>
-                    <div>🔵 Pengajuan pelayanan diterima</div>
-                    <div>🟡 Laporan menunggu pemeriksaan</div>
-                    <div>🟣 Data absensi diperbarui</div>
+                    <div>
+                        🟢 Data penduduk diperbarui
+                    </div>
+
+                    <div>
+                        🔵 Pengajuan pelayanan diterima
+                    </div>
+
+                    <div>
+                        🟡 Laporan menunggu pemeriksaan
+                    </div>
+
+                    <div>
+                        🟣 Data absensi diperbarui
+                    </div>
 
                 </div>
 
@@ -1837,7 +2024,9 @@ th{
 
             <div class="panel ai-panel">
 
-                <h3>🤖 AI Desa</h3>
+                <h3>
+                    🤖 AI Desa
+                </h3>
 
                 <p id="aiResponse">
                     Selamat datang. Saya Asisten AI Desa.
@@ -1863,13 +2052,23 @@ th{
 
             <div class="panel">
 
-                <h3>🔔 Notifikasi</h3>
+                <h3>
+                    🔔 Notifikasi
+                </h3>
 
                 <div style="line-height:2;font-size:14px;">
 
-                    <div>📄 Pengajuan baru</div>
-                    <div>👥 Data perlu diperiksa</div>
-                    <div>🕐 Rekap absensi tersedia</div>
+                    <div>
+                        📄 Pengajuan baru
+                    </div>
+
+                    <div>
+                        👥 Data perlu diperiksa
+                    </div>
+
+                    <div>
+                        🕐 Rekap absensi tersedia
+                    </div>
 
                 </div>
 
@@ -1889,7 +2088,9 @@ th{
 
 <div class="panel">
 
-    <h3>👥 Data Penduduk</h3>
+    <h3>
+        👥 Data Penduduk
+    </h3>
 
     <div class="toolbar">
 
@@ -1949,9 +2150,13 @@ th{
             <tbody id="pendudukBody">
 
                 <tr>
-                    <td colspan="6" class="loading">
+
+                    <td
+                        colspan="6"
+                        class="loading">
                         Silakan login untuk memuat data.
                     </td>
+
                 </tr>
 
             </tbody>
@@ -1965,42 +2170,98 @@ th{
 </section>
 
 <!-- =========================================================
-     KK
+     KK - SUDAH TERHUBUNG SUPABASE
 ========================================================= -->
 
 <section id="page-kk" class="page">
 
 <div class="panel">
 
-    <h3>👨‍👩‍👧 Data Kartu Keluarga</h3>
+    <h3>
+        👨‍👩‍👧 Data Kartu Keluarga
+    </h3>
 
     <div class="toolbar">
 
-        <button type="button" class="btn-green" data-coming="Tambah KK">
+        <button
+            type="button"
+            id="btnTambahKK"
+            class="btn-green">
             ➕ Tambah KK
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Import Excel">
-            📥 Import Excel
+        <button
+            type="button"
+            id="btnRefreshKK"
+            class="btn-gray">
+            🔄 Refresh
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Excel">
-            📊 Excel
+        <button
+            type="button"
+            id="btnExportKK"
+            class="btn-gray">
+            📊 Export CSV
         </button>
 
-        <button type="button" class="btn-gray" data-coming="PDF">
-            📕 PDF
-        </button>
-
-        <button type="button" id="btnPrintKK" class="btn-gray">
+        <button
+            type="button"
+            id="btnPrintKK"
+            class="btn-gray">
             🖨️ Cetak
         </button>
 
+        <input
+            class="search"
+            type="text"
+            id="searchKK"
+            placeholder="🔎 Cari No. KK atau kepala keluarga...">
+
     </div>
 
-    <p style="color:#64748b;">
-        Modul Data KK akan dihubungkan dengan data penduduk.
-    </p>
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>No.</th>
+
+                    <th>Nomor KK</th>
+
+                    <th>Kepala Keluarga</th>
+
+                    <th>Dusun</th>
+
+                    <th>Alamat</th>
+
+                    <th>Anggota</th>
+
+                    <th>Aksi</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="kkBody">
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="loading">
+                        Silakan login untuk memuat data KK.
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
 
@@ -2014,23 +2275,36 @@ th{
 
 <div class="panel">
 
-    <h3>📄 Pelayanan Desa</h3>
+    <h3>
+        📄 Pelayanan Desa
+    </h3>
 
     <div class="toolbar">
 
-        <button type="button" class="btn-green" data-coming="Pengajuan pelayanan">
+        <button
+            type="button"
+            class="btn-green"
+            data-coming="Pengajuan pelayanan">
             ➕ Pengajuan
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Excel">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Excel">
             📊 Excel
         </button>
 
-        <button type="button" class="btn-gray" data-coming="PDF">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="PDF">
             📕 PDF
         </button>
 
-        <button type="button" class="btn-gray print-any">
+        <button
+            type="button"
+            class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2054,19 +2328,29 @@ th{
 
 <div class="panel">
 
-    <h3>📝 Surat Desa</h3>
+    <h3>
+        📝 Surat Desa
+    </h3>
 
     <div class="toolbar">
 
-        <button type="button" class="btn-green" data-coming="Buat Surat">
+        <button
+            type="button"
+            class="btn-green"
+            data-coming="Buat Surat">
             ➕ Buat Surat
         </button>
 
-        <button type="button" class="btn-gray" data-coming="PDF">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="PDF">
             📕 PDF
         </button>
 
-        <button type="button" class="btn-gray print-any">
+        <button
+            type="button"
+            class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2088,7 +2372,9 @@ th{
 
 <div class="panel">
 
-    <h3>🕐 Absensi</h3>
+    <h3>
+        🕐 Absensi
+    </h3>
 
     <div class="toolbar">
 
@@ -2106,19 +2392,30 @@ th{
             🔴 Absen Pulang
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Excel">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Excel">
             📊 Excel
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Dokumen">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Dokumen">
             📄 Dokumen
         </button>
 
-        <button type="button" class="btn-gray" data-coming="PDF">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="PDF">
             📕 PDF
         </button>
 
-        <button type="button" class="btn-gray print-any">
+        <button
+            type="button"
+            class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2129,25 +2426,31 @@ th{
         <table>
 
             <thead>
+
                 <tr>
+
                     <th>Nama</th>
                     <th>Jabatan</th>
                     <th>Tanggal</th>
                     <th>Masuk</th>
                     <th>Pulang</th>
                     <th>Status</th>
+
                 </tr>
+
             </thead>
 
             <tbody>
 
                 <tr>
+
                     <td>Belum ada data</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
+
                 </tr>
 
             </tbody>
@@ -2168,7 +2471,9 @@ th{
 
 <div class="panel">
 
-    <h3>🏛️ Pemerintahan Desa</h3>
+    <h3>
+        🏛️ Pemerintahan Desa
+    </h3>
 
     <p style="color:#64748b;">
         Struktur pemerintahan, perangkat desa,
@@ -2187,7 +2492,9 @@ th{
 
 <div class="panel">
 
-    <h3>🎁 Bantuan & Kesejahteraan</h3>
+    <h3>
+        🎁 Bantuan & Kesejahteraan
+    </h3>
 
     <p style="color:#64748b;">
         Data bantuan, penerima,
@@ -2206,7 +2513,9 @@ th{
 
 <div class="panel">
 
-    <h3>🏗️ Pembangunan Desa</h3>
+    <h3>
+        🏗️ Pembangunan Desa
+    </h3>
 
     <p style="color:#64748b;">
         Program pembangunan, kegiatan,
@@ -2225,7 +2534,9 @@ th{
 
 <div class="panel">
 
-    <h3>💰 Keuangan Desa</h3>
+    <h3>
+        💰 Keuangan Desa
+    </h3>
 
     <div class="stats">
 
@@ -2253,31 +2564,51 @@ th{
 
     <div class="toolbar">
 
-        <button type="button" class="btn-green" data-coming="Tambah Transaksi">
+        <button
+            type="button"
+            class="btn-green"
+            data-coming="Tambah Transaksi">
             ➕ Tambah Transaksi
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Edit">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Edit">
             ✏️ Edit
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Import Excel">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Import Excel">
             📥 Import Excel
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Excel">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Excel">
             📊 Excel
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Dokumen">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Dokumen">
             📄 Dokumen
         </button>
 
-        <button type="button" class="btn-gray" data-coming="PDF">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="PDF">
             📕 PDF
         </button>
 
-        <button type="button" class="btn-gray print-any">
+        <button
+            type="button"
+            class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2300,7 +2631,9 @@ th{
 
 <div class="panel">
 
-    <h3>💬 Pengaduan Masyarakat</h3>
+    <h3>
+        💬 Pengaduan Masyarakat
+    </h3>
 
     <p style="color:#64748b;">
         Kritik, saran, aspirasi dan pengaduan masyarakat.
@@ -2318,7 +2651,9 @@ th{
 
 <div class="panel">
 
-    <h3>📢 Informasi Desa</h3>
+    <h3>
+        📢 Informasi Desa
+    </h3>
 
     <p style="color:#64748b;">
         Berita, pengumuman, agenda dan informasi publik desa.
@@ -2336,23 +2671,36 @@ th{
 
 <div class="panel">
 
-    <h3>📊 Laporan</h3>
+    <h3>
+        📊 Laporan
+    </h3>
 
     <div class="toolbar">
 
-        <button type="button" class="btn-gray" data-coming="Excel">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Excel">
             📊 Excel
         </button>
 
-        <button type="button" class="btn-gray" data-coming="Dokumen">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="Dokumen">
             📄 Dokumen
         </button>
 
-        <button type="button" class="btn-gray" data-coming="PDF">
+        <button
+            type="button"
+            class="btn-gray"
+            data-coming="PDF">
             📕 PDF
         </button>
 
-        <button type="button" class="btn-gray print-any">
+        <button
+            type="button"
+            class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2375,7 +2723,9 @@ th{
 
 <div class="panel">
 
-    <h3>📁 Arsip Desa</h3>
+    <h3>
+        📁 Arsip Desa
+    </h3>
 
     <p style="color:#64748b;">
         Arsip surat, dokumen, laporan dan dokumen kegiatan desa.
@@ -2393,7 +2743,9 @@ th{
 
 <div class="panel">
 
-    <h3>👤 Pengguna & Hak Akses</h3>
+    <h3>
+        👤 Pengguna & Hak Akses
+    </h3>
 
     <p style="color:#64748b;">
         Pengaturan pengguna dan hak akses sistem.
@@ -2412,18 +2764,22 @@ th{
 
 <div class="panel">
 
-    <h3>📝 Log Aktivitas</h3>
+    <h3>
+        📝 Log Aktivitas
+    </h3>
 
     <div class="table-wrap">
 
         <table>
 
             <thead>
+
                 <tr>
                     <th>Waktu</th>
                     <th>Pengguna</th>
                     <th>Aktivitas</th>
                 </tr>
+
             </thead>
 
             <tbody>
@@ -2452,7 +2808,9 @@ th{
 
 <div class="panel">
 
-    <h3>⚙️ Pengaturan</h3>
+    <h3>
+        ⚙️ Pengaturan
+    </h3>
 
     <p style="color:#64748b;">
         Identitas desa, logo, wilayah,
@@ -2485,13 +2843,6 @@ const SUPABASE_URL =
 const SUPABASE_ANON_KEY =
 "sb_publishable_HwM_id1TLL7FxRH89DHg_Q_nAn7jxGS";
 
-/*
-   Catatan:
-   Publishable/anon key memang dapat berada di frontend.
-   Keamanan data harus diatur menggunakan RLS
-   di Supabase.
-*/
-
 
 /* =========================================================
    VARIABEL
@@ -2499,8 +2850,13 @@ const SUPABASE_ANON_KEY =
 
 let selectedRole = "";
 let currentUser = null;
+
 let pendudukCache = [];
+let kkCache = [];
+
 let editingPendudukId = null;
+let editingKKId = null;
+
 let toastTimer = null;
 
 
@@ -2526,40 +2882,49 @@ function showToast(message){
     }
 
     toast.textContent = message;
+
     toast.classList.add("show");
 
     clearTimeout(toastTimer);
 
-    toastTimer = setTimeout(function(){
-        toast.classList.remove("show");
-    },3500);
+    toastTimer =
+        setTimeout(function(){
+
+            toast.classList.remove("show");
+
+        },3500);
+
 }
 
 
 /* =========================================================
-   GLOBAL JAVASCRIPT ERROR
+   ERROR JAVASCRIPT
 ========================================================= */
 
-window.addEventListener("error",function(event){
+window.addEventListener(
+    "error",
+    function(event){
 
-    console.error(
-        "JavaScript Error:",
-        event.error || event.message
-    );
+        console.error(
+            "JavaScript Error:",
+            event.error || event.message
+        );
 
-    const box = $("jsError");
+        const box = $("jsError");
 
-    if(box){
+        if(box){
 
-        box.style.display = "block";
+            box.style.display = "block";
 
-        box.textContent =
-            "JavaScript Error: "+
-            (event.message || "Kesalahan tidak diketahui.");
+            box.textContent =
+                "JavaScript Error: "+
+                (event.message ||
+                "Kesalahan tidak diketahui.");
+
+        }
 
     }
-
-});
+);
 
 
 window.addEventListener(
@@ -2576,7 +2941,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   SUPABASE READY
+   SUPABASE
 ========================================================= */
 
 function supabaseReady(){
@@ -2591,10 +2956,6 @@ function supabaseReady(){
 }
 
 
-/* =========================================================
-   SUPABASE REQUEST
-========================================================= */
-
 async function sb(path,options={}){
 
     if(!supabaseReady()){
@@ -2607,10 +2968,12 @@ async function sb(path,options={}){
 
     const headers = {
 
-        "apikey":SUPABASE_ANON_KEY,
+        "apikey":
+            SUPABASE_ANON_KEY,
 
         "Authorization":
-            "Bearer "+SUPABASE_ANON_KEY,
+            "Bearer "+
+            SUPABASE_ANON_KEY,
 
         "Content-Type":
             "application/json",
@@ -2644,12 +3007,15 @@ async function sb(path,options={}){
 
     if(!response.ok){
 
-        let errorMessage = text;
+        let errorMessage =
+            text;
+
 
         try{
 
             const json =
                 JSON.parse(text);
+
 
             errorMessage =
                 json.message ||
@@ -2663,33 +3029,43 @@ async function sb(path,options={}){
 
         throw new Error(
             errorMessage ||
-            "HTTP "+response.status
+            "HTTP "+
+            response.status
         );
 
     }
 
 
     if(!text){
+
         return null;
+
     }
 
 
     try{
+
         return JSON.parse(text);
+
     }catch(_){
+
         return text;
+
     }
 
 }
 
 
 /* =========================================================
-   LOGIN MODAL
+   LOGIN
 ========================================================= */
 
 function openLogin(){
 
-    $("loginModal").classList.add("active");
+    $("loginModal")
+        .classList
+        .add("active");
+
 
     setTimeout(function(){
 
@@ -2702,7 +3078,9 @@ function openLogin(){
 
 function closeLogin(){
 
-    $("loginModal").classList.remove("active");
+    $("loginModal")
+        .classList
+        .remove("active");
 
 }
 
@@ -2713,24 +3091,33 @@ function closeLogin(){
 
 function selectRole(role,element){
 
-    selectedRole = role;
+    selectedRole =
+        role;
+
 
     document
         .querySelectorAll(".role")
         .forEach(function(item){
 
-            item.classList.remove("selected");
+            item.classList.remove(
+                "selected"
+            );
 
         });
 
 
     if(element){
-        element.classList.add("selected");
+
+        element.classList.add(
+            "selected"
+        );
+
     }
 
 
     $("loginMessage").className =
         "login-status";
+
 
     $("loginMessage").innerHTML =
         "Akun dipilih: <strong>"+
@@ -2746,22 +3133,26 @@ function selectRole(role,element){
 
 function togglePassword(){
 
-    const input = $("password");
+    const input =
+        $("password");
 
-    const button = $("btnTogglePassword");
+    const button =
+        $("btnTogglePassword");
 
 
     if(input.type === "password"){
 
         input.type = "text";
 
-        button.textContent = "🙈";
+        button.textContent =
+            "🙈";
 
     }else{
 
         input.type = "password";
 
-        button.textContent = "👁️";
+        button.textContent =
+            "👁️";
 
     }
 
@@ -2823,7 +3214,8 @@ async function login(){
         "Memeriksa akun...";
 
 
-    $("btnLogin").disabled = true;
+    $("btnLogin").disabled =
+        true;
 
 
     try{
@@ -2849,7 +3241,8 @@ async function login(){
         }
 
 
-        const akun = rows[0];
+        const akun =
+            rows[0];
 
 
         if(
@@ -2902,7 +3295,8 @@ async function login(){
         }
 
 
-        currentUser = akun;
+        currentUser =
+            akun;
 
 
         sessionStorage.setItem(
@@ -2911,7 +3305,9 @@ async function login(){
         );
 
 
-        masukKeAplikasi(akun);
+        masukKeAplikasi(
+            akun
+        );
 
 
         message.className =
@@ -2936,7 +3332,8 @@ async function login(){
 
     }finally{
 
-        $("btnLogin").disabled = false;
+        $("btnLogin").disabled =
+            false;
 
     }
 
@@ -2958,10 +3355,6 @@ function roleMatchesAccount(role,akun){
         .toLowerCase();
 
 
-    /*
-       Admin dan Kepala Desa
-    */
-
     if(
         role === "Admin" ||
         role === "Kepala Desa"
@@ -2975,10 +3368,6 @@ function roleMatchesAccount(role,akun){
     }
 
 
-    /*
-       Operator
-    */
-
     if(role === "Operator"){
 
         return (
@@ -2987,10 +3376,6 @@ function roleMatchesAccount(role,akun){
 
     }
 
-
-    /*
-       Dusun 1-5
-    */
 
     if(role.startsWith("Dusun ")){
 
@@ -3006,11 +3391,8 @@ function roleMatchesAccount(role,akun){
         return (
 
             (
-                accountRole ===
-                "dusun"
-                ||
-                accountRole ===
-                "kepala dusun"
+                accountRole === "dusun" ||
+                accountRole === "kepala dusun"
             )
 
             &&
@@ -3023,12 +3405,6 @@ function roleMatchesAccount(role,akun){
 
     }
 
-
-    /*
-       Role tambahan.
-       Dapat digunakan apabila akun
-       tersebut memang dibuat di Supabase.
-    */
 
     const normalizedRole =
         role
@@ -3053,9 +3429,11 @@ function masukKeAplikasi(akun){
     $("homePage").style.display =
         "none";
 
+
     $("loginModal")
         .classList
         .remove("active");
+
 
     $("app").style.display =
         "block";
@@ -3111,6 +3489,8 @@ function masukKeAplikasi(akun){
 
     loadPenduduk();
 
+    loadKK();
+
 }
 
 
@@ -3121,7 +3501,9 @@ function masukKeAplikasi(akun){
 function displayRole(a){
 
     if(!a){
+
         return "Pengguna";
+
     }
 
 
@@ -3198,8 +3580,8 @@ function dusunName(id){
 function applyRoleAccess(){
 
     /*
-       Semua menu tetap ditampilkan.
-       Pembatasan database dilakukan berdasarkan dusun_id.
+       Pembatasan wilayah dilakukan
+       melalui query dusun_id.
     */
 
 }
@@ -3215,7 +3597,9 @@ function showPage(page,button){
         .querySelectorAll(".page")
         .forEach(function(item){
 
-            item.classList.remove("active");
+            item.classList.remove(
+                "active"
+            );
 
         });
 
@@ -3226,62 +3610,87 @@ function showPage(page,button){
 
     if(target){
 
-        target.classList.add("active");
+        target.classList.add(
+            "active"
+        );
 
     }
 
 
     document
-        .querySelectorAll(".menu-item")
+        .querySelectorAll(
+            ".menu-item"
+        )
         .forEach(function(item){
 
-            item.classList.remove("active");
+            item.classList.remove(
+                "active"
+            );
 
         });
 
 
     if(button){
 
-        button.classList.add("active");
+        button.classList.add(
+            "active"
+        );
 
     }
 
 
     const titles = {
 
-        dashboard:"Dashboard",
+        dashboard:
+            "Dashboard",
 
-        penduduk:"Data Penduduk",
+        penduduk:
+            "Data Penduduk",
 
-        kk:"Data Kartu Keluarga",
+        kk:
+            "Data Kartu Keluarga",
 
-        pelayanan:"Pelayanan Desa",
+        pelayanan:
+            "Pelayanan Desa",
 
-        surat:"Surat Desa",
+        surat:
+            "Surat Desa",
 
-        absensi:"Absensi",
+        absensi:
+            "Absensi",
 
-        pemerintahan:"Pemerintahan Desa",
+        pemerintahan:
+            "Pemerintahan Desa",
 
-        bantuan:"Bantuan & Kesejahteraan",
+        bantuan:
+            "Bantuan & Kesejahteraan",
 
-        pembangunan:"Pembangunan Desa",
+        pembangunan:
+            "Pembangunan Desa",
 
-        keuangan:"Keuangan Desa",
+        keuangan:
+            "Keuangan Desa",
 
-        pengaduan:"Pengaduan Masyarakat",
+        pengaduan:
+            "Pengaduan Masyarakat",
 
-        informasi:"Informasi Desa",
+        informasi:
+            "Informasi Desa",
 
-        laporan:"Laporan",
+        laporan:
+            "Laporan",
 
-        arsip:"Arsip Desa",
+        arsip:
+            "Arsip Desa",
 
-        pengguna:"Pengguna & Hak Akses",
+        pengguna:
+            "Pengguna & Hak Akses",
 
-        log:"Log Aktivitas",
+        log:
+            "Log Aktivitas",
 
-        pengaturan:"Pengaturan"
+        pengaturan:
+            "Pengaturan"
 
     };
 
@@ -3299,6 +3708,13 @@ function showPage(page,button){
     if(page === "penduduk"){
 
         loadPenduduk();
+
+    }
+
+
+    if(page === "kk"){
+
+        loadKK();
 
     }
 
@@ -3325,18 +3741,19 @@ function toggleSidebar(){
 async function loadDashboard(){
 
     if(!currentUser){
+
         return;
+
     }
 
 
     try{
 
-        let scope = "";
+        let scope =
+            "";
 
 
-        if(
-            currentUser.dusun_id
-        ){
+        if(currentUser.dusun_id){
 
             scope =
                 "&dusun_id=eq."+
@@ -3377,22 +3794,30 @@ async function loadDashboard(){
 
         $("statPenduduk").textContent =
             results[0].length
-            .toLocaleString("id-ID");
+            .toLocaleString(
+                "id-ID"
+            );
 
 
         $("statKK").textContent =
             results[1].length
-            .toLocaleString("id-ID");
+            .toLocaleString(
+                "id-ID"
+            );
 
 
         $("statBulanan").textContent =
             results[2].length
-            .toLocaleString("id-ID");
+            .toLocaleString(
+                "id-ID"
+            );
 
 
         $("statAspirasi").textContent =
             results[3].length
-            .toLocaleString("id-ID");
+            .toLocaleString(
+                "id-ID"
+            );
 
 
     }catch(error){
@@ -3401,11 +3826,6 @@ async function loadDashboard(){
             "Dashboard:",
             error
         );
-
-        /*
-           Jika salah satu tabel belum dibuat,
-           dashboard tetap berjalan.
-        */
 
         showToast(
             "Sebagian statistik belum dapat dimuat dari Supabase."
@@ -3427,7 +3847,9 @@ async function loadPenduduk(){
 
 
     if(!body){
+
         return;
+
     }
 
 
@@ -3466,15 +3888,14 @@ async function loadPenduduk(){
             "tanggal_lahir,"+
             "status_penduduk,"+
             "dusun_id,"+
+            "dusun,"+
             "alamat,"+
             "keterangan,"+
             "created_at"+
             "&order=created_at.desc";
 
 
-        if(
-            currentUser.dusun_id
-        ){
+        if(currentUser.dusun_id){
 
             query +=
                 "&dusun_id=eq."+
@@ -3501,8 +3922,7 @@ async function loadPenduduk(){
 
         body.innerHTML =
             '<tr>'+
-            '<td colspan="6" '+
-            'style="color:#dc2626;padding:20px">'+
+            '<td colspan="6" style="color:#dc2626;padding:20px">'+
             '❌ '+
             escapeHtml(
                 error.message
@@ -3607,7 +4027,7 @@ function renderPenduduk(data){
 
 
 /* =========================================================
-   SEARCH
+   SEARCH PENDUDUK
 ========================================================= */
 
 function filterPenduduk(){
@@ -3757,7 +4177,7 @@ function openPendudukForm(id=null){
 
 
 /* =========================================================
-   CLOSE FORM
+   CLOSE PENDUDUK
 ========================================================= */
 
 function closePendudukForm(){
@@ -3766,7 +4186,8 @@ function closePendudukForm(){
         .classList
         .remove("active");
 
-    editingPendudukId = null;
+    editingPendudukId =
+        null;
 
 }
 
@@ -3798,9 +4219,13 @@ async function savePenduduk(event){
 
 
     /*
-       PENTING:
-       dusun_id dikirim sebagai INTEGER.
-       Bukan "Dusun 1", "Dusun 2", dst.
+       Dikirim dua nilai:
+       dusun_id = integer
+       dusun    = teks "Dusun 1", dst.
+
+       Ini dibuat untuk menyesuaikan
+       struktur tabel Anda yang sebelumnya
+       mempunyai kolom dusun NOT NULL.
     */
 
     const payload = {
@@ -3833,6 +4258,9 @@ async function savePenduduk(event){
         dusun_id:
             dusun,
 
+        dusun:
+            dusunName(dusun),
+
         alamat:
             valueOf("pAlamat") ||
             null,
@@ -3843,12 +4271,6 @@ async function savePenduduk(event){
 
     };
 
-
-    /*
-       Pastikan pengguna dusun
-       tidak dapat memasukkan data
-       ke dusun lain.
-    */
 
     if(
         currentUser &&
@@ -3879,7 +4301,8 @@ async function savePenduduk(event){
 
     if(submitButton){
 
-        submitButton.disabled = true;
+        submitButton.disabled =
+            true;
 
     }
 
@@ -3896,19 +4319,23 @@ async function savePenduduk(event){
                 ),
 
                 {
+
                     method:"PATCH",
 
                     headers:{
-                        Prefer:"return=minimal"
+                        Prefer:
+                            "return=minimal"
                     },
 
                     body:
                         JSON.stringify(
                             payload
                         )
+
                 }
 
             );
+
 
             showToast(
                 "Data penduduk berhasil diperbarui."
@@ -3921,19 +4348,23 @@ async function savePenduduk(event){
                 "penduduk",
 
                 {
+
                     method:"POST",
 
                     headers:{
-                        Prefer:"return=minimal"
+                        Prefer:
+                            "return=minimal"
                     },
 
                     body:
                         JSON.stringify(
                             payload
                         )
+
                 }
 
             );
+
 
             showToast(
                 "Data penduduk berhasil ditambahkan."
@@ -3954,7 +4385,7 @@ async function savePenduduk(event){
         console.error(error);
 
         alert(
-            "Gagal menyimpan data:\n\n"+
+            "Gagal menyimpan data penduduk:\n\n"+
             error.message
         );
 
@@ -3962,7 +4393,8 @@ async function savePenduduk(event){
 
         if(submitButton){
 
-            submitButton.disabled = false;
+            submitButton.disabled =
+                false;
 
         }
 
@@ -3972,7 +4404,7 @@ async function savePenduduk(event){
 
 
 /* =========================================================
-   EDIT
+   EDIT PENDUDUK
 ========================================================= */
 
 function editPenduduk(id){
@@ -3983,7 +4415,7 @@ function editPenduduk(id){
 
 
 /* =========================================================
-   DELETE
+   DELETE PENDUDUK
 ========================================================= */
 
 async function deletePenduduk(id){
@@ -4007,10 +4439,12 @@ async function deletePenduduk(id){
             encodeURIComponent(id),
 
             {
+
                 method:"DELETE",
 
                 headers:{
-                    Prefer:"return=minimal"
+                    Prefer:
+                        "return=minimal"
                 }
 
             }
@@ -4043,30 +4477,799 @@ async function deletePenduduk(id){
 
 
 /* =========================================================
-   VALUE
+   LOAD KK
 ========================================================= */
 
-function valueOf(id){
+async function loadKK(){
 
-    const element =
-        $(id);
+    const body =
+        $("kkBody");
 
 
-    if(!element){
-        return "";
+    if(!body){
+
+        return;
+
     }
 
 
-    return String(
-        element.value || ""
-    )
-    .trim();
+    if(!currentUser){
+
+        body.innerHTML =
+            '<tr>'+
+            '<td colspan="7" class="loading">'+
+            'Silakan login terlebih dahulu.'+
+            '</td>'+
+            '</tr>';
+
+        return;
+
+    }
+
+
+    body.innerHTML =
+        '<tr>'+
+        '<td colspan="7" class="loading">'+
+        'Memuat data KK dari Supabase...'+
+        '</td>'+
+        '</tr>';
+
+
+    try{
+
+        let query =
+            "kk?select="+
+            "id,"+
+            "no_kk,"+
+            "kepala_keluarga,"+
+            "dusun_id,"+
+            "alamat,"+
+            "created_at"+
+            "&order=created_at.desc";
+
+
+        if(currentUser.dusun_id){
+
+            query +=
+                "&dusun_id=eq."+
+                encodeURIComponent(
+                    currentUser.dusun_id
+                );
+
+        }
+
+
+        kkCache =
+            await sb(query);
+
+
+        await tambahJumlahAnggotaKK();
+
+
+        renderKK(
+            kkCache
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "Load KK:",
+            error
+        );
+
+
+        body.innerHTML =
+            '<tr>'+
+            '<td colspan="7" style="color:#dc2626;padding:20px">'+
+            '❌ Gagal memuat data KK: '+
+            escapeHtml(
+                error.message
+            )+
+            '</td>'+
+            '</tr>';
+
+    }
 
 }
 
 
 /* =========================================================
-   CSV
+   JUMLAH ANGGOTA KK
+========================================================= */
+
+async function tambahJumlahAnggotaKK(){
+
+    if(
+        !kkCache ||
+        !kkCache.length
+    ){
+
+        return;
+
+    }
+
+
+    try{
+
+        let query =
+            "penduduk?select=no_kk";
+
+
+        if(currentUser.dusun_id){
+
+            query +=
+                "&dusun_id=eq."+
+                encodeURIComponent(
+                    currentUser.dusun_id
+                );
+
+        }
+
+
+        const pendudukKK =
+            await sb(query);
+
+
+        const counts = {};
+
+
+        pendudukKK.forEach(
+            function(p){
+
+                const noKK =
+                    String(
+                        p.no_kk || ""
+                    ).trim();
+
+
+                if(noKK){
+
+                    counts[noKK] =
+                        (
+                            counts[noKK] ||
+                            0
+                        )+1;
+
+                }
+
+            }
+        );
+
+
+        kkCache =
+            kkCache.map(
+                function(k){
+
+                    const noKK =
+                        String(
+                            k.no_kk || ""
+                        ).trim();
+
+
+                    return {
+                        ...k,
+                        jumlah_anggota:
+                            counts[noKK] || 0
+                    };
+
+                }
+            );
+
+
+    }catch(error){
+
+        console.warn(
+            "Jumlah anggota KK:",
+            error
+        );
+
+
+        kkCache =
+            kkCache.map(
+                function(k){
+
+                    return {
+                        ...k,
+                        jumlah_anggota:0
+                    };
+
+                }
+            );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER KK
+========================================================= */
+
+function renderKK(data){
+
+    const body =
+        $("kkBody");
+
+
+    if(
+        !data ||
+        !data.length
+    ){
+
+        body.innerHTML =
+            '<tr>'+
+            '<td colspan="7" class="loading">'+
+            'Belum ada data Kartu Keluarga.'+
+            '</td>'+
+            '</tr>';
+
+        return;
+
+    }
+
+
+    body.innerHTML =
+        data.map(
+            function(k,index){
+
+                const id =
+                    Number(k.id);
+
+
+                return `
+
+                <tr>
+
+                    <td>
+                        ${index+1}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            k.no_kk || ""
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            k.kepala_keluarga || ""
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            dusunName(
+                                k.dusun_id
+                            )
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            k.alamat || ""
+                        )}
+                    </td>
+
+                    <td>
+                        <strong>
+                            ${Number(
+                                k.jumlah_anggota || 0
+                            )}
+                        </strong>
+                            orang
+                    </td>
+
+                    <td>
+
+                        <button
+                            type="button"
+                            class="action-btn edit"
+                            data-edit-kk-id="${id}"
+                            title="Edit KK">
+                            ✏️
+                        </button>
+
+                        <button
+                            type="button"
+                            class="action-btn delete"
+                            data-delete-kk-id="${id}"
+                            title="Hapus KK">
+                            🗑️
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                `;
+
+            }
+        )
+        .join("");
+
+}
+
+
+/* =========================================================
+   SEARCH KK
+========================================================= */
+
+function filterKK(){
+
+    const q =
+        $("searchKK")
+        .value
+        .toLowerCase()
+        .trim();
+
+
+    const hasil =
+        kkCache.filter(
+            function(k){
+
+                return (
+
+                    String(
+                        k.no_kk || ""
+                    )
+                    .toLowerCase()
+                    .includes(q)
+
+                    ||
+
+                    String(
+                        k.kepala_keluarga ||
+                        ""
+                    )
+                    .toLowerCase()
+                    .includes(q)
+
+                    ||
+
+                    String(
+                        k.alamat || ""
+                    )
+                    .toLowerCase()
+                    .includes(q)
+
+                );
+
+            }
+        );
+
+
+    renderKK(
+        hasil
+    );
+
+}
+
+
+/* =========================================================
+   FORM KK
+========================================================= */
+
+function openKKForm(id=null){
+
+    editingKKId =
+        id;
+
+
+    $("kkModal")
+        .classList
+        .add("active");
+
+
+    $("kkFormTitle")
+        .textContent =
+        id
+        ?
+        "✏️ Edit Kartu Keluarga"
+        :
+        "➕ Tambah Kartu Keluarga";
+
+
+    $("kkForm")
+        .reset();
+
+
+    $("kkId")
+        .value =
+        id || "";
+
+
+    if(id){
+
+        const kk =
+            kkCache.find(
+                function(x){
+
+                    return Number(x.id) ===
+                        Number(id);
+
+                }
+            );
+
+
+        if(kk){
+
+            $("kkNo").value =
+                kk.no_kk ?? "";
+
+            $("kkKepala").value =
+                kk.kepala_keluarga ?? "";
+
+            $("kkDusun").value =
+                kk.dusun_id ?? "";
+
+            $("kkAlamat").value =
+                kk.alamat ?? "";
+
+        }
+
+    }else{
+
+        if(
+            currentUser &&
+            currentUser.dusun_id
+        ){
+
+            $("kkDusun").value =
+                currentUser.dusun_id;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   CLOSE KK
+========================================================= */
+
+function closeKKForm(){
+
+    $("kkModal")
+        .classList
+        .remove("active");
+
+    editingKKId =
+        null;
+
+}
+
+
+/* =========================================================
+   SAVE KK
+========================================================= */
+
+async function saveKK(event){
+
+    event.preventDefault();
+
+
+    const noKK =
+        valueOf("kkNo");
+
+
+    const kepala =
+        valueOf("kkKepala");
+
+
+    const dusun =
+        Number(
+            valueOf("kkDusun")
+        );
+
+
+    const alamat =
+        valueOf("kkAlamat") ||
+        null;
+
+
+    if(!noKK){
+
+        alert(
+            "Nomor KK wajib diisi."
+        );
+
+        return;
+
+    }
+
+
+    if(!kepala){
+
+        alert(
+            "Nama kepala keluarga wajib diisi."
+        );
+
+        return;
+
+    }
+
+
+    if(!dusun){
+
+        alert(
+            "Pilih dusun terlebih dahulu."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        currentUser &&
+        currentUser.dusun_id &&
+        Number(
+            currentUser.dusun_id
+        ) !== dusun
+    ){
+
+        alert(
+            "Anda hanya dapat mengelola KK pada "+
+            dusunName(
+                currentUser.dusun_id
+            )+"."
+        );
+
+        return;
+
+    }
+
+
+    const payload = {
+
+        no_kk:
+            noKK,
+
+        kepala_keluarga:
+            kepala,
+
+        dusun_id:
+            dusun,
+
+        alamat:
+            alamat
+
+    };
+
+
+    const button =
+        $("kkForm")
+        .querySelector(
+            'button[type="submit"]'
+        );
+
+
+    if(button){
+
+        button.disabled =
+            true;
+
+    }
+
+
+    try{
+
+        if(editingKKId){
+
+            await sb(
+
+                "kk?id=eq."+
+                encodeURIComponent(
+                    editingKKId
+                ),
+
+                {
+
+                    method:"PATCH",
+
+                    headers:{
+                        Prefer:
+                            "return=minimal"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+
+                }
+
+            );
+
+
+            showToast(
+                "Data KK berhasil diperbarui."
+            );
+
+        }else{
+
+            await sb(
+
+                "kk",
+
+                {
+
+                    method:"POST",
+
+                    headers:{
+                        Prefer:
+                            "return=minimal"
+                    },
+
+                    body:
+                        JSON.stringify(
+                            payload
+                        )
+
+                }
+
+            );
+
+
+            showToast(
+                "Data KK berhasil ditambahkan."
+            );
+
+        }
+
+
+        closeKKForm();
+
+        await loadKK();
+
+        await loadDashboard();
+
+
+    }catch(error){
+
+        console.error(
+            "Save KK:",
+            error
+        );
+
+
+        alert(
+            "Gagal menyimpan data KK:\n\n"+
+            error.message
+        );
+
+    }finally{
+
+        if(button){
+
+            button.disabled =
+                false;
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   EDIT KK
+========================================================= */
+
+function editKK(id){
+
+    openKKForm(id);
+
+}
+
+
+/* =========================================================
+   DELETE KK
+========================================================= */
+
+async function deleteKK(id){
+
+    const kk =
+        kkCache.find(
+            function(x){
+
+                return Number(x.id) ===
+                    Number(id);
+
+            }
+        );
+
+
+    if(
+        kk &&
+        Number(
+            kk.jumlah_anggota || 0
+        ) > 0
+    ){
+
+        const lanjut =
+            confirm(
+                "KK ini masih memiliki "+
+                kk.jumlah_anggota+
+                " anggota penduduk.\n\n"+
+                "Apakah tetap ingin menghapus KK?"
+            );
+
+
+        if(!lanjut){
+
+            return;
+
+        }
+
+    }else{
+
+        if(
+            !confirm(
+                "Hapus data KK ini?"
+            )
+        ){
+
+            return;
+
+        }
+
+    }
+
+
+    try{
+
+        await sb(
+
+            "kk?id=eq."+
+            encodeURIComponent(id),
+
+            {
+
+                method:"DELETE",
+
+                headers:{
+                    Prefer:
+                        "return=minimal"
+                }
+
+            }
+
+        );
+
+
+        showToast(
+            "Data KK berhasil dihapus."
+        );
+
+
+        await loadKK();
+
+        await loadDashboard();
+
+
+    }catch(error){
+
+        console.error(
+            "Delete KK:",
+            error
+        );
+
+
+        alert(
+            "Gagal menghapus KK:\n\n"+
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   EXPORT PENDUDUK
 ========================================================= */
 
 function exportPendudukCSV(){
@@ -4095,6 +5298,7 @@ function exportPendudukCSV(){
         "tanggal_lahir",
         "status_penduduk",
         "dusun_id",
+        "dusun",
         "alamat",
         "keterangan"
 
@@ -4112,9 +5316,9 @@ function exportPendudukCSV(){
                     .map(
                         function(c){
 
-                      {
-   
-}
+                            return csvCell(
+                                p[c]
+                            );
 
                         }
                     )
@@ -4126,6 +5330,99 @@ function exportPendudukCSV(){
     ].join("\n");
 
 
+    downloadCSV(
+        csv,
+        "data-penduduk-wawongkolono.csv"
+    );
+
+}
+
+
+/* =========================================================
+   EXPORT KK
+========================================================= */
+
+function exportKKCSV(){
+
+    if(
+        !kkCache ||
+        !kkCache.length
+    ){
+
+        alert(
+            "Tidak ada data KK untuk diekspor."
+        );
+
+        return;
+
+    }
+
+
+    const headers = [
+
+        "Nomor KK",
+        "Kepala Keluarga",
+        "Dusun",
+        "Alamat",
+        "Jumlah Anggota"
+
+    ];
+
+
+    const rows =
+        kkCache.map(
+            function(k){
+
+                return [
+
+                    csvCell(k.no_kk),
+
+                    csvCell(
+                        k.kepala_keluarga
+                    ),
+
+                    csvCell(
+                        dusunName(
+                            k.dusun_id
+                        )
+                    ),
+
+                    csvCell(
+                        k.alamat
+                    ),
+
+                    csvCell(
+                        k.jumlah_anggota ||
+                        0
+                    )
+
+                ].join(",");
+
+            }
+        );
+
+
+    const csv =
+        [
+            headers.join(","),
+            ...rows
+        ].join("\n");
+
+
+    downloadCSV(
+        csv,
+        "data-kk-wawongkolono.csv"
+    );
+
+}
+
+
+/* =========================================================
+   DOWNLOAD CSV
+========================================================= */
+
+function downloadCSV(csv,filename){
+
     const blob =
         new Blob(
 
@@ -4136,7 +5433,7 @@ function exportPendudukCSV(){
 
             {
                 type:
-                "text/csv;charset=utf-8"
+                    "text/csv;charset=utf-8"
             }
 
         );
@@ -4157,9 +5454,8 @@ function exportPendudukCSV(){
     a.href =
         url;
 
-
     a.download =
-        "data-penduduk-wawongkolono.csv";
+        filename;
 
 
     document.body.appendChild(a);
@@ -4169,11 +5465,16 @@ function exportPendudukCSV(){
     document.body.removeChild(a);
 
 
-    setTimeout(function(){
+    setTimeout(
+        function(){
 
-        URL.revokeObjectURL(url);
+            URL.revokeObjectURL(
+                url
+            );
 
-    },500);
+        },
+        500
+    );
 
 }
 
@@ -4212,16 +5513,50 @@ function escapeHtml(value){
 
             return {
 
-                "&":"&amp;",
-                "<":"&lt;",
-                ">":"&gt;",
-                "'":"&#39;",
-                '"':"&quot;"
+                "&":
+                    "&amp;",
+
+                "<":
+                    "&lt;",
+
+                ">":
+                    "&gt;",
+
+                "'":
+                    "&#39;",
+
+                '"':
+                    "&quot;"
 
             }[c];
 
         }
     );
+
+}
+
+
+/* =========================================================
+   VALUE
+========================================================= */
+
+function valueOf(id){
+
+    const element =
+        $(id);
+
+
+    if(!element){
+
+        return "";
+
+    }
+
+
+    return String(
+        element.value || ""
+    )
+    .trim();
 
 }
 
@@ -4260,7 +5595,8 @@ function askPublicAI(){
     }
 
 
-    input.value = "";
+    input.value =
+        "";
 
 }
 
@@ -4299,7 +5635,8 @@ function askDashboardAI(){
     }
 
 
-    input.value = "";
+    input.value =
+        "";
 
 }
 
@@ -4311,7 +5648,8 @@ function askDashboardAI(){
 function showComingSoon(name){
 
     showToast(
-        "Fitur "+name+
+        "Fitur "+
+        name+
         " sedang disiapkan dan akan dihubungkan ke database Supabase."
     );
 
@@ -4340,27 +5678,43 @@ function logout(){
     );
 
 
-    currentUser = null;
+    currentUser =
+        null;
 
-    selectedRole = "";
+    selectedRole =
+        "";
 
-    pendudukCache = [];
+    pendudukCache =
+        [];
 
-    editingPendudukId = null;
+    kkCache =
+        [];
+
+    editingPendudukId =
+        null;
+
+    editingKKId =
+        null;
 
 
     $("app").style.display =
         "none";
 
+
     $("homePage").style.display =
         "block";
 
 
-    $("username").value = "";
+    $("username").value =
+        "";
 
-    $("password").value = "";
+    $("password").value =
+        "";
 
-    $("loginMessage").innerHTML = "";
+
+    $("loginMessage").innerHTML =
+        "";
+
 
     $("loginMessage").className =
         "login-status";
@@ -4380,6 +5734,8 @@ function logout(){
     closeLogin();
 
     closePendudukForm();
+
+    closeKKForm();
 
 
     $("pageTitle").textContent =
@@ -4468,7 +5824,8 @@ async function restoreSession(){
         );
 
 
-        currentUser = null;
+        currentUser =
+            null;
 
     }
 
@@ -4483,9 +5840,7 @@ document.addEventListener(
     "DOMContentLoaded",
     function(){
 
-        /*
-           LOGIN
-        */
+        /* LOGIN */
 
         $("btnOpenLogin")
             .addEventListener(
@@ -4522,9 +5877,7 @@ document.addEventListener(
             );
 
 
-        /*
-           ROLE
-        */
+        /* ROLE */
 
         document
             .querySelectorAll(".role")
@@ -4545,9 +5898,7 @@ document.addEventListener(
             });
 
 
-        /*
-           HOME
-        */
+        /* HOME */
 
         $("btnPublicInfo")
             .addEventListener(
@@ -4570,9 +5921,7 @@ document.addEventListener(
             );
 
 
-        /*
-           ENTER LOGIN
-        */
+        /* ENTER LOGIN */
 
         $("username")
             .addEventListener(
@@ -4610,9 +5959,7 @@ document.addEventListener(
             );
 
 
-        /*
-           MENU
-        */
+        /* MENU */
 
         document
             .querySelectorAll(
@@ -4649,9 +5996,7 @@ document.addEventListener(
             );
 
 
-        /*
-           DASHBOARD AI
-        */
+        /* DASHBOARD AI */
 
         $("btnDashboardAI")
             .addEventListener(
@@ -4678,9 +6023,9 @@ document.addEventListener(
             );
 
 
-        /*
+        /* =====================================================
            PENDUDUK
-        */
+        ===================================================== */
 
         $("btnTambahPenduduk")
             .addEventListener(
@@ -4746,10 +6091,6 @@ document.addEventListener(
             );
 
 
-        /*
-           TOMBOL EDIT / HAPUS
-        */
-
         $("pendudukBody")
             .addEventListener(
                 "click",
@@ -4790,9 +6131,117 @@ document.addEventListener(
             );
 
 
-        /*
-           FORM CLICK OUTSIDE
-        */
+        /* =====================================================
+           KK
+        ===================================================== */
+
+        $("btnTambahKK")
+            .addEventListener(
+                "click",
+                function(){
+
+                    openKKForm();
+
+                }
+            );
+
+
+        $("btnCloseKK")
+            .addEventListener(
+                "click",
+                closeKKForm
+            );
+
+
+        $("btnCancelKK")
+            .addEventListener(
+                "click",
+                closeKKForm
+            );
+
+
+        $("kkForm")
+            .addEventListener(
+                "submit",
+                saveKK
+            );
+
+
+        $("btnRefreshKK")
+            .addEventListener(
+                "click",
+                loadKK
+            );
+
+
+        $("btnExportKK")
+            .addEventListener(
+                "click",
+                exportKKCSV
+            );
+
+
+        $("btnPrintKK")
+            .addEventListener(
+                "click",
+                function(){
+
+                    window.print();
+
+                }
+            );
+
+
+        $("searchKK")
+            .addEventListener(
+                "input",
+                filterKK
+            );
+
+
+        $("kkBody")
+            .addEventListener(
+                "click",
+                function(event){
+
+                    const editButton =
+                        event.target.closest(
+                            "[data-edit-kk-id]"
+                        );
+
+
+                    const deleteButton =
+                        event.target.closest(
+                            "[data-delete-kk-id]"
+                        );
+
+
+                    if(editButton){
+
+                        editKK(
+                            editButton.dataset.editKkId
+                        );
+
+                        return;
+
+                    }
+
+
+                    if(deleteButton){
+
+                        deleteKK(
+                            deleteButton.dataset.deleteKkId
+                        );
+
+                    }
+
+                }
+            );
+
+
+        /* =====================================================
+           MODAL OUTSIDE CLICK
+        ===================================================== */
 
         $("loginModal")
             .addEventListener(
@@ -4830,9 +6279,27 @@ document.addEventListener(
             );
 
 
-        /*
+        $("kkModal")
+            .addEventListener(
+                "click",
+                function(event){
+
+                    if(
+                        event.target ===
+                        event.currentTarget
+                    ){
+
+                        closeKKForm();
+
+                    }
+
+                }
+            );
+
+
+        /* =====================================================
            COMING SOON
-        */
+        ===================================================== */
 
         document
             .querySelectorAll(
@@ -4854,9 +6321,7 @@ document.addEventListener(
             });
 
 
-        /*
-           PRINT SEMUA
-        */
+        /* PRINT */
 
         document
             .querySelectorAll(
@@ -4876,9 +6341,7 @@ document.addEventListener(
             });
 
 
-        /*
-           ABSENSI
-        */
+        /* ABSENSI */
 
         $("btnAbsenMasuk")
             .addEventListener(
@@ -4906,11 +6369,10 @@ document.addEventListener(
             );
 
 
-        /*
-           CLOCK
-        */
+        /* CLOCK */
 
         updateClock();
+
 
         setInterval(
             updateClock,
@@ -4918,9 +6380,7 @@ document.addEventListener(
         );
 
 
-        /*
-           RESTORE SESSION
-        */
+        /* SESSION */
 
         restoreSession();
 
