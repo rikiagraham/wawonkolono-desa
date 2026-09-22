@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#0f766e">
+<meta name="description" content="Sistem Informasi Desa Pintar Desa Wawongkolono">
 <title>Sistem Informasi Desa Pintar - Wawongkolono</title>
 
 <style>
@@ -14,17 +14,39 @@
     padding:0;
 }
 
+html{
+    scroll-behavior:smooth;
+}
+
 body{
+    margin:0;
     font-family:Arial,Helvetica,sans-serif;
     background:#f1f5f9;
     color:#1e293b;
 }
 
-/* ================= HEADER ================= */
+button,
+input,
+select,
+textarea{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+.hidden{
+    display:none!important;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
 
 .header{
     height:70px;
-    background:#ffffff;
+    background:#fff;
     border-bottom:1px solid #e2e8f0;
     display:flex;
     align-items:center;
@@ -46,11 +68,12 @@ body{
     height:45px;
     border-radius:12px;
     background:#0f766e;
-    color:white;
+    color:#fff;
     display:flex;
     align-items:center;
     justify-content:center;
     font-size:23px;
+    flex-shrink:0;
 }
 
 .brand h1{
@@ -68,23 +91,26 @@ body{
 }
 
 .login-button{
-    border:none;
+    border:0;
     background:#0f766e;
-    color:white;
+    color:#fff;
     padding:12px 20px;
     border-radius:10px;
-    cursor:pointer;
     font-weight:bold;
+    transition:.2s;
 }
 
 .login-button:hover{
     background:#115e59;
+    transform:translateY(-1px);
 }
 
-/* ================= HOME ================= */
+/* =========================================================
+   HOME
+========================================================= */
 
 .home{
-    min-height:calc(100vh - 70px);
+    min-height:100vh;
 }
 
 .hero{
@@ -94,7 +120,9 @@ body{
     align-items:center;
     justify-content:space-between;
     gap:40px;
-    background:linear-gradient(135deg,#ccfbf1,#f8fafc);
+    background:
+        radial-gradient(circle at 90% 20%,rgba(20,184,166,.18),transparent 30%),
+        linear-gradient(135deg,#ccfbf1,#f8fafc);
 }
 
 .hero-text{
@@ -133,47 +161,94 @@ body{
 
 .btn-primary,
 .btn-secondary{
-    border:none;
+    border:0;
     padding:13px 20px;
     border-radius:10px;
-    cursor:pointer;
     font-weight:bold;
+    transition:.2s;
 }
 
 .btn-primary{
     background:#0f766e;
-    color:white;
+    color:#fff;
+}
+
+.btn-primary:hover{
+    background:#115e59;
+    transform:translateY(-1px);
 }
 
 .btn-secondary{
-    background:white;
+    background:#fff;
     color:#0f766e;
     border:1px solid #99f6e4;
+}
+
+.btn-secondary:hover{
+    background:#f0fdfa;
 }
 
 .hero-image{
     width:420px;
     height:280px;
     border-radius:25px;
-    background:linear-gradient(135deg,#0f766e,#14b8a6);
+    background:
+        radial-gradient(circle at 30% 30%,rgba(255,255,255,.25),transparent 25%),
+        linear-gradient(135deg,#0f766e,#14b8a6);
     display:flex;
     align-items:center;
     justify-content:center;
-    color:white;
+    color:#fff;
     text-align:center;
     box-shadow:0 20px 45px rgba(15,118,110,.20);
+    position:relative;
+    overflow:hidden;
+}
+
+.hero-image:before,
+.hero-image:after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.18);
+}
+
+.hero-image:before{
+    width:240px;
+    height:240px;
+    animation:floatCircle 7s infinite ease-in-out;
+}
+
+.hero-image:after{
+    width:150px;
+    height:150px;
+    animation:floatCircle 5s infinite ease-in-out reverse;
 }
 
 .hero-image div{
+    position:relative;
+    z-index:2;
     font-size:70px;
 }
 
 .hero-image p{
-    color:white;
+    color:#fff;
     margin-top:8px;
+    font-size:16px;
 }
 
-/* ================= PUBLIC ================= */
+@keyframes floatCircle{
+    0%,100%{
+        transform:translate(0,0);
+    }
+    50%{
+        transform:translate(15px,-12px);
+    }
+}
+
+/* =========================================================
+   PUBLIC INFORMATION
+========================================================= */
 
 .public-section{
     padding:45px 8%;
@@ -200,7 +275,7 @@ body{
 }
 
 .public-card{
-    background:white;
+    background:#fff;
     border-radius:16px;
     padding:25px;
     text-align:center;
@@ -228,12 +303,14 @@ body{
     line-height:1.5;
 }
 
-/* ================= AI PUBLIC ================= */
+/* =========================================================
+   AI PUBLIC
+========================================================= */
 
 .ai-public{
     margin:20px 8% 50px;
     background:#0f766e;
-    color:white;
+    color:#fff;
     padding:30px;
     border-radius:20px;
 }
@@ -254,27 +331,28 @@ body{
 
 .ai-box input{
     flex:1;
-    border:none;
+    border:0;
     padding:14px;
     border-radius:10px;
-    outline:none;
+    outline:0;
 }
 
 .ai-box button{
-    border:none;
+    border:0;
     padding:14px 20px;
     border-radius:10px;
-    cursor:pointer;
     font-weight:bold;
 }
 
-/* ================= MODAL ================= */
+/* =========================================================
+   MODAL
+========================================================= */
 
 .modal{
     display:none;
     position:fixed;
     inset:0;
-    background:rgba(15,23,42,.65);
+    background:rgba(15,23,42,.68);
     z-index:500;
     align-items:center;
     justify-content:center;
@@ -290,7 +368,7 @@ body{
     max-width:480px;
     max-height:92vh;
     overflow:auto;
-    background:white;
+    background:#fff;
     border-radius:22px;
     padding:28px;
     box-shadow:0 25px 70px rgba(0,0,0,.25);
@@ -304,12 +382,11 @@ body{
 }
 
 .close{
-    border:none;
+    border:0;
     background:#f1f5f9;
     width:35px;
     height:35px;
     border-radius:50%;
-    cursor:pointer;
     font-size:18px;
 }
 
@@ -329,9 +406,9 @@ body{
     background:#fff;
     padding:12px;
     border-radius:10px;
-    cursor:pointer;
     text-align:left;
     font-size:13px;
+    transition:.2s;
 }
 
 .role:hover,
@@ -357,7 +434,7 @@ body{
     padding:13px;
     border:1px solid #cbd5e1;
     border-radius:10px;
-    outline:none;
+    outline:0;
 }
 
 .form-group input:focus{
@@ -375,29 +452,47 @@ body{
 .show-pass{
     position:absolute;
     right:10px;
-    top:9px;
-    border:none;
-    background:none;
-    cursor:pointer;
+    top:8px;
+    border:0;
+    background:transparent;
     font-size:18px;
 }
 
 .full-button{
     width:100%;
-    border:none;
+    border:0;
     background:#0f766e;
-    color:white;
+    color:#fff;
     padding:14px;
     border-radius:10px;
     font-weight:bold;
-    cursor:pointer;
 }
 
 .full-button:hover{
     background:#115e59;
 }
 
-/* ================= APP ================= */
+.login-status{
+    min-height:22px;
+    margin-bottom:12px;
+    font-size:13px;
+}
+
+.login-status.error{
+    color:#dc2626;
+}
+
+.login-status.success{
+    color:#15803d;
+}
+
+.login-status.loading{
+    color:#64748b;
+}
+
+/* =========================================================
+   APP
+========================================================= */
 
 .app{
     display:none;
@@ -411,7 +506,7 @@ body{
     bottom:0;
     width:260px;
     background:#0f172a;
-    color:white;
+    color:#fff;
     padding:20px 14px;
     overflow-y:auto;
     z-index:200;
@@ -442,13 +537,12 @@ body{
 
 .menu-item{
     width:100%;
-    border:none;
+    border:0;
     background:transparent;
     color:#cbd5e1;
     text-align:left;
     padding:11px 12px;
     border-radius:9px;
-    cursor:pointer;
     margin-bottom:3px;
     font-size:14px;
 }
@@ -456,7 +550,7 @@ body{
 .menu-item:hover,
 .menu-item.active{
     background:#134e4a;
-    color:white;
+    color:#fff;
 }
 
 .logout{
@@ -471,7 +565,7 @@ body{
 
 .topbar{
     height:70px;
-    background:white;
+    background:#fff;
     border-bottom:1px solid #e2e8f0;
     display:flex;
     align-items:center;
@@ -484,11 +578,11 @@ body{
 
 .mobile-menu{
     display:none;
-    border:none;
+    border:0;
     background:#f1f5f9;
     padding:10px;
     border-radius:8px;
-    cursor:pointer;
+    font-size:20px;
 }
 
 .user-info{
@@ -526,7 +620,9 @@ body{
     color:#64748b;
 }
 
-/* ================= STATISTICS ================= */
+/* =========================================================
+   STATS
+========================================================= */
 
 .stats{
     display:grid;
@@ -536,7 +632,7 @@ body{
 }
 
 .stat{
-    background:white;
+    background:#fff;
     border:1px solid #e2e8f0;
     border-radius:15px;
     padding:20px;
@@ -561,7 +657,9 @@ body{
     margin-top:5px;
 }
 
-/* ================= DASHBOARD ================= */
+/* =========================================================
+   DASHBOARD
+========================================================= */
 
 .dashboard-grid{
     display:grid;
@@ -570,7 +668,7 @@ body{
 }
 
 .panel{
-    background:white;
+    background:#fff;
     border:1px solid #e2e8f0;
     border-radius:15px;
     padding:22px;
@@ -605,8 +703,8 @@ body{
 
 .ai-panel{
     background:linear-gradient(135deg,#0f766e,#115e59);
-    color:white;
-    border:none;
+    color:#fff;
+    border:0;
 }
 
 .ai-panel p{
@@ -624,19 +722,20 @@ body{
     min-width:0;
     flex:1;
     padding:11px;
-    border:none;
+    border:0;
     border-radius:8px;
-    outline:none;
+    outline:0;
 }
 
 .ai-input button{
-    border:none;
+    border:0;
     border-radius:8px;
     padding:10px 13px;
-    cursor:pointer;
 }
 
-/* ================= PAGE ================= */
+/* =========================================================
+   PAGE
+========================================================= */
 
 .page{
     display:none;
@@ -656,7 +755,8 @@ table{
     min-width:650px;
 }
 
-th,td{
+th,
+td{
     padding:12px;
     text-align:left;
     border-bottom:1px solid #e2e8f0;
@@ -668,10 +768,9 @@ th{
 }
 
 .action-btn{
-    border:none;
+    border:0;
     padding:7px 10px;
     border-radius:7px;
-    cursor:pointer;
     margin-right:4px;
 }
 
@@ -695,16 +794,15 @@ th{
 }
 
 .toolbar button{
-    border:none;
+    border:0;
     padding:10px 14px;
     border-radius:8px;
-    cursor:pointer;
     font-weight:bold;
 }
 
 .btn-green{
     background:#0f766e;
-    color:white;
+    color:#fff;
 }
 
 .btn-green:hover{
@@ -725,23 +823,18 @@ th{
     border:1px solid #cbd5e1;
     border-radius:8px;
     min-width:220px;
-    outline:none;
+    outline:0;
 }
 
-.search:focus{
-    border-color:#0f766e;
-}
-
-/* ================= FOOTER ================= */
-
-.footer{
+.loading{
+    padding:20px;
     text-align:center;
-    padding:30px;
     color:#64748b;
-    font-size:13px;
 }
 
-/* ================= FORM ================= */
+/* =========================================================
+   FORM
+========================================================= */
 
 .data-form{
     display:grid;
@@ -767,7 +860,7 @@ th{
     padding:11px;
     border:1px solid #cbd5e1;
     border-radius:8px;
-    outline:none;
+    outline:0;
 }
 
 .data-form input:focus,
@@ -788,22 +881,74 @@ th{
     margin-top:15px;
 }
 
-.loading{
-    padding:20px;
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer{
     text-align:center;
+    padding:30px;
     color:#64748b;
+    font-size:13px;
 }
 
-.danger{
-    background:#fee2e2!important;
-    color:#991b1b!important;
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    background:#0f172a;
+    color:#fff;
+    padding:14px 18px;
+    border-radius:10px;
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
+    z-index:9999;
+    max-width:350px;
+    display:none;
+    font-size:14px;
 }
 
-.success{
-    color:#15803d!important;
+.toast.show{
+    display:block;
+    animation:toastIn .25s ease;
 }
 
-/* ================= RESPONSIVE ================= */
+@keyframes toastIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* =========================================================
+   ERROR BOX
+========================================================= */
+
+.js-error{
+    display:none;
+    position:fixed;
+    left:15px;
+    right:15px;
+    bottom:15px;
+    z-index:10000;
+    background:#7f1d1d;
+    color:#fff;
+    padding:15px;
+    border-radius:10px;
+    font-size:13px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media(max-width:1000px){
 
@@ -848,6 +993,10 @@ th{
         font-size:31px;
     }
 
+    .hero-actions{
+        justify-content:center;
+    }
+
     .hero-image{
         width:100%;
         height:220px;
@@ -876,6 +1025,7 @@ th{
 
     .sidebar.open{
         transform:translateX(0);
+        box-shadow:10px 0 30px rgba(0,0,0,.2);
     }
 
     .main{
@@ -913,6 +1063,10 @@ th{
     .data-form .full{
         grid-column:auto;
     }
+
+    .topbar{
+        padding:0 14px;
+    }
 }
 
 @media(max-width:450px){
@@ -928,9 +1082,15 @@ th{
     .login-panel{
         padding:20px;
     }
+
+    .user-info > div:first-child{
+        display:none;
+    }
 }
 
-/* ================= PRINT ================= */
+/* =========================================================
+   PRINT
+========================================================= */
 
 @media print{
 
@@ -938,7 +1098,8 @@ th{
     .topbar,
     .toolbar,
     .ai-panel,
-    .footer{
+    .footer,
+    .toast{
         display:none!important;
     }
 
@@ -951,13 +1112,21 @@ th{
     }
 
     .panel{
-        border:none;
+        border:0;
     }
 }
 </style>
 </head>
 
 <body>
+
+<!-- =========================================================
+     ERROR JAVASCRIPT
+========================================================= -->
+
+<div id="jsError" class="js-error"></div>
+
+<div id="toast" class="toast"></div>
 
 <!-- =========================================================
      HALAMAN AWAL
@@ -982,16 +1151,18 @@ th{
 
     <div class="header-right">
 
-        <span style="display:none;" id="clockHome"></span>
+        <span id="clockHome" style="display:none;"></span>
 
-        <button class="login-button" onclick="openLogin()">
+        <button
+            type="button"
+            id="btnOpenLogin"
+            class="login-button">
             🔐 LOGIN
         </button>
 
     </div>
 
 </header>
-
 
 <section class="hero">
 
@@ -1016,14 +1187,16 @@ th{
         <div class="hero-actions">
 
             <button
-                class="btn-primary"
-                onclick="document.getElementById('publicInfo').scrollIntoView({behavior:'smooth'})">
+                type="button"
+                id="btnPublicInfo"
+                class="btn-primary">
                 📋 Lihat Informasi
             </button>
 
             <button
-                class="btn-secondary"
-                onclick="openLogin()">
+                type="button"
+                id="btnHeroLogin"
+                class="btn-secondary">
                 🔐 Masuk ke Sistem
             </button>
 
@@ -1031,21 +1204,18 @@ th{
 
     </div>
 
-
     <div class="hero-image">
 
         <div>
             🏡
             <p>
-                Foto Desa<br>
-                Wawongkolono
+                Desa Wawongkolono
             </p>
         </div>
 
     </div>
 
 </section>
-
 
 <section id="publicInfo" class="public-section">
 
@@ -1059,77 +1229,59 @@ th{
 
     </div>
 
-
     <div class="public-grid">
 
         <div class="public-card">
             <div class="icon">📢</div>
             <h4>Pengumuman</h4>
-            <p>
-                Informasi dan pengumuman terbaru dari pemerintah desa.
-            </p>
+            <p>Informasi dan pengumuman terbaru dari pemerintah desa.</p>
         </div>
 
         <div class="public-card">
             <div class="icon">📰</div>
             <h4>Berita Desa</h4>
-            <p>
-                Berita dan kegiatan Desa Wawongkolono.
-            </p>
+            <p>Berita dan kegiatan Desa Wawongkolono.</p>
         </div>
 
         <div class="public-card">
             <div class="icon">📅</div>
             <h4>Agenda</h4>
-            <p>
-                Informasi agenda dan kegiatan desa.
-            </p>
+            <p>Informasi agenda dan kegiatan desa.</p>
         </div>
 
         <div class="public-card">
             <div class="icon">📄</div>
             <h4>Pelayanan</h4>
-            <p>
-                Informasi berbagai pelayanan administrasi desa.
-            </p>
+            <p>Informasi berbagai pelayanan administrasi desa.</p>
         </div>
 
         <div class="public-card">
             <div class="icon">👥</div>
             <h4>Data Desa</h4>
-            <p>
-                Statistik umum desa yang dapat dipublikasikan.
-            </p>
+            <p>Statistik umum desa yang dapat dipublikasikan.</p>
         </div>
 
         <div class="public-card">
             <div class="icon">🏘️</div>
             <h4>Wilayah</h4>
-            <p>
-                Informasi dusun dan wilayah Desa Wawongkolono.
-            </p>
+            <p>Informasi dusun dan wilayah Desa Wawongkolono.</p>
         </div>
 
         <div class="public-card">
             <div class="icon">💬</div>
             <h4>Pengaduan</h4>
-            <p>
-                Kritik, saran, pengaduan dan aspirasi masyarakat.
-            </p>
+            <p>Kritik, saran, pengaduan dan aspirasi masyarakat.</p>
         </div>
 
         <div class="public-card">
             <div class="icon">📸</div>
             <h4>Galeri</h4>
-            <p>
-                Dokumentasi kegiatan dan pembangunan desa.
-            </p>
+            <p>Dokumentasi kegiatan dan pembangunan desa.</p>
         </div>
 
     </div>
 
 </section>
-
 
 <section class="ai-public">
 
@@ -1145,10 +1297,11 @@ th{
         <input
             id="publicAiInput"
             type="text"
-            placeholder="Contoh: Bagaimana cara mengurus surat domisili?"
-        >
+            placeholder="Contoh: Bagaimana cara mengurus surat domisili?">
 
-        <button onclick="askPublicAI()">
+        <button
+            type="button"
+            id="btnPublicAI">
             Tanya AI
         </button>
 
@@ -1161,16 +1314,14 @@ th{
 
 </section>
 
-
 <div class="footer">
     © 2026 Desa Wawongkolono — Sistem Informasi Desa Pintar
 </div>
 
 </div>
 
-
 <!-- =========================================================
-     LOGIN MODAL
+     LOGIN
 ========================================================= -->
 
 <div id="loginModal" class="modal">
@@ -1180,110 +1331,83 @@ th{
     <div class="login-head">
 
         <div>
-
             <h2>🔐 Login Sistem</h2>
 
             <p style="color:#64748b;font-size:13px;margin-top:5px;">
                 Pilih jenis akun Anda
             </p>
-
         </div>
 
         <button
-            class="close"
-            onclick="closeLogin()">
+            type="button"
+            id="btnCloseLogin"
+            class="close">
             ×
         </button>
 
     </div>
 
-
     <div class="role-grid" id="roleGrid">
 
-        <button
-            class="role"
-            onclick="selectRole('Admin',this)">
+        <button type="button" class="role" data-role="Admin">
             👑 Admin
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Kepala Desa',this)">
+        <button type="button" class="role" data-role="Kepala Desa">
             🏛️ Kepala Desa
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Sekretaris Desa',this)">
+        <button type="button" class="role" data-role="Sekretaris Desa">
             📋 Sekretaris Desa
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Operator',this)">
+        <button type="button" class="role" data-role="Operator">
             💻 Operator
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Bendahara Desa',this)">
+        <button type="button" class="role" data-role="Bendahara Desa">
             💰 Bendahara Desa
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('BPD',this)">
+        <button type="button" class="role" data-role="BPD">
             🏢 BPD
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Dusun 1',this)">
+        <button type="button" class="role" data-role="Dusun 1">
             🏘️ Dusun 1
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Dusun 2',this)">
+        <button type="button" class="role" data-role="Dusun 2">
             🏘️ Dusun 2
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Dusun 3',this)">
+        <button type="button" class="role" data-role="Dusun 3">
             🏘️ Dusun 3
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Dusun 4',this)">
+        <button type="button" class="role" data-role="Dusun 4">
             🏘️ Dusun 4
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Dusun 5',this)">
+        <button type="button" class="role" data-role="Dusun 5">
             🏘️ Dusun 5
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Pemerintah Desa',this)">
+        <button type="button" class="role" data-role="Pemerintah Desa">
             🏛️ Pemerintah Desa
         </button>
 
-        <button
-            class="role"
-            onclick="selectRole('Masyarakat',this)">
+        <button type="button" class="role" data-role="Masyarakat">
             👥 Masyarakat
         </button>
 
     </div>
 
-
     <div class="form-group">
 
-        <label>Username</label>
+        <label for="username">
+            Username
+        </label>
 
         <input
             id="username"
@@ -1293,10 +1417,11 @@ th{
 
     </div>
 
-
     <div class="form-group">
 
-        <label>Password</label>
+        <label for="password">
+            Password
+        </label>
 
         <div class="password-wrap">
 
@@ -1308,8 +1433,8 @@ th{
 
             <button
                 type="button"
+                id="btnTogglePassword"
                 class="show-pass"
-                onclick="togglePassword()"
                 title="Tampilkan/sembunyikan password">
                 👁️
             </button>
@@ -1318,17 +1443,12 @@ th{
 
     </div>
 
-
-    <div
-        id="loginMessage"
-        style="font-size:13px;margin-bottom:12px;color:#dc2626;">
-    </div>
-
+    <div id="loginMessage" class="login-status"></div>
 
     <button
         type="button"
-        class="full-button"
-        onclick="login()">
+        id="btnLogin"
+        class="full-button">
         🔐 MASUK
     </button>
 
@@ -1336,16 +1456,13 @@ th{
 
 </div>
 
-
 <!-- =========================================================
      FORM PENDUDUK
 ========================================================= -->
 
 <div id="pendudukModal" class="modal">
 
-<div
-    class="login-panel"
-    style="max-width:700px">
+<div class="login-panel" style="max-width:700px;">
 
     <div class="login-head">
 
@@ -1355,179 +1472,104 @@ th{
                 ➕ Tambah Penduduk
             </h2>
 
-            <p style="color:#64748b;font-size:13px;margin-top:5px">
+            <p style="color:#64748b;font-size:13px;margin-top:5px;">
                 Data disimpan langsung ke Supabase.
             </p>
 
         </div>
 
         <button
-            class="close"
-            onclick="closePendudukForm()">
+            type="button"
+            id="btnClosePenduduk"
+            class="close">
             ×
         </button>
 
     </div>
 
-
     <form
         id="pendudukForm"
-        class="data-form"
-        onsubmit="savePenduduk(event)">
+        class="data-form">
 
         <input
             type="hidden"
             id="pendudukId">
 
-
         <div>
-            <label>NIK *</label>
-            <input
-                id="pNIK"
-                required
-                maxlength="20">
+            <label for="pNIK">NIK *</label>
+            <input id="pNIK" required maxlength="20">
         </div>
 
-
         <div>
-            <label>No. KK</label>
-            <input
-                id="pKK"
-                maxlength="20">
+            <label for="pKK">No. KK</label>
+            <input id="pKK" maxlength="20">
         </div>
 
-
         <div>
-            <label>Nama Lengkap *</label>
-            <input
-                id="pNama"
-                required>
+            <label for="pNama">Nama Lengkap *</label>
+            <input id="pNama" required>
         </div>
 
-
         <div>
-            <label>Jenis Kelamin</label>
+            <label for="pJK">Jenis Kelamin</label>
 
             <select id="pJK">
-
-                <option value="">
-                    Pilih
-                </option>
-
-                <option value="Laki-laki">
-                    Laki-laki
-                </option>
-
-                <option value="Perempuan">
-                    Perempuan
-                </option>
-
+                <option value="">Pilih</option>
+                <option value="Laki-laki">Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
             </select>
-
         </div>
 
-
         <div>
-            <label>Tempat Lahir</label>
+            <label for="pTempat">Tempat Lahir</label>
             <input id="pTempat">
         </div>
 
-
         <div>
-            <label>Tanggal Lahir</label>
-            <input
-                id="pTanggal"
-                type="date">
+            <label for="pTanggal">Tanggal Lahir</label>
+            <input id="pTanggal" type="date">
         </div>
 
-
         <div>
-            <label>Status Penduduk</label>
+            <label for="pStatus">Status Penduduk</label>
 
             <select id="pStatus">
-
-                <option value="Aktif">
-                    Aktif
-                </option>
-
-                <option value="Masuk">
-                    Masuk
-                </option>
-
-                <option value="Pindah">
-                    Pindah
-                </option>
-
-                <option value="Meninggal">
-                    Meninggal
-                </option>
-
+                <option value="Aktif">Aktif</option>
+                <option value="Masuk">Masuk</option>
+                <option value="Pindah">Pindah</option>
+                <option value="Meninggal">Meninggal</option>
             </select>
-
         </div>
-
 
         <div>
+            <label for="pDusun">Dusun *</label>
 
-            <label>Dusun *</label>
-
-            <select
-                id="pDusun"
-                required>
-
-                <option value="">
-                    Pilih Dusun
-                </option>
-
-                <option value="1">
-                    Dusun 1
-                </option>
-
-                <option value="2">
-                    Dusun 2
-                </option>
-
-                <option value="3">
-                    Dusun 3
-                </option>
-
-                <option value="4">
-                    Dusun 4
-                </option>
-
-                <option value="5">
-                    Dusun 5
-                </option>
-
+            <select id="pDusun" required>
+                <option value="">Pilih Dusun</option>
+                <option value="1">Dusun 1</option>
+                <option value="2">Dusun 2</option>
+                <option value="3">Dusun 3</option>
+                <option value="4">Dusun 4</option>
+                <option value="5">Dusun 5</option>
             </select>
-
         </div>
 
-
         <div class="full">
-
-            <label>Alamat</label>
-
+            <label for="pAlamat">Alamat</label>
             <textarea id="pAlamat"></textarea>
-
         </div>
-
 
         <div class="full">
-
-            <label>Keterangan</label>
-
+            <label for="pKeterangan">Keterangan</label>
             <textarea id="pKeterangan"></textarea>
-
         </div>
-
 
         <div class="full form-actions">
 
             <button
                 type="button"
-                class="btn-gray"
-                onclick="closePendudukForm()">
+                id="btnCancelPenduduk"
+                class="btn-gray">
                 Batal
             </button>
 
@@ -1545,22 +1587,17 @@ th{
 
 </div>
 
-
 <!-- =========================================================
-     APLIKASI / DASHBOARD
+     APPLICATION
 ========================================================= -->
 
 <div id="app" class="app">
 
-<aside
-    id="sidebar"
-    class="sidebar">
+<aside id="sidebar" class="sidebar">
 
     <div class="sidebar-brand">
 
-        <h2>
-            🏛️ Desa Wawongkolono
-        </h2>
+        <h2>🏛️ Desa Wawongkolono</h2>
 
         <p id="sidebarRole">
             Sistem Informasi Desa Pintar
@@ -1568,155 +1605,100 @@ th{
 
     </div>
 
+    <div class="menu-title">Utama</div>
 
-    <div class="menu-title">
-        Utama
-    </div>
-
-    <button
-        class="menu-item active"
-        onclick="showPage('dashboard',this)">
+    <button type="button" class="menu-item active" data-page="dashboard">
         📊 Dashboard
     </button>
 
+    <div class="menu-title">Administrasi</div>
 
-    <div class="menu-title">
-        Administrasi
-    </div>
-
-    <button
-        class="menu-item"
-        onclick="showPage('penduduk',this)">
+    <button type="button" class="menu-item" data-page="penduduk">
         👥 Data Penduduk
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('kk',this)">
+    <button type="button" class="menu-item" data-page="kk">
         👨‍👩‍👧 Data KK
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('pelayanan',this)">
+    <button type="button" class="menu-item" data-page="pelayanan">
         📄 Pelayanan Desa
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('surat',this)">
+    <button type="button" class="menu-item" data-page="surat">
         📝 Surat
     </button>
 
+    <div class="menu-title">Kegiatan</div>
 
-    <div class="menu-title">
-        Kegiatan
-    </div>
-
-    <button
-        class="menu-item"
-        onclick="showPage('absensi',this)">
+    <button type="button" class="menu-item" data-page="absensi">
         🕐 Absensi
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('pemerintahan',this)">
+    <button type="button" class="menu-item" data-page="pemerintahan">
         🏛️ Pemerintahan
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('bantuan',this)">
+    <button type="button" class="menu-item" data-page="bantuan">
         🎁 Bantuan
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('pembangunan',this)">
+    <button type="button" class="menu-item" data-page="pembangunan">
         🏗️ Pembangunan
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('keuangan',this)">
+    <button type="button" class="menu-item" data-page="keuangan">
         💰 Keuangan Desa
     </button>
 
+    <div class="menu-title">Layanan Masyarakat</div>
 
-    <div class="menu-title">
-        Layanan Masyarakat
-    </div>
-
-    <button
-        class="menu-item"
-        onclick="showPage('pengaduan',this)">
+    <button type="button" class="menu-item" data-page="pengaduan">
         💬 Pengaduan
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('informasi',this)">
+    <button type="button" class="menu-item" data-page="informasi">
         📢 Informasi Desa
     </button>
 
+    <div class="menu-title">Dokumen</div>
 
-    <div class="menu-title">
-        Dokumen
-    </div>
-
-    <button
-        class="menu-item"
-        onclick="showPage('laporan',this)">
+    <button type="button" class="menu-item" data-page="laporan">
         📊 Laporan
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('arsip',this)">
+    <button type="button" class="menu-item" data-page="arsip">
         📁 Arsip
     </button>
 
+    <div class="menu-title">Sistem</div>
 
-    <div class="menu-title">
-        Sistem
-    </div>
-
-    <button
-        class="menu-item"
-        onclick="showPage('pengguna',this)">
+    <button type="button" class="menu-item" data-page="pengguna">
         👤 Pengguna & Hak Akses
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('log',this)">
+    <button type="button" class="menu-item" data-page="log">
         📝 Log Aktivitas
     </button>
 
-    <button
-        class="menu-item"
-        onclick="showPage('pengaturan',this)">
+    <button type="button" class="menu-item" data-page="pengaturan">
         ⚙️ Pengaturan
     </button>
 
-
-    <button
-        class="menu-item logout"
-        onclick="logout()">
+    <button type="button" id="btnLogout" class="menu-item logout">
         🚪 Keluar
     </button>
 
 </aside>
-
 
 <main class="main">
 
     <div class="topbar">
 
         <button
-            class="mobile-menu"
-            onclick="toggleSidebar()">
+            type="button"
+            id="btnMobileMenu"
+            class="mobile-menu">
             ☰
         </button>
 
@@ -1725,7 +1707,6 @@ th{
                 Dashboard
             </strong>
         </div>
-
 
         <div class="user-info">
 
@@ -1743,7 +1724,6 @@ th{
 
             </div>
 
-
             <div
                 class="avatar"
                 id="avatar">
@@ -1754,985 +1734,734 @@ th{
 
     </div>
 
-
     <div class="content">
 
-        <!-- ================= DASHBOARD ================= -->
+<!-- =========================================================
+     DASHBOARD
+========================================================= -->
 
-        <section
-            id="page-dashboard"
-            class="page active">
+<section id="page-dashboard" class="page active">
 
-            <div class="welcome">
+    <div class="welcome">
 
-                <h2 id="welcomeTitle">
-                    Selamat Datang
-                </h2>
+        <h2 id="welcomeTitle">
+            Selamat Datang
+        </h2>
 
-                <p id="welcomeText">
-                    Sistem Informasi Desa Pintar
-                    Desa Wawongkolono.
+        <p id="welcomeText">
+            Sistem Informasi Desa Pintar Desa Wawongkolono.
+        </p>
+
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+            <div class="stat-top">
+                <small>Penduduk</small>
+                <span class="stat-icon">👥</span>
+            </div>
+            <h3 id="statPenduduk">0</h3>
+            <small>Data Supabase</small>
+        </div>
+
+        <div class="stat">
+            <div class="stat-top">
+                <small>KK</small>
+                <span class="stat-icon">👨‍👩‍👧</span>
+            </div>
+            <h3 id="statKK">0</h3>
+            <small>Data Supabase</small>
+        </div>
+
+        <div class="stat">
+            <div class="stat-top">
+                <small>Pendataan</small>
+                <span class="stat-icon">📄</span>
+            </div>
+            <h3 id="statBulanan">0</h3>
+            <small>Data masuk</small>
+        </div>
+
+        <div class="stat">
+            <div class="stat-top">
+                <small>Pengaduan</small>
+                <span class="stat-icon">💬</span>
+            </div>
+            <h3 id="statAspirasi">0</h3>
+            <small>Baru</small>
+        </div>
+
+    </div>
+
+    <div class="dashboard-grid">
+
+        <div>
+
+            <div class="panel">
+
+                <h3>📈 Statistik Desa</h3>
+
+                <div class="chart">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+
+                <p style="margin-top:12px;color:#64748b;font-size:13px;">
+                    Statistik visual sistem.
                 </p>
 
             </div>
 
-
-            <div class="stats">
-
-                <div class="stat">
-
-                    <div class="stat-top">
-
-                        <small>
-                            Penduduk
-                        </small>
-
-                        <span class="stat-icon">
-                            👥
-                        </span>
-
-                    </div>
-
-                    <h3>
-                        0
-                    </h3>
-
-                    <small>
-                        Data Supabase
-                    </small>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-top">
-
-                        <small>
-                            KK
-                        </small>
-
-                        <span class="stat-icon">
-                            👨‍👩‍👧
-                        </span>
-
-                    </div>
-
-                    <h3>
-                        0
-                    </h3>
-
-                    <small>
-                        Data Supabase
-                    </small>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-top">
-
-                        <small>
-                            Pendataan
-                        </small>
-
-                        <span class="stat-icon">
-                            📄
-                        </span>
-
-                    </div>
-
-                    <h3>
-                        0
-                    </h3>
-
-                    <small>
-                        Data masuk
-                    </small>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-top">
-
-                        <small>
-                            Pengaduan
-                        </small>
-
-                        <span class="stat-icon">
-                            💬
-                        </span>
-
-                    </div>
-
-                    <h3>
-                        0
-                    </h3>
-
-                    <small>
-                        Baru
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <div class="dashboard-grid">
-
-                <div>
-
-                    <div class="panel">
-
-                        <h3>
-                            📈 Statistik Desa
-                        </h3>
-
-                        <div class="chart">
-
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-
-                        </div>
-
-                        <p
-                            style="margin-top:12px;color:#64748b;font-size:13px;">
-                            Statistik visual sistem.
-                        </p>
-
-                    </div>
-
-
-                    <div class="panel">
-
-                        <h3>
-                            📌 Aktivitas Terbaru
-                        </h3>
-
-                        <div
-                            style="line-height:2;color:#475569;font-size:14px;">
-
-                            <div>
-                                🟢 Data penduduk diperbarui
-                            </div>
-
-                            <div>
-                                🔵 Pengajuan pelayanan diterima
-                            </div>
-
-                            <div>
-                                🟡 Laporan menunggu pemeriksaan
-                            </div>
-
-                            <div>
-                                🟣 Data absensi diperbarui
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div>
-
-                    <div class="panel ai-panel">
-
-                        <h3>
-                            🤖 AI Desa
-                        </h3>
-
-                        <p id="aiResponse">
-                            Selamat datang. Saya Asisten AI Desa.
-                            Silakan tanyakan sesuatu sesuai
-                            ruang kerja Anda.
-                        </p>
-
-
-                        <div class="ai-input">
-
-                            <input
-                                id="dashboardAiInput"
-                                type="text"
-                                placeholder="Tanya AI...">
-
-                            <button
-                                onclick="askDashboardAI()">
-                                ➤
-                            </button>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="panel">
-
-                        <h3>
-                            🔔 Notifikasi
-                        </h3>
-
-                        <div
-                            style="line-height:2;font-size:14px;">
-
-                            <div>
-                                📄 Pengajuan baru
-                            </div>
-
-                            <div>
-                                👥 Data perlu diperiksa
-                            </div>
-
-                            <div>
-                                🕐 Rekap absensi tersedia
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= PENDUDUK ================= -->
-
-        <section
-            id="page-penduduk"
-            class="page">
-
             <div class="panel">
 
-                <h3>
-                    👥 Data Penduduk
-                </h3>
+                <h3>📌 Aktivitas Terbaru</h3>
 
+                <div style="line-height:2;color:#475569;font-size:14px;">
 
-                <div class="toolbar">
+                    <div>🟢 Data penduduk diperbarui</div>
+                    <div>🔵 Pengajuan pelayanan diterima</div>
+                    <div>🟡 Laporan menunggu pemeriksaan</div>
+                    <div>🟣 Data absensi diperbarui</div>
 
-                    <button
-                        class="btn-green"
-                        onclick="openPendudukForm()">
-                        ➕ Tambah
-                    </button>
+                </div>
 
-                    <button
-                        class="btn-gray"
-                        onclick="exportPendudukCSV()">
-                        📊 Export CSV
-                    </button>
+            </div>
 
-                    <button
-                        class="btn-gray"
-                        onclick="loadPenduduk()">
-                        🔄 Refresh
-                    </button>
+        </div>
 
-                    <button
-                        class="btn-gray"
-                        onclick="window.print()">
-                        🖨️ Cetak
-                    </button>
+        <div>
 
+            <div class="panel ai-panel">
+
+                <h3>🤖 AI Desa</h3>
+
+                <p id="aiResponse">
+                    Selamat datang. Saya Asisten AI Desa.
+                    Silakan tanyakan sesuatu sesuai ruang kerja Anda.
+                </p>
+
+                <div class="ai-input">
 
                     <input
-                        class="search"
+                        id="dashboardAiInput"
                         type="text"
-                        id="searchPenduduk"
-                        placeholder="🔎 Cari penduduk..."
-                        oninput="filterPenduduk()">
+                        placeholder="Tanya AI...">
+
+                    <button
+                        type="button"
+                        id="btnDashboardAI">
+                        ➤
+                    </button>
 
                 </div>
 
+            </div>
 
-                <div class="table-wrap">
+            <div class="panel">
 
-                    <table>
+                <h3>🔔 Notifikasi</h3>
 
-                        <thead>
+                <div style="line-height:2;font-size:14px;">
 
-                            <tr>
-                                <th>NIK</th>
-                                <th>Nama</th>
-                                <th>Jenis Kelamin</th>
-                                <th>Dusun</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="pendudukBody">
-
-                            <tr>
-                                <td
-                                    colspan="6"
-                                    class="loading">
-                                    Memuat data...
-                                </td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
+                    <div>📄 Pengajuan baru</div>
+                    <div>👥 Data perlu diperiksa</div>
+                    <div>🕐 Rekap absensi tersedia</div>
 
                 </div>
 
             </div>
 
-        </section>
+        </div>
 
+    </div>
 
-        <!-- ================= KK ================= -->
+</section>
 
-        <section
-            id="page-kk"
-            class="page">
+<!-- =========================================================
+     PENDUDUK
+========================================================= -->
 
-            <div class="panel">
+<section id="page-penduduk" class="page">
 
-                <h3>
-                    👨‍👩‍👧 Data Kartu Keluarga
-                </h3>
+<div class="panel">
 
-                <div class="toolbar">
+    <h3>👥 Data Penduduk</h3>
 
-                    <button
-                        class="btn-green"
-                        onclick="showComingSoon('Tambah KK')">
-                        ➕ Tambah KK
-                    </button>
+    <div class="toolbar">
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Import Excel')">
-                        📥 Import Excel
-                    </button>
+        <button
+            type="button"
+            id="btnTambahPenduduk"
+            class="btn-green">
+            ➕ Tambah
+        </button>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Excel')">
-                        📊 Excel
-                    </button>
+        <button
+            type="button"
+            id="btnExportPenduduk"
+            class="btn-gray">
+            📊 Export CSV
+        </button>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('PDF')">
-                        📕 PDF
-                    </button>
+        <button
+            type="button"
+            id="btnRefreshPenduduk"
+            class="btn-gray">
+            🔄 Refresh
+        </button>
 
-                    <button
-                        class="btn-gray"
-                        onclick="window.print()">
-                        🖨️ Cetak
-                    </button>
+        <button
+            type="button"
+            id="btnPrintPenduduk"
+            class="btn-gray">
+            🖨️ Cetak
+        </button>
 
-                </div>
+        <input
+            class="search"
+            type="text"
+            id="searchPenduduk"
+            placeholder="🔎 Cari penduduk...">
 
-                <p style="color:#64748b;">
-                    Modul Data KK akan dihubungkan
-                    dengan data penduduk.
-                </p>
+    </div>
 
-            </div>
+    <div class="table-wrap">
 
-        </section>
+        <table>
 
+            <thead>
 
-        <!-- ================= PELAYANAN ================= -->
+                <tr>
+                    <th>NIK</th>
+                    <th>Nama</th>
+                    <th>Jenis Kelamin</th>
+                    <th>Dusun</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
 
-        <section
-            id="page-pelayanan"
-            class="page">
+            </thead>
 
-            <div class="panel">
+            <tbody id="pendudukBody">
 
-                <h3>
-                    📄 Pelayanan Desa
-                </h3>
+                <tr>
+                    <td colspan="6" class="loading">
+                        Silakan login untuk memuat data.
+                    </td>
+                </tr>
 
-                <div class="toolbar">
+            </tbody>
 
-                    <button
-                        class="btn-green"
-                        onclick="showComingSoon('Pengajuan pelayanan')">
-                        ➕ Pengajuan
-                    </button>
+        </table>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Excel')">
-                        📊 Excel
-                    </button>
+    </div>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('PDF')">
-                        📕 PDF
-                    </button>
+</div>
 
-                    <button
-                        class="btn-gray"
-                        onclick="window.print()">
-                        🖨️ Cetak
-                    </button>
+</section>
 
-                </div>
+<!-- =========================================================
+     KK
+========================================================= -->
 
-                <p style="color:#64748b;">
-                    Alur pelayanan:
-                    Pengajuan → Pemeriksaan →
-                    Verifikasi → Persetujuan → Selesai.
-                </p>
+<section id="page-kk" class="page">
 
-            </div>
+<div class="panel">
 
-        </section>
+    <h3>👨‍👩‍👧 Data Kartu Keluarga</h3>
 
+    <div class="toolbar">
 
-        <!-- ================= SURAT ================= -->
+        <button type="button" class="btn-green" data-coming="Tambah KK">
+            ➕ Tambah KK
+        </button>
 
-        <section
-            id="page-surat"
-            class="page">
+        <button type="button" class="btn-gray" data-coming="Import Excel">
+            📥 Import Excel
+        </button>
 
-            <div class="panel">
+        <button type="button" class="btn-gray" data-coming="Excel">
+            📊 Excel
+        </button>
 
-                <h3>
-                    📝 Surat Desa
-                </h3>
+        <button type="button" class="btn-gray" data-coming="PDF">
+            📕 PDF
+        </button>
 
-                <div class="toolbar">
+        <button type="button" id="btnPrintKK" class="btn-gray">
+            🖨️ Cetak
+        </button>
 
-                    <button
-                        class="btn-green"
-                        onclick="showComingSoon('Buat Surat')">
-                        ➕ Buat Surat
-                    </button>
+    </div>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('PDF')">
-                        📕 PDF
-                    </button>
+    <p style="color:#64748b;">
+        Modul Data KK akan dihubungkan dengan data penduduk.
+    </p>
 
-                    <button
-                        class="btn-gray"
-                        onclick="window.print()">
-                        🖨️ Cetak
-                    </button>
+</div>
 
-                </div>
+</section>
 
-                <p style="color:#64748b;">
-                    Surat administrasi desa akan dibuat
-                    berdasarkan data penduduk.
-                </p>
+<!-- =========================================================
+     PELAYANAN
+========================================================= -->
 
-            </div>
+<section id="page-pelayanan" class="page">
 
-        </section>
+<div class="panel">
 
+    <h3>📄 Pelayanan Desa</h3>
 
-        <!-- ================= ABSENSI ================= -->
+    <div class="toolbar">
 
-        <section
-            id="page-absensi"
-            class="page">
+        <button type="button" class="btn-green" data-coming="Pengajuan pelayanan">
+            ➕ Pengajuan
+        </button>
 
-            <div class="panel">
+        <button type="button" class="btn-gray" data-coming="Excel">
+            📊 Excel
+        </button>
 
-                <h3>
-                    🕐 Absensi
-                </h3>
+        <button type="button" class="btn-gray" data-coming="PDF">
+            📕 PDF
+        </button>
 
-                <div class="toolbar">
+        <button type="button" class="btn-gray print-any">
+            🖨️ Cetak
+        </button>
 
-                    <button
-                        class="btn-green"
-                        onclick="alert('Absen masuk dicatat pada tahap database.')">
-                        🟢 Absen Masuk
-                    </button>
+    </div>
 
-                    <button
-                        class="btn-green"
-                        onclick="alert('Absen pulang dicatat pada tahap database.')">
-                        🔴 Absen Pulang
-                    </button>
+    <p style="color:#64748b;">
+        Alur pelayanan:
+        Pengajuan → Pemeriksaan → Verifikasi →
+        Persetujuan → Selesai.
+    </p>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Excel')">
-                        📊 Excel
-                    </button>
+</div>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Dokumen')">
-                        📄 Dokumen
-                    </button>
+</section>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('PDF')">
-                        📕 PDF
-                    </button>
+<!-- =========================================================
+     SURAT
+========================================================= -->
 
-                    <button
-                        class="btn-gray"
-                        onclick="window.print()">
-                        🖨️ Cetak
-                    </button>
+<section id="page-surat" class="page">
 
-                </div>
+<div class="panel">
 
+    <h3>📝 Surat Desa</h3>
 
-                <div class="table-wrap">
+    <div class="toolbar">
 
-                    <table>
+        <button type="button" class="btn-green" data-coming="Buat Surat">
+            ➕ Buat Surat
+        </button>
 
-                        <thead>
+        <button type="button" class="btn-gray" data-coming="PDF">
+            📕 PDF
+        </button>
 
-                            <tr>
-                                <th>Nama</th>
-                                <th>Jabatan</th>
-                                <th>Tanggal</th>
-                                <th>Masuk</th>
-                                <th>Pulang</th>
-                                <th>Status</th>
-                            </tr>
+        <button type="button" class="btn-gray print-any">
+            🖨️ Cetak
+        </button>
 
-                        </thead>
+    </div>
 
+    <p style="color:#64748b;">
+        Surat administrasi desa akan dibuat berdasarkan data penduduk.
+    </p>
 
-                        <tbody>
+</div>
 
-                            <tr>
+</section>
 
-                                <td>
-                                    Belum ada data
-                                </td>
+<!-- =========================================================
+     ABSENSI
+========================================================= -->
 
-                                <td>
-                                    -
-                                </td>
+<section id="page-absensi" class="page">
 
-                                <td>
-                                    -
-                                </td>
+<div class="panel">
 
-                                <td>
-                                    -
-                                </td>
+    <h3>🕐 Absensi</h3>
 
-                                <td>
-                                    -
-                                </td>
+    <div class="toolbar">
 
-                                <td>
-                                    -
-                                </td>
+        <button
+            type="button"
+            id="btnAbsenMasuk"
+            class="btn-green">
+            🟢 Absen Masuk
+        </button>
 
-                            </tr>
+        <button
+            type="button"
+            id="btnAbsenPulang"
+            class="btn-green">
+            🔴 Absen Pulang
+        </button>
 
-                        </tbody>
+        <button type="button" class="btn-gray" data-coming="Excel">
+            📊 Excel
+        </button>
 
-                    </table>
+        <button type="button" class="btn-gray" data-coming="Dokumen">
+            📄 Dokumen
+        </button>
 
-                </div>
+        <button type="button" class="btn-gray" data-coming="PDF">
+            📕 PDF
+        </button>
 
-            </div>
+        <button type="button" class="btn-gray print-any">
+            🖨️ Cetak
+        </button>
 
-        </section>
+    </div>
 
+    <div class="table-wrap">
 
-        <!-- ================= KEUANGAN ================= -->
+        <table>
 
-        <section
-            id="page-keuangan"
-            class="page">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Jabatan</th>
+                    <th>Tanggal</th>
+                    <th>Masuk</th>
+                    <th>Pulang</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
 
-            <div class="panel">
+            <tbody>
 
-                <h3>
-                    💰 Keuangan Desa
-                </h3>
+                <tr>
+                    <td>Belum ada data</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
 
+            </tbody>
 
-                <div class="stats">
+        </table>
 
-                    <div class="stat">
-                        <small>Pendapatan</small>
-                        <h3>Rp 0</h3>
-                    </div>
+    </div>
 
-                    <div class="stat">
-                        <small>Belanja</small>
-                        <h3>Rp 0</h3>
-                    </div>
+</div>
 
-                    <div class="stat">
-                        <small>Realisasi</small>
-                        <h3>Rp 0</h3>
-                    </div>
+</section>
 
-                    <div class="stat">
-                        <small>Sisa</small>
-                        <h3>Rp 0</h3>
-                    </div>
+<!-- =========================================================
+     PEMERINTAHAN
+========================================================= -->
 
-                </div>
+<section id="page-pemerintahan" class="page">
 
+<div class="panel">
 
-                <div class="toolbar">
+    <h3>🏛️ Pemerintahan Desa</h3>
 
-                    <button
-                        class="btn-green"
-                        onclick="showComingSoon('Tambah Transaksi')">
-                        ➕ Tambah Transaksi
-                    </button>
+    <p style="color:#64748b;">
+        Struktur pemerintahan, perangkat desa,
+        tupoksi, program kerja dan kegiatan.
+    </p>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Edit')">
-                        ✏️ Edit
-                    </button>
+</div>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Import Excel')">
-                        📥 Import Excel
-                    </button>
+</section>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Excel')">
-                        📊 Excel
-                    </button>
+<!-- =========================================================
+     BANTUAN
+========================================================= -->
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Dokumen')">
-                        📄 Dokumen
-                    </button>
+<section id="page-bantuan" class="page">
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('PDF')">
-                        📕 PDF
-                    </button>
+<div class="panel">
 
-                    <button
-                        class="btn-gray"
-                        onclick="window.print()">
-                        🖨️ Cetak
-                    </button>
+    <h3>🎁 Bantuan & Kesejahteraan</h3>
 
-                </div>
+    <p style="color:#64748b;">
+        Data bantuan, penerima,
+        jenis bantuan dan riwayat bantuan.
+    </p>
 
+</div>
 
-                <p style="color:#64748b;">
-                    Ruang Keuangan Desa khusus untuk
-                    pengguna yang memiliki hak akses keuangan.
-                </p>
+</section>
 
-            </div>
+<!-- =========================================================
+     PEMBANGUNAN
+========================================================= -->
 
-        </section>
+<section id="page-pembangunan" class="page">
 
+<div class="panel">
 
-        <!-- ================= PEMERINTAHAN ================= -->
+    <h3>🏗️ Pembangunan Desa</h3>
 
-        <section
-            id="page-pemerintahan"
-            class="page">
+    <p style="color:#64748b;">
+        Program pembangunan, kegiatan,
+        progres dan dokumentasi.
+    </p>
 
-            <div class="panel">
+</div>
 
-                <h3>
-                    🏛️ Pemerintahan Desa
-                </h3>
+</section>
 
-                <p style="color:#64748b;">
-                    Struktur pemerintahan, perangkat desa,
-                    tupoksi, program kerja dan kegiatan.
-                </p>
+<!-- =========================================================
+     KEUANGAN
+========================================================= -->
 
-            </div>
+<section id="page-keuangan" class="page">
 
-        </section>
+<div class="panel">
 
+    <h3>💰 Keuangan Desa</h3>
 
-        <!-- ================= BANTUAN ================= -->
+    <div class="stats">
 
-        <section
-            id="page-bantuan"
-            class="page">
+        <div class="stat">
+            <small>Pendapatan</small>
+            <h3>Rp 0</h3>
+        </div>
 
-            <div class="panel">
+        <div class="stat">
+            <small>Belanja</small>
+            <h3>Rp 0</h3>
+        </div>
 
-                <h3>
-                    🎁 Bantuan & Kesejahteraan
-                </h3>
+        <div class="stat">
+            <small>Realisasi</small>
+            <h3>Rp 0</h3>
+        </div>
 
-                <p style="color:#64748b;">
-                    Data bantuan, penerima,
-                    jenis bantuan dan riwayat bantuan.
-                </p>
+        <div class="stat">
+            <small>Sisa</small>
+            <h3>Rp 0</h3>
+        </div>
 
-            </div>
+    </div>
 
-        </section>
+    <div class="toolbar">
 
+        <button type="button" class="btn-green" data-coming="Tambah Transaksi">
+            ➕ Tambah Transaksi
+        </button>
 
-        <!-- ================= PEMBANGUNAN ================= -->
+        <button type="button" class="btn-gray" data-coming="Edit">
+            ✏️ Edit
+        </button>
 
-        <section
-            id="page-pembangunan"
-            class="page">
+        <button type="button" class="btn-gray" data-coming="Import Excel">
+            📥 Import Excel
+        </button>
 
-            <div class="panel">
+        <button type="button" class="btn-gray" data-coming="Excel">
+            📊 Excel
+        </button>
 
-                <h3>
-                    🏗️ Pembangunan Desa
-                </h3>
+        <button type="button" class="btn-gray" data-coming="Dokumen">
+            📄 Dokumen
+        </button>
 
-                <p style="color:#64748b;">
-                    Program pembangunan, kegiatan,
-                    progres dan dokumentasi.
-                </p>
+        <button type="button" class="btn-gray" data-coming="PDF">
+            📕 PDF
+        </button>
 
-            </div>
+        <button type="button" class="btn-gray print-any">
+            🖨️ Cetak
+        </button>
 
-        </section>
+    </div>
 
+    <p style="color:#64748b;">
+        Ruang Keuangan Desa khusus untuk pengguna
+        yang memiliki hak akses keuangan.
+    </p>
 
-        <!-- ================= PENGADUAN ================= -->
+</div>
 
-        <section
-            id="page-pengaduan"
-            class="page">
+</section>
 
-            <div class="panel">
+<!-- =========================================================
+     PENGADUAN
+========================================================= -->
 
-                <h3>
-                    💬 Pengaduan Masyarakat
-                </h3>
+<section id="page-pengaduan" class="page">
 
-                <p style="color:#64748b;">
-                    Kritik, saran, aspirasi
-                    dan pengaduan masyarakat.
-                </p>
+<div class="panel">
 
-            </div>
+    <h3>💬 Pengaduan Masyarakat</h3>
 
-        </section>
+    <p style="color:#64748b;">
+        Kritik, saran, aspirasi dan pengaduan masyarakat.
+    </p>
 
+</div>
 
-        <!-- ================= INFORMASI ================= -->
+</section>
 
-        <section
-            id="page-informasi"
-            class="page">
+<!-- =========================================================
+     INFORMASI
+========================================================= -->
 
-            <div class="panel">
+<section id="page-informasi" class="page">
 
-                <h3>
-                    📢 Informasi Desa
-                </h3>
+<div class="panel">
 
-                <p style="color:#64748b;">
-                    Berita, pengumuman, agenda
-                    dan informasi publik desa.
-                </p>
+    <h3>📢 Informasi Desa</h3>
 
-            </div>
+    <p style="color:#64748b;">
+        Berita, pengumuman, agenda dan informasi publik desa.
+    </p>
 
-        </section>
+</div>
 
+</section>
 
-        <!-- ================= LAPORAN ================= -->
+<!-- =========================================================
+     LAPORAN
+========================================================= -->
 
-        <section
-            id="page-laporan"
-            class="page">
+<section id="page-laporan" class="page">
 
-            <div class="panel">
+<div class="panel">
 
-                <h3>
-                    📊 Laporan
-                </h3>
+    <h3>📊 Laporan</h3>
 
-                <div class="toolbar">
+    <div class="toolbar">
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Excel')">
-                        📊 Excel
-                    </button>
+        <button type="button" class="btn-gray" data-coming="Excel">
+            📊 Excel
+        </button>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('Dokumen')">
-                        📄 Dokumen
-                    </button>
+        <button type="button" class="btn-gray" data-coming="Dokumen">
+            📄 Dokumen
+        </button>
 
-                    <button
-                        class="btn-gray"
-                        onclick="showComingSoon('PDF')">
-                        📕 PDF
-                    </button>
+        <button type="button" class="btn-gray" data-coming="PDF">
+            📕 PDF
+        </button>
 
-                    <button
-                        class="btn-gray"
-                        onclick="window.print()">
-                        🖨️ Cetak
-                    </button>
+        <button type="button" class="btn-gray print-any">
+            🖨️ Cetak
+        </button>
 
-                </div>
+    </div>
 
-                <p style="color:#64748b;">
-                    Semua laporan nantinya dapat difilter
-                    berdasarkan periode dan wilayah.
-                </p>
+    <p style="color:#64748b;">
+        Semua laporan nantinya dapat difilter berdasarkan
+        periode dan wilayah.
+    </p>
 
-            </div>
+</div>
 
-        </section>
+</section>
 
+<!-- =========================================================
+     ARSIP
+========================================================= -->
 
-        <!-- ================= ARSIP ================= -->
+<section id="page-arsip" class="page">
 
-        <section
-            id="page-arsip"
-            class="page">
+<div class="panel">
 
-            <div class="panel">
+    <h3>📁 Arsip Desa</h3>
 
-                <h3>
-                    📁 Arsip Desa
-                </h3>
+    <p style="color:#64748b;">
+        Arsip surat, dokumen, laporan dan dokumen kegiatan desa.
+    </p>
 
-                <p style="color:#64748b;">
-                    Arsip surat, dokumen, laporan
-                    dan dokumen kegiatan desa.
-                </p>
+</div>
 
-            </div>
+</section>
 
-        </section>
+<!-- =========================================================
+     PENGGUNA
+========================================================= -->
 
+<section id="page-pengguna" class="page">
 
-        <!-- ================= PENGGUNA ================= -->
+<div class="panel">
 
-        <section
-            id="page-pengguna"
-            class="page">
+    <h3>👤 Pengguna & Hak Akses</h3>
 
-            <div class="panel">
+    <p style="color:#64748b;">
+        Pengaturan pengguna dan hak akses sistem.
+        Modul ini nantinya dibatasi untuk Admin.
+    </p>
 
-                <h3>
-                    👤 Pengguna & Hak Akses
-                </h3>
+</div>
 
-                <p style="color:#64748b;">
-                    Pengaturan pengguna dan hak akses sistem.
-                    Modul ini nantinya dibatasi untuk Admin.
-                </p>
+</section>
 
-            </div>
+<!-- =========================================================
+     LOG
+========================================================= -->
 
-        </section>
+<section id="page-log" class="page">
 
+<div class="panel">
 
-        <!-- ================= LOG ================= -->
+    <h3>📝 Log Aktivitas</h3>
 
-        <section
-            id="page-log"
-            class="page">
+    <div class="table-wrap">
 
-            <div class="panel">
+        <table>
 
-                <h3>
-                    📝 Log Aktivitas
-                </h3>
+            <thead>
+                <tr>
+                    <th>Waktu</th>
+                    <th>Pengguna</th>
+                    <th>Aktivitas</th>
+                </tr>
+            </thead>
 
+            <tbody>
 
-                <div class="table-wrap">
+                <tr>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>Belum ada log.</td>
+                </tr>
 
-                    <table>
+            </tbody>
 
-                        <thead>
+        </table>
 
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Pengguna</th>
-                                <th>Aktivitas</th>
-                            </tr>
+    </div>
 
-                        </thead>
+</div>
 
+</section>
 
-                        <tbody>
+<!-- =========================================================
+     PENGATURAN
+========================================================= -->
 
-                            <tr>
+<section id="page-pengaturan" class="page">
 
-                                <td>
-                                    -
-                                </td>
+<div class="panel">
 
-                                <td>
-                                    -
-                                </td>
+    <h3>⚙️ Pengaturan</h3>
 
-                                <td>
-                                    Belum ada log.
-                                </td>
+    <p style="color:#64748b;">
+        Identitas desa, logo, wilayah,
+        sistem dan pengaturan aplikasi.
+    </p>
 
-                            </tr>
+</div>
 
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= PENGATURAN ================= -->
-
-        <section
-            id="page-pengaturan"
-            class="page">
-
-            <div class="panel">
-
-                <h3>
-                    ⚙️ Pengaturan
-                </h3>
-
-                <p style="color:#64748b;">
-                    Identitas desa, logo, wilayah,
-                    sistem dan pengaturan aplikasi.
-                </p>
-
-            </div>
-
-        </section>
+</section>
 
     </div>
 
@@ -2740,11 +2469,14 @@ th{
 
 </div>
 
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
 
 <script>
 
 /* =========================================================
-   SUPABASE CONFIG
+   KONFIGURASI SUPABASE
 ========================================================= */
 
 const SUPABASE_URL =
@@ -2753,89 +2485,200 @@ const SUPABASE_URL =
 const SUPABASE_ANON_KEY =
 "sb_publishable_HwM_id1TLL7FxRH89DHg_Q_nAn7jxGS";
 
+/*
+   Catatan:
+   Publishable/anon key memang dapat berada di frontend.
+   Keamanan data harus diatur menggunakan RLS
+   di Supabase.
+*/
+
 
 /* =========================================================
-   VARIABLE
+   VARIABEL
 ========================================================= */
 
 let selectedRole = "";
 let currentUser = null;
 let pendudukCache = [];
 let editingPendudukId = null;
+let toastTimer = null;
 
 
 /* =========================================================
-   SUPABASE
+   ELEMENT HELPER
+========================================================= */
+
+function $(id){
+    return document.getElementById(id);
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message){
+
+    const toast = $("toast");
+
+    if(!toast){
+        return;
+    }
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(function(){
+        toast.classList.remove("show");
+    },3500);
+}
+
+
+/* =========================================================
+   GLOBAL JAVASCRIPT ERROR
+========================================================= */
+
+window.addEventListener("error",function(event){
+
+    console.error(
+        "JavaScript Error:",
+        event.error || event.message
+    );
+
+    const box = $("jsError");
+
+    if(box){
+
+        box.style.display = "block";
+
+        box.textContent =
+            "JavaScript Error: "+
+            (event.message || "Kesalahan tidak diketahui.");
+
+    }
+
+});
+
+
+window.addEventListener(
+    "unhandledrejection",
+    function(event){
+
+        console.error(
+            "Promise Error:",
+            event.reason
+        );
+
+    }
+);
+
+
+/* =========================================================
+   SUPABASE READY
 ========================================================= */
 
 function supabaseReady(){
 
     return (
+        SUPABASE_URL &&
         SUPABASE_URL.includes("supabase.co") &&
-        !SUPABASE_URL.includes("YOUR-PROJECT") &&
         SUPABASE_ANON_KEY &&
-        !SUPABASE_ANON_KEY.includes("YOUR_")
+        SUPABASE_ANON_KEY.length > 20
     );
 
 }
 
+
+/* =========================================================
+   SUPABASE REQUEST
+========================================================= */
 
 async function sb(path,options={}){
 
     if(!supabaseReady()){
 
         throw new Error(
-            "Konfigurasi Supabase belum diisi."
+            "Konfigurasi Supabase belum benar."
         );
 
     }
-
 
     const headers = {
 
         "apikey":SUPABASE_ANON_KEY,
 
         "Authorization":
-        "Bearer "+SUPABASE_ANON_KEY,
+            "Bearer "+SUPABASE_ANON_KEY,
 
         "Content-Type":
-        "application/json",
+            "application/json",
 
         "Accept":
-        "application/json",
+            "application/json",
 
         ...(options.headers || {})
 
     };
 
 
-    const res = await fetch(
+    const response =
+        await fetch(
 
-        SUPABASE_URL+
-        "/rest/v1/"+
-        path,
+            SUPABASE_URL+
+            "/rest/v1/"+
+            path,
 
-        {
-            ...options,
-            headers
-        }
+            {
+                ...options,
+                headers
+            }
 
-    );
-
-
-    const text = await res.text();
+        );
 
 
-    if(!res.ok){
+    const text =
+        await response.text();
+
+
+    if(!response.ok){
+
+        let errorMessage = text;
+
+        try{
+
+            const json =
+                JSON.parse(text);
+
+            errorMessage =
+                json.message ||
+                json.details ||
+                json.hint ||
+                json.error ||
+                text;
+
+        }catch(_){}
+
 
         throw new Error(
-            text || "HTTP "+res.status
+            errorMessage ||
+            "HTTP "+response.status
         );
 
     }
 
 
-    return text ? JSON.parse(text) : null;
+    if(!text){
+        return null;
+    }
+
+
+    try{
+        return JSON.parse(text);
+    }catch(_){
+        return text;
+    }
 
 }
 
@@ -2846,18 +2689,20 @@ async function sb(path,options={}){
 
 function openLogin(){
 
-    document
-        .getElementById("loginModal")
-        .classList.add("active");
+    $("loginModal").classList.add("active");
+
+    setTimeout(function(){
+
+        $("username").focus();
+
+    },100);
 
 }
 
 
 function closeLogin(){
 
-    document
-        .getElementById("loginModal")
-        .classList.remove("active");
+    $("loginModal").classList.remove("active");
 
 }
 
@@ -2870,20 +2715,24 @@ function selectRole(role,element){
 
     selectedRole = role;
 
-
     document
         .querySelectorAll(".role")
-        .forEach(x =>
-            x.classList.remove("selected")
-        );
+        .forEach(function(item){
+
+            item.classList.remove("selected");
+
+        });
 
 
-    element.classList.add("selected");
+    if(element){
+        element.classList.add("selected");
+    }
 
 
-    document
-        .getElementById("loginMessage")
-        .innerHTML =
+    $("loginMessage").className =
+        "login-status";
+
+    $("loginMessage").innerHTML =
         "Akun dipilih: <strong>"+
         escapeHtml(role)+
         "</strong>";
@@ -2897,28 +2746,22 @@ function selectRole(role,element){
 
 function togglePassword(){
 
-    const input =
-        document.getElementById("password");
+    const input = $("password");
 
-    const button =
-        document.querySelector(".show-pass");
+    const button = $("btnTogglePassword");
 
 
     if(input.type === "password"){
 
         input.type = "text";
 
-        if(button){
-            button.innerText = "🙈";
-        }
+        button.textContent = "🙈";
 
     }else{
 
         input.type = "password";
 
-        if(button){
-            button.innerText = "👁️";
-        }
+        button.textContent = "👁️";
 
     }
 
@@ -2932,28 +2775,27 @@ function togglePassword(){
 async function login(){
 
     const username =
-        document
-        .getElementById("username")
+        $("username")
         .value
         .trim()
         .toLowerCase();
 
 
     const password =
-        document
-        .getElementById("password")
+        $("password")
         .value;
 
 
     const message =
-        document.getElementById("loginMessage");
+        $("loginMessage");
 
 
     if(!selectedRole){
 
-        message.className = "";
+        message.className =
+            "login-status error";
 
-        message.innerHTML =
+        message.textContent =
             "⚠️ Silakan pilih jenis akun terlebih dahulu.";
 
         return;
@@ -2963,9 +2805,10 @@ async function login(){
 
     if(!username || !password){
 
-        message.className = "";
+        message.className =
+            "login-status error";
 
-        message.innerHTML =
+        message.textContent =
             "⚠️ Username dan password harus diisi.";
 
         return;
@@ -2973,28 +2816,32 @@ async function login(){
     }
 
 
-    message.className = "loading";
+    message.className =
+        "login-status loading";
 
-    message.innerHTML =
+    message.textContent =
         "Memeriksa akun...";
+
+
+    $("btnLogin").disabled = true;
 
 
     try{
 
-        const rows = await sb(
-
-            "akun?username=eq."+
-            encodeURIComponent(username)+
-            "&select=*"
-
-        );
+        const rows =
+            await sb(
+                "akun?username=eq."+
+                encodeURIComponent(username)+
+                "&select=*"
+            );
 
 
         if(!rows || !rows.length){
 
-            message.className = "";
+            message.className =
+                "login-status error";
 
-            message.innerHTML =
+            message.textContent =
                 "❌ Username tidak terdaftar.";
 
             return;
@@ -3005,11 +2852,15 @@ async function login(){
         const akun = rows[0];
 
 
-        if(String(akun.password) !== String(password)){
+        if(
+            String(akun.password) !==
+            String(password)
+        ){
 
-            message.className = "";
+            message.className =
+                "login-status error";
 
-            message.innerHTML =
+            message.textContent =
                 "❌ Password salah.";
 
             return;
@@ -3017,11 +2868,15 @@ async function login(){
         }
 
 
-        if(akun.aktif === false){
+        if(
+            akun.aktif === false ||
+            akun.aktif === "false"
+        ){
 
-            message.className = "";
+            message.className =
+                "login-status error";
 
-            message.innerHTML =
+            message.textContent =
                 "❌ Akun tidak aktif.";
 
             return;
@@ -3029,12 +2884,18 @@ async function login(){
         }
 
 
-        if(!roleMatchesAccount(selectedRole,akun)){
+        if(
+            !roleMatchesAccount(
+                selectedRole,
+                akun
+            )
+        ){
 
-            message.className = "";
+            message.className =
+                "login-status error";
 
-            message.innerHTML =
-                "❌ Jenis akun yang dipilih tidak sesuai dengan akun ini.";
+            message.textContent =
+                "❌ Jenis akun yang dipilih tidak sesuai dengan akun.";
 
             return;
 
@@ -3050,86 +2911,32 @@ async function login(){
         );
 
 
-        document
-            .getElementById("homePage")
-            .style.display = "none";
+        masukKeAplikasi(akun);
 
 
-        document
-            .getElementById("loginModal")
-            .classList.remove("active");
+        message.className =
+            "login-status success";
 
-
-        document
-            .getElementById("app")
-            .style.display = "block";
-
-
-        document
-            .getElementById("userName")
-            .innerText =
-            akun.nama || akun.username;
-
-
-        document
-            .getElementById("userRole")
-            .innerText =
-            displayRole(akun);
-
-
-        document
-            .getElementById("sidebarRole")
-            .innerText =
-            displayRole(akun);
-
-
-        document
-            .getElementById("avatar")
-            .innerText =
-            (
-                akun.nama ||
-                akun.username ||
-                "U"
-            )
-            .charAt(0)
-            .toUpperCase();
-
-
-        document
-            .getElementById("welcomeTitle")
-            .innerText =
-            "Selamat Datang, "+
-            (akun.nama || akun.username);
-
-
-        document
-            .getElementById("welcomeText")
-            .innerText =
-            akun.dusun_id
-            ?
-            "Anda mengakses data wilayah "+
-            dusunName(akun.dusun_id)+"."
-            :
-            "Anda masuk ke ruang kerja desa sesuai hak akses akun.";
-
-
-        applyRoleAccess();
-
-
-        await loadDashboard();
-
-        await loadPenduduk();
-
+        message.textContent =
+            "Login berhasil.";
 
     }catch(error){
 
         console.error(error);
 
-        message.className = "";
+        message.className =
+            "login-status error";
 
         message.innerHTML =
             "❌ "+
-            escapeHtml(error.message);
+            escapeHtml(
+                error.message ||
+                "Terjadi kesalahan."
+            );
+
+    }finally{
+
+        $("btnLogin").disabled = false;
 
     }
 
@@ -3142,37 +2949,167 @@ async function login(){
 
 function roleMatchesAccount(role,akun){
 
+    const accountRole =
+        String(
+            akun.role ||
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    /*
+       Admin dan Kepala Desa
+    */
+
     if(
         role === "Admin" ||
         role === "Kepala Desa"
     ){
 
-        return akun.role === "admin";
-
-    }
-
-
-    if(role === "Operator"){
-
-        return akun.role === "operator";
-
-    }
-
-
-    if(role.startsWith("Dusun ")){
-
         return (
-            akun.role === "dusun" &&
-            Number(akun.dusun_id) ===
-            Number(
-                role.replace("Dusun ","")
-            )
+            accountRole === "admin" ||
+            accountRole === "kepala desa"
         );
 
     }
 
 
-    return false;
+    /*
+       Operator
+    */
+
+    if(role === "Operator"){
+
+        return (
+            accountRole === "operator"
+        );
+
+    }
+
+
+    /*
+       Dusun 1-5
+    */
+
+    if(role.startsWith("Dusun ")){
+
+        const nomor =
+            Number(
+                role.replace(
+                    "Dusun ",
+                    ""
+                )
+            );
+
+
+        return (
+
+            (
+                accountRole ===
+                "dusun"
+                ||
+                accountRole ===
+                "kepala dusun"
+            )
+
+            &&
+
+            Number(
+                akun.dusun_id
+            ) === nomor
+
+        );
+
+    }
+
+
+    /*
+       Role tambahan.
+       Dapat digunakan apabila akun
+       tersebut memang dibuat di Supabase.
+    */
+
+    const normalizedRole =
+        role
+        .toLowerCase()
+        .replaceAll(" ","_");
+
+
+    return (
+        accountRole === normalizedRole ||
+        accountRole === role.toLowerCase()
+    );
+
+}
+
+
+/* =========================================================
+   MASUK APLIKASI
+========================================================= */
+
+function masukKeAplikasi(akun){
+
+    $("homePage").style.display =
+        "none";
+
+    $("loginModal")
+        .classList
+        .remove("active");
+
+    $("app").style.display =
+        "block";
+
+
+    $("userName").textContent =
+        akun.nama ||
+        akun.username ||
+        "Pengguna";
+
+
+    $("userRole").textContent =
+        displayRole(akun);
+
+
+    $("sidebarRole").textContent =
+        displayRole(akun);
+
+
+    $("avatar").textContent =
+        (
+            akun.nama ||
+            akun.username ||
+            "U"
+        )
+        .charAt(0)
+        .toUpperCase();
+
+
+    $("welcomeTitle").textContent =
+        "Selamat Datang, "+
+        (
+            akun.nama ||
+            akun.username
+        );
+
+
+    $("welcomeText").textContent =
+        akun.dusun_id
+        ?
+        "Anda mengakses data wilayah "+
+        dusunName(
+            akun.dusun_id
+        )+"."
+        :
+        "Anda masuk ke ruang kerja desa sesuai hak akses akun.";
+
+
+    applyRoleAccess();
+
+
+    loadDashboard();
+
+    loadPenduduk();
 
 }
 
@@ -3188,28 +3125,45 @@ function displayRole(a){
     }
 
 
-    if(a.role === "admin"){
+    const role =
+        String(
+            a.role ||
+            ""
+        )
+        .toLowerCase();
+
+
+    if(
+        role === "admin" ||
+        role === "kepala desa"
+    ){
 
         return "Administrator / Kepala Desa";
 
     }
 
 
-    if(a.role === "operator"){
+    if(role === "operator"){
 
         return "Operator Desa";
 
     }
 
 
-    if(a.role === "dusun"){
+    if(
+        role === "dusun" ||
+        role === "kepala dusun"
+    ){
 
-        return dusunName(a.dusun_id);
+        return dusunName(
+            a.dusun_id
+        );
 
     }
 
 
-    return a.role || "Pengguna";
+    return a.role ||
+        "Pengguna";
 
 }
 
@@ -3220,9 +3174,19 @@ function displayRole(a){
 
 function dusunName(id){
 
-    return id
-        ? "Dusun "+id
-        : "Semua Dusun";
+    if(
+        id === null ||
+        id === undefined ||
+        id === ""
+    ){
+
+        return "Semua Dusun";
+
+    }
+
+
+    return "Dusun "+
+        Number(id);
 
 }
 
@@ -3234,8 +3198,8 @@ function dusunName(id){
 function applyRoleAccess(){
 
     /*
-       Hak akses dapat dikembangkan di sini.
-       Untuk sementara semua menu tetap ditampilkan.
+       Semua menu tetap ditampilkan.
+       Pembatasan database dilakukan berdasarkan dusun_id.
     */
 
 }
@@ -3249,15 +3213,15 @@ function showPage(page,button){
 
     document
         .querySelectorAll(".page")
-        .forEach(x =>
-            x.classList.remove("active")
-        );
+        .forEach(function(item){
+
+            item.classList.remove("active");
+
+        });
 
 
     const target =
-        document.getElementById(
-            "page-"+page
-        );
+        $("page-"+page);
 
 
     if(target){
@@ -3269,9 +3233,11 @@ function showPage(page,button){
 
     document
         .querySelectorAll(".menu-item")
-        .forEach(x =>
-            x.classList.remove("active")
-        );
+        .forEach(function(item){
+
+            item.classList.remove("active");
+
+        });
 
 
     if(button){
@@ -3320,15 +3286,14 @@ function showPage(page,button){
     };
 
 
-    document
-        .getElementById("pageTitle")
-        .innerText =
-        titles[page] || "Dashboard";
+    $("pageTitle").textContent =
+        titles[page] ||
+        "Dashboard";
 
 
-    document
-        .getElementById("sidebar")
-        .classList.remove("open");
+    $("sidebar")
+        .classList
+        .remove("open");
 
 
     if(page === "penduduk"){
@@ -3346,9 +3311,9 @@ function showPage(page,button){
 
 function toggleSidebar(){
 
-    document
-        .getElementById("sidebar")
-        .classList.toggle("open");
+    $("sidebar")
+        .classList
+        .toggle("open");
 
 }
 
@@ -3359,80 +3324,75 @@ function toggleSidebar(){
 
 async function loadDashboard(){
 
+    if(!currentUser){
+        return;
+    }
+
+
     try{
 
-        let scope =
-            currentUser &&
+        let scope = "";
+
+
+        if(
             currentUser.dusun_id
-            ?
-            "&dusun_id=eq."+
-            encodeURIComponent(
-                currentUser.dusun_id
-            )
-            :
-            "";
+        ){
 
+            scope =
+                "&dusun_id=eq."+
+                encodeURIComponent(
+                    currentUser.dusun_id
+                );
 
-        const [
-            p,
-            k,
-            b,
-            a
-        ] = await Promise.all([
-
-            sb(
-                "penduduk?select=id"+
-                "&status_penduduk=neq.Meninggal"+
-                scope
-            ),
-
-            sb(
-                "kk?select=id"+
-                scope
-            ),
-
-            sb(
-                "bulanan?select=id"+
-                scope
-            ),
-
-            sb(
-                "aspirasi?select=id"+
-                "&status=eq.Baru"+
-                scope
-            )
-
-        ]);
-
-
-        const stats =
-            document.querySelectorAll(
-                "#page-dashboard .stats .stat h3"
-            );
-
-
-        if(stats[0]){
-            stats[0].innerText =
-                p.length.toLocaleString("id-ID");
         }
 
 
-        if(stats[1]){
-            stats[1].innerText =
-                k.length.toLocaleString("id-ID");
-        }
+        const results =
+            await Promise.all([
+
+                sb(
+                    "penduduk?select=id"+
+                    "&status_penduduk=neq.Meninggal"+
+                    scope
+                ),
+
+                sb(
+                    "kk?select=id"+
+                    scope
+                ),
+
+                sb(
+                    "bulanan?select=id"+
+                    scope
+                ),
+
+                sb(
+                    "aspirasi?select=id"+
+                    "&status=eq.Baru"+
+                    scope
+                )
+
+            ]);
 
 
-        if(stats[2]){
-            stats[2].innerText =
-                b.length.toLocaleString("id-ID");
-        }
+        $("statPenduduk").textContent =
+            results[0].length
+            .toLocaleString("id-ID");
 
 
-        if(stats[3]){
-            stats[3].innerText =
-                a.length.toLocaleString("id-ID");
-        }
+        $("statKK").textContent =
+            results[1].length
+            .toLocaleString("id-ID");
+
+
+        $("statBulanan").textContent =
+            results[2].length
+            .toLocaleString("id-ID");
+
+
+        $("statAspirasi").textContent =
+            results[3].length
+            .toLocaleString("id-ID");
 
 
     }catch(error){
@@ -3440,6 +3400,15 @@ async function loadDashboard(){
         console.warn(
             "Dashboard:",
             error
+        );
+
+        /*
+           Jika salah satu tabel belum dibuat,
+           dashboard tetap berjalan.
+        */
+
+        showToast(
+            "Sebagian statistik belum dapat dimuat dari Supabase."
         );
 
     }
@@ -3454,13 +3423,25 @@ async function loadDashboard(){
 async function loadPenduduk(){
 
     const body =
-        document.getElementById(
-            "pendudukBody"
-        );
+        $("pendudukBody");
 
 
     if(!body){
         return;
+    }
+
+
+    if(!currentUser){
+
+        body.innerHTML =
+            '<tr>'+
+            '<td colspan="6" class="loading">'+
+            'Silakan login terlebih dahulu.'+
+            '</td>'+
+            '</tr>';
+
+        return;
+
     }
 
 
@@ -3492,7 +3473,6 @@ async function loadPenduduk(){
 
 
         if(
-            currentUser &&
             currentUser.dusun_id
         ){
 
@@ -3524,7 +3504,9 @@ async function loadPenduduk(){
             '<td colspan="6" '+
             'style="color:#dc2626;padding:20px">'+
             '❌ '+
-            escapeHtml(error.message)+
+            escapeHtml(
+                error.message
+            )+
             '</td>'+
             '</tr>';
 
@@ -3540,9 +3522,7 @@ async function loadPenduduk(){
 function renderPenduduk(data){
 
     const body =
-        document.getElementById(
-            "pendudukBody"
-        );
+        $("pendudukBody");
 
 
     if(!data || !data.length){
@@ -3560,7 +3540,13 @@ function renderPenduduk(data){
 
 
     body.innerHTML =
-        data.map(p => `
+        data.map(function(p){
+
+            const id =
+                Number(p.id);
+
+
+            return `
 
             <tr>
 
@@ -3593,15 +3579,17 @@ function renderPenduduk(data){
                 <td>
 
                     <button
+                        type="button"
                         class="action-btn edit"
-                        onclick="editPenduduk(${Number(p.id)})"
+                        data-edit-id="${id}"
                         title="Edit">
                         ✏️
                     </button>
 
                     <button
+                        type="button"
                         class="action-btn delete"
-                        onclick="deletePenduduk(${Number(p.id)})"
+                        data-delete-id="${id}"
                         title="Hapus">
                         🗑️
                     </button>
@@ -3610,7 +3598,10 @@ function renderPenduduk(data){
 
             </tr>
 
-        `).join("");
+            `;
+
+        })
+        .join("");
 
 }
 
@@ -3621,43 +3612,45 @@ function renderPenduduk(data){
 
 function filterPenduduk(){
 
-    const input =
-        document.getElementById(
-            "searchPenduduk"
-        );
-
-
-    if(!input){
-        return;
-    }
-
-
     const q =
-        input.value
+        $("searchPenduduk")
+        .value
         .toLowerCase()
         .trim();
 
 
     renderPenduduk(
 
-        pendudukCache.filter(p =>
+        pendudukCache.filter(
+            function(p){
 
-            String(p.nik || "")
-            .toLowerCase()
-            .includes(q)
+                return (
 
-            ||
+                    String(
+                        p.nik || ""
+                    )
+                    .toLowerCase()
+                    .includes(q)
 
-            String(p.no_kk || "")
-            .toLowerCase()
-            .includes(q)
+                    ||
 
-            ||
+                    String(
+                        p.no_kk || ""
+                    )
+                    .toLowerCase()
+                    .includes(q)
 
-            String(p.nama || "")
-            .toLowerCase()
-            .includes(q)
+                    ||
 
+                    String(
+                        p.nama || ""
+                    )
+                    .toLowerCase()
+                    .includes(q)
+
+                );
+
+            }
         )
 
     );
@@ -3671,17 +3664,17 @@ function filterPenduduk(){
 
 function openPendudukForm(id=null){
 
-    editingPendudukId = id;
+    editingPendudukId =
+        id;
 
 
-    document
-        .getElementById("pendudukModal")
-        .classList.add("active");
+    $("pendudukModal")
+        .classList
+        .add("active");
 
 
-    document
-        .getElementById("pendudukFormTitle")
-        .innerText =
+    $("pendudukFormTitle")
+        .textContent =
         id
         ?
         "✏️ Edit Penduduk"
@@ -3689,13 +3682,11 @@ function openPendudukForm(id=null){
         "➕ Tambah Penduduk";
 
 
-    document
-        .getElementById("pendudukForm")
+    $("pendudukForm")
         .reset();
 
 
-    document
-        .getElementById("pendudukId")
+    $("pendudukId")
         .value =
         id || "";
 
@@ -3704,42 +3695,46 @@ function openPendudukForm(id=null){
 
         const p =
             pendudukCache.find(
-                x =>
-                Number(x.id) ===
-                Number(id)
+                function(x){
+
+                    return Number(x.id) ===
+                        Number(id);
+
+                }
             );
 
 
         if(p){
 
-            document.getElementById("pNIK").value =
+            $("pNIK").value =
                 p.nik ?? "";
 
-            document.getElementById("pKK").value =
+            $("pKK").value =
                 p.no_kk ?? "";
 
-            document.getElementById("pNama").value =
+            $("pNama").value =
                 p.nama ?? "";
 
-            document.getElementById("pJK").value =
+            $("pJK").value =
                 p.jenis_kelamin ?? "";
 
-            document.getElementById("pTempat").value =
+            $("pTempat").value =
                 p.tempat_lahir ?? "";
 
-            document.getElementById("pTanggal").value =
+            $("pTanggal").value =
                 p.tanggal_lahir ?? "";
 
-            document.getElementById("pStatus").value =
-                p.status_penduduk ?? "Aktif";
+            $("pStatus").value =
+                p.status_penduduk ??
+                "Aktif";
 
-            document.getElementById("pDusun").value =
+            $("pDusun").value =
                 p.dusun_id ?? "";
 
-            document.getElementById("pAlamat").value =
+            $("pAlamat").value =
                 p.alamat ?? "";
 
-            document.getElementById("pKeterangan").value =
+            $("pKeterangan").value =
                 p.keterangan ?? "";
 
         }
@@ -3751,9 +3746,7 @@ function openPendudukForm(id=null){
             currentUser.dusun_id
         ){
 
-            document
-                .getElementById("pDusun")
-                .value =
+            $("pDusun").value =
                 currentUser.dusun_id;
 
         }
@@ -3769,9 +3762,11 @@ function openPendudukForm(id=null){
 
 function closePendudukForm(){
 
-    document
-        .getElementById("pendudukModal")
-        .classList.remove("active");
+    $("pendudukModal")
+        .classList
+        .remove("active");
+
+    editingPendudukId = null;
 
 }
 
@@ -3780,14 +3775,14 @@ function closePendudukForm(){
    SAVE PENDUDUK
 ========================================================= */
 
-async function savePenduduk(e){
+async function savePenduduk(event){
 
-    e.preventDefault();
+    event.preventDefault();
 
 
     const dusun =
         Number(
-            v("pDusun")
+            valueOf("pDusun")
         );
 
 
@@ -3802,45 +3797,91 @@ async function savePenduduk(e){
     }
 
 
+    /*
+       PENTING:
+       dusun_id dikirim sebagai INTEGER.
+       Bukan "Dusun 1", "Dusun 2", dst.
+    */
+
     const payload = {
 
         nik:
-            v("pNIK"),
+            valueOf("pNIK"),
 
         no_kk:
-            v("pKK") ||
+            valueOf("pKK") ||
             null,
 
         nama:
-            v("pNama"),
+            valueOf("pNama"),
 
         jenis_kelamin:
-            v("pJK") ||
+            valueOf("pJK") ||
             null,
 
         tempat_lahir:
-            v("pTempat") ||
+            valueOf("pTempat") ||
             null,
 
         tanggal_lahir:
-            v("pTanggal") ||
+            valueOf("pTanggal") ||
             null,
 
         status_penduduk:
-            v("pStatus"),
+            valueOf("pStatus"),
 
         dusun_id:
             dusun,
 
         alamat:
-            v("pAlamat") ||
+            valueOf("pAlamat") ||
             null,
 
         keterangan:
-            v("pKeterangan") ||
+            valueOf("pKeterangan") ||
             null
 
     };
+
+
+    /*
+       Pastikan pengguna dusun
+       tidak dapat memasukkan data
+       ke dusun lain.
+    */
+
+    if(
+        currentUser &&
+        currentUser.dusun_id &&
+        Number(
+            currentUser.dusun_id
+        ) !== dusun
+    ){
+
+        alert(
+            "Anda hanya dapat menambahkan data pada "+
+            dusunName(
+                currentUser.dusun_id
+            )+"."
+        );
+
+        return;
+
+    }
+
+
+    const submitButton =
+        $("pendudukForm")
+        .querySelector(
+            'button[type="submit"]'
+        );
+
+
+    if(submitButton){
+
+        submitButton.disabled = true;
+
+    }
 
 
     try{
@@ -3862,9 +3903,15 @@ async function savePenduduk(e){
                     },
 
                     body:
-                        JSON.stringify(payload)
+                        JSON.stringify(
+                            payload
+                        )
                 }
 
+            );
+
+            showToast(
+                "Data penduduk berhasil diperbarui."
             );
 
         }else{
@@ -3881,9 +3928,15 @@ async function savePenduduk(e){
                     },
 
                     body:
-                        JSON.stringify(payload)
+                        JSON.stringify(
+                            payload
+                        )
                 }
 
+            );
+
+            showToast(
+                "Data penduduk berhasil ditambahkan."
             );
 
         }
@@ -3891,27 +3944,27 @@ async function savePenduduk(e){
 
         closePendudukForm();
 
-
         await loadPenduduk();
 
-
         await loadDashboard();
-
-
-        alert(
-            "Data penduduk berhasil disimpan."
-        );
 
 
     }catch(error){
 
         console.error(error);
 
-
         alert(
             "Gagal menyimpan data:\n\n"+
             error.message
         );
+
+    }finally{
+
+        if(submitButton){
+
+            submitButton.disabled = false;
+
+        }
 
     }
 
@@ -3965,12 +4018,19 @@ async function deletePenduduk(id){
         );
 
 
+        showToast(
+            "Data penduduk berhasil dihapus."
+        );
+
+
         await loadPenduduk();
 
         await loadDashboard();
 
 
     }catch(error){
+
+        console.error(error);
 
         alert(
             "Gagal menghapus:\n\n"+
@@ -3986,17 +4046,21 @@ async function deletePenduduk(id){
    VALUE
 ========================================================= */
 
-function v(id){
+function valueOf(id){
 
     const element =
-        document.getElementById(id);
+        $(id);
 
 
-    return element
-        ?
-        element.value.trim()
-        :
-        "";
+    if(!element){
+        return "";
+    }
+
+
+    return String(
+        element.value || ""
+    )
+    .trim();
 
 }
 
@@ -4042,13 +4106,21 @@ function exportPendudukCSV(){
         cols.join(","),
 
         ...pendudukCache.map(
-            p =>
-            cols
-            .map(
-                c =>
-                csvCell(p[c])
-            )
-            .join(",")
+            function(p){
+
+                return cols
+                    .map(
+                        function(c){
+
+                            return csvCell(
+                                p[c]
+                            );
+
+                        }
+                    )
+                    .join(",");
+
+            }
         )
 
     ].join("\n");
@@ -4071,14 +4143,20 @@ function exportPendudukCSV(){
 
 
     const url =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+            blob
+        );
 
 
     const a =
-        document.createElement("a");
+        document.createElement(
+            "a"
+        );
 
 
-    a.href = url;
+    a.href =
+        url;
+
 
     a.download =
         "data-penduduk-wawongkolono.csv";
@@ -4091,7 +4169,11 @@ function exportPendudukCSV(){
     document.body.removeChild(a);
 
 
-    URL.revokeObjectURL(url);
+    setTimeout(function(){
+
+        URL.revokeObjectURL(url);
+
+    },500);
 
 }
 
@@ -4100,11 +4182,16 @@ function exportPendudukCSV(){
    CSV CELL
 ========================================================= */
 
-function csvCell(x){
+function csvCell(value){
 
     return '"'+
-        String(x ?? "")
-        .replaceAll('"','""')+
+        String(
+            value ?? ""
+        )
+        .replaceAll(
+            '"',
+            '""'
+        )+
         '"';
 
 }
@@ -4114,27 +4201,27 @@ function csvCell(x){
    ESCAPE HTML
 ========================================================= */
 
-function escapeHtml(x){
+function escapeHtml(value){
 
-    return String(x ?? "")
-        .replace(
-            /[&<>'"]/g,
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /[&<>'"]/g,
+        function(c){
 
-            function(c){
+            return {
 
-                return {
+                "&":"&amp;",
+                "<":"&lt;",
+                ">":"&gt;",
+                "'":"&#39;",
+                '"':"&quot;"
 
-                    "&":"&amp;",
-                    "<":"&lt;",
-                    ">":"&gt;",
-                    "'":"&#39;",
-                    '"':"&quot;"
+            }[c];
 
-                }[c];
-
-            }
-
-        );
+        }
+    );
 
 }
 
@@ -4146,15 +4233,11 @@ function escapeHtml(x){
 function askPublicAI(){
 
     const input =
-        document.getElementById(
-            "publicAiInput"
-        );
+        $("publicAiInput");
 
 
     const answer =
-        document.getElementById(
-            "publicAiAnswer"
-        );
+        $("publicAiAnswer");
 
 
     const q =
@@ -4171,31 +4254,29 @@ function askPublicAI(){
 
     }else{
 
-        answer.innerHTML =
+        answer.textContent =
             "Silakan tuliskan pertanyaan Anda.";
 
     }
+
+
+    input.value = "";
 
 }
 
 
 /* =========================================================
    AI DASHBOARD
-   PERBAIKAN ERROR KUTIP
 ========================================================= */
 
 function askDashboardAI(){
 
     const input =
-        document.getElementById(
-            "dashboardAiInput"
-        );
+        $("dashboardAiInput");
 
 
     const response =
-        document.getElementById(
-            "aiResponse"
-        );
+        $("aiResponse");
 
 
     const q =
@@ -4212,7 +4293,7 @@ function askDashboardAI(){
 
     }else{
 
-        response.innerHTML =
+        response.textContent =
             "Silakan masukkan pertanyaan.";
 
     }
@@ -4227,12 +4308,11 @@ function askDashboardAI(){
    COMING SOON
 ========================================================= */
 
-function showComingSoon(nama){
+function showComingSoon(name){
 
-    alert(
-        "Fitur "+nama+
-        " sedang disiapkan dan akan dihubungkan "+
-        "ke database Supabase."
+    showToast(
+        "Fitur "+name+
+        " sedang disiapkan dan akan dihubungkan ke database Supabase."
     );
 
 }
@@ -4269,39 +4349,46 @@ function logout(){
     editingPendudukId = null;
 
 
-    document
-        .getElementById("app")
-        .style.display = "none";
+    $("app").style.display =
+        "none";
+
+    $("homePage").style.display =
+        "block";
 
 
-    document
-        .getElementById("homePage")
-        .style.display = "block";
+    $("username").value = "";
 
+    $("password").value = "";
 
-    document
-        .getElementById("username")
-        .value = "";
+    $("loginMessage").innerHTML = "";
 
-
-    document
-        .getElementById("password")
-        .value = "";
-
-
-    document
-        .getElementById("loginMessage")
-        .innerHTML = "";
+    $("loginMessage").className =
+        "login-status";
 
 
     document
         .querySelectorAll(".role")
-        .forEach(x =>
-            x.classList.remove("selected")
-        );
+        .forEach(function(item){
+
+            item.classList.remove(
+                "selected"
+            );
+
+        });
 
 
     closeLogin();
+
+    closePendudukForm();
+
+
+    $("pageTitle").textContent =
+        "Dashboard";
+
+
+    showToast(
+        "Anda telah keluar dari sistem."
+    );
 
 }
 
@@ -4313,14 +4400,12 @@ function logout(){
 function updateClock(){
 
     const c =
-        document.getElementById(
-            "clockHome"
-        );
+        $("clockHome");
 
 
     if(c){
 
-        c.innerText =
+        c.textContent =
             new Date()
             .toLocaleTimeString(
                 "id-ID"
@@ -4331,215 +4416,513 @@ function updateClock(){
 }
 
 
-setInterval(
-    updateClock,
-    1000
-);
-
-
-updateClock();
-
-
-/* =========================================================
-   MODAL CLICK OUTSIDE
-========================================================= */
-
-document
-    .getElementById("loginModal")
-    .addEventListener(
-        "click",
-        function(e){
-
-            if(
-                e.target ===
-                e.currentTarget
-            ){
-
-                closeLogin();
-
-            }
-
-        }
-    );
-
-
-document
-    .getElementById("pendudukModal")
-    .addEventListener(
-        "click",
-        function(e){
-
-            if(
-                e.target ===
-                e.currentTarget
-            ){
-
-                closePendudukForm();
-
-            }
-
-        }
-    );
-
-
-/* =========================================================
-   ENTER LOGIN
-========================================================= */
-
-document
-    .getElementById("password")
-    .addEventListener(
-        "keydown",
-        function(e){
-
-            if(e.key === "Enter"){
-
-                login();
-
-            }
-
-        }
-    );
-
-
-document
-    .getElementById("username")
-    .addEventListener(
-        "keydown",
-        function(e){
-
-            if(e.key === "Enter"){
-
-                login();
-
-            }
-
-        }
-    );
-
-
 /* =========================================================
    RESTORE SESSION
 ========================================================= */
 
-window.addEventListener(
-    "DOMContentLoaded",
-    async function(){
+async function restoreSession(){
 
-        const saved =
-            sessionStorage.getItem(
-                "DESA_USER"
+    const saved =
+        sessionStorage.getItem(
+            "DESA_USER"
+        );
+
+
+    if(!saved){
+
+        return;
+
+    }
+
+
+    try{
+
+        currentUser =
+            JSON.parse(
+                saved
             );
 
 
-        if(!saved){
+        if(!currentUser){
 
             return;
 
         }
 
 
-        try{
-
-            currentUser =
-                JSON.parse(saved);
-
-
-            if(!currentUser){
-
-                return;
-
-            }
+        masukKeAplikasi(
+            currentUser
+        );
 
 
-            document
-                .getElementById("homePage")
-                .style.display = "none";
+    }catch(error){
+
+        console.warn(
+            "Session tidak valid:",
+            error
+        );
 
 
-            document
-                .getElementById("app")
-                .style.display = "block";
+        sessionStorage.removeItem(
+            "DESA_USER"
+        );
 
 
-            document
-                .getElementById("userName")
-                .innerText =
-                currentUser.nama ||
-                currentUser.username;
+        currentUser = null;
+
+    }
+
+}
 
 
-            document
-                .getElementById("userRole")
-                .innerText =
-                displayRole(currentUser);
+/* =========================================================
+   EVENT LISTENERS
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        /*
+           LOGIN
+        */
+
+        $("btnOpenLogin")
+            .addEventListener(
+                "click",
+                openLogin
+            );
 
 
-            document
-                .getElementById("sidebarRole")
-                .innerText =
-                displayRole(currentUser);
+        $("btnHeroLogin")
+            .addEventListener(
+                "click",
+                openLogin
+            );
 
 
-            document
-                .getElementById("avatar")
-                .innerText =
-                (
-                    currentUser.nama ||
-                    currentUser.username ||
-                    "U"
-                )
-                .charAt(0)
-                .toUpperCase();
+        $("btnCloseLogin")
+            .addEventListener(
+                "click",
+                closeLogin
+            );
 
 
-            document
-                .getElementById("welcomeTitle")
-                .innerText =
-                "Selamat Datang, "+
-                (
-                    currentUser.nama ||
-                    currentUser.username
+        $("btnTogglePassword")
+            .addEventListener(
+                "click",
+                togglePassword
+            );
+
+
+        $("btnLogin")
+            .addEventListener(
+                "click",
+                login
+            );
+
+
+        /*
+           ROLE
+        */
+
+        document
+            .querySelectorAll(".role")
+            .forEach(function(button){
+
+                button.addEventListener(
+                    "click",
+                    function(){
+
+                        selectRole(
+                            button.dataset.role,
+                            button
+                        );
+
+                    }
                 );
 
-
-            document
-                .getElementById("welcomeText")
-                .innerText =
-                currentUser.dusun_id
-                ?
-                "Anda mengakses data wilayah "+
-                dusunName(
-                    currentUser.dusun_id
-                )+"."
-                :
-                "Anda masuk ke ruang kerja desa sesuai hak akses akun.";
+            });
 
 
-            applyRoleAccess();
+        /*
+           HOME
+        */
 
+        $("btnPublicInfo")
+            .addEventListener(
+                "click",
+                function(){
 
-            await loadDashboard();
+                    $("publicInfo")
+                        .scrollIntoView({
+                            behavior:"smooth"
+                        });
 
-            await loadPenduduk();
-
-
-        }catch(error){
-
-            console.warn(
-                "Session tidak valid:",
-                error
+                }
             );
 
 
-            sessionStorage.removeItem(
-                "DESA_USER"
+        $("btnPublicAI")
+            .addEventListener(
+                "click",
+                askPublicAI
             );
 
 
-            currentUser = null;
+        /*
+           ENTER LOGIN
+        */
 
-        }
+        $("username")
+            .addEventListener(
+                "keydown",
+                function(event){
+
+                    if(
+                        event.key ===
+                        "Enter"
+                    ){
+
+                        login();
+
+                    }
+
+                }
+            );
+
+
+        $("password")
+            .addEventListener(
+                "keydown",
+                function(event){
+
+                    if(
+                        event.key ===
+                        "Enter"
+                    ){
+
+                        login();
+
+                    }
+
+                }
+            );
+
+
+        /*
+           MENU
+        */
+
+        document
+            .querySelectorAll(
+                ".menu-item[data-page]"
+            )
+            .forEach(function(button){
+
+                button.addEventListener(
+                    "click",
+                    function(){
+
+                        showPage(
+                            button.dataset.page,
+                            button
+                        );
+
+                    }
+                );
+
+            });
+
+
+        $("btnMobileMenu")
+            .addEventListener(
+                "click",
+                toggleSidebar
+            );
+
+
+        $("btnLogout")
+            .addEventListener(
+                "click",
+                logout
+            );
+
+
+        /*
+           DASHBOARD AI
+        */
+
+        $("btnDashboardAI")
+            .addEventListener(
+                "click",
+                askDashboardAI
+            );
+
+
+        $("dashboardAiInput")
+            .addEventListener(
+                "keydown",
+                function(event){
+
+                    if(
+                        event.key ===
+                        "Enter"
+                    ){
+
+                        askDashboardAI();
+
+                    }
+
+                }
+            );
+
+
+        /*
+           PENDUDUK
+        */
+
+        $("btnTambahPenduduk")
+            .addEventListener(
+                "click",
+                function(){
+
+                    openPendudukForm();
+
+                }
+            );
+
+
+        $("btnClosePenduduk")
+            .addEventListener(
+                "click",
+                closePendudukForm
+            );
+
+
+        $("btnCancelPenduduk")
+            .addEventListener(
+                "click",
+                closePendudukForm
+            );
+
+
+        $("pendudukForm")
+            .addEventListener(
+                "submit",
+                savePenduduk
+            );
+
+
+        $("btnExportPenduduk")
+            .addEventListener(
+                "click",
+                exportPendudukCSV
+            );
+
+
+        $("btnRefreshPenduduk")
+            .addEventListener(
+                "click",
+                loadPenduduk
+            );
+
+
+        $("btnPrintPenduduk")
+            .addEventListener(
+                "click",
+                function(){
+
+                    window.print();
+
+                }
+            );
+
+
+        $("searchPenduduk")
+            .addEventListener(
+                "input",
+                filterPenduduk
+            );
+
+
+        /*
+           TOMBOL EDIT / HAPUS
+        */
+
+        $("pendudukBody")
+            .addEventListener(
+                "click",
+                function(event){
+
+                    const editButton =
+                        event.target.closest(
+                            "[data-edit-id]"
+                        );
+
+
+                    const deleteButton =
+                        event.target.closest(
+                            "[data-delete-id]"
+                        );
+
+
+                    if(editButton){
+
+                        editPenduduk(
+                            editButton.dataset.editId
+                        );
+
+                        return;
+
+                    }
+
+
+                    if(deleteButton){
+
+                        deletePenduduk(
+                            deleteButton.dataset.deleteId
+                        );
+
+                    }
+
+                }
+            );
+
+
+        /*
+           FORM CLICK OUTSIDE
+        */
+
+        $("loginModal")
+            .addEventListener(
+                "click",
+                function(event){
+
+                    if(
+                        event.target ===
+                        event.currentTarget
+                    ){
+
+                        closeLogin();
+
+                    }
+
+                }
+            );
+
+
+        $("pendudukModal")
+            .addEventListener(
+                "click",
+                function(event){
+
+                    if(
+                        event.target ===
+                        event.currentTarget
+                    ){
+
+                        closePendudukForm();
+
+                    }
+
+                }
+            );
+
+
+        /*
+           COMING SOON
+        */
+
+        document
+            .querySelectorAll(
+                "[data-coming]"
+            )
+            .forEach(function(button){
+
+                button.addEventListener(
+                    "click",
+                    function(){
+
+                        showComingSoon(
+                            button.dataset.coming
+                        );
+
+                    }
+                );
+
+            });
+
+
+        /*
+           PRINT SEMUA
+        */
+
+        document
+            .querySelectorAll(
+                ".print-any"
+            )
+            .forEach(function(button){
+
+                button.addEventListener(
+                    "click",
+                    function(){
+
+                        window.print();
+
+                    }
+                );
+
+            });
+
+
+        /*
+           ABSENSI
+        */
+
+        $("btnAbsenMasuk")
+            .addEventListener(
+                "click",
+                function(){
+
+                    alert(
+                        "Absen masuk dicatat pada tahap database."
+                    );
+
+                }
+            );
+
+
+        $("btnAbsenPulang")
+            .addEventListener(
+                "click",
+                function(){
+
+                    alert(
+                        "Absen pulang dicatat pada tahap database."
+                    );
+
+                }
+            );
+
+
+        /*
+           CLOCK
+        */
+
+        updateClock();
+
+        setInterval(
+            updateClock,
+            1000
+        );
+
+
+        /*
+           RESTORE SESSION
+        */
+
+        restoreSession();
 
     }
 );
@@ -4548,4 +4931,3 @@ window.addEventListener(
 
 </body>
 </html>
-```
