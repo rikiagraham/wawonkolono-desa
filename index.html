@@ -36,6 +36,11 @@ button{
     cursor:pointer;
 }
 
+button:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
 .hidden{
     display:none!important;
 }
@@ -241,6 +246,7 @@ button{
     0%,100%{
         transform:translate(0,0);
     }
+
     50%{
         transform:translate(15px,-12px);
     }
@@ -921,6 +927,7 @@ th{
         opacity:0;
         transform:translateY(10px);
     }
+
     to{
         opacity:1;
         transform:translateY(0);
@@ -1114,7 +1121,6 @@ th{
     .panel{
         border:0;
     }
-
 }
 </style>
 </head>
@@ -1146,8 +1152,6 @@ th{
     </div>
 
     <div class="header-right">
-
-        <span id="clockHome" style="display:none;"></span>
 
         <button
             type="button"
@@ -1677,8 +1681,7 @@ th{
 
             <textarea
                 id="kkAlamat"
-                placeholder="Alamat keluarga">
-            </textarea>
+                placeholder="Alamat keluarga"></textarea>
 
         </div>
 
@@ -1693,6 +1696,7 @@ th{
 
             <button
                 type="submit"
+                id="btnSimpanKK"
                 class="btn-green">
                 💾 Simpan KK
             </button>
@@ -1877,18 +1881,11 @@ th{
         <div class="stat">
 
             <div class="stat-top">
-
                 <small>Penduduk</small>
-
-                <span class="stat-icon">
-                    👥
-                </span>
-
+                <span class="stat-icon">👥</span>
             </div>
 
-            <h3 id="statPenduduk">
-                0
-            </h3>
+            <h3 id="statPenduduk">0</h3>
 
             <small>
                 Data Supabase
@@ -1899,18 +1896,11 @@ th{
         <div class="stat">
 
             <div class="stat-top">
-
                 <small>KK</small>
-
-                <span class="stat-icon">
-                    👨‍👩‍👧
-                </span>
-
+                <span class="stat-icon">👨‍👩‍👧</span>
             </div>
 
-            <h3 id="statKK">
-                0
-            </h3>
+            <h3 id="statKK">0</h3>
 
             <small>
                 Data Supabase
@@ -1921,18 +1911,11 @@ th{
         <div class="stat">
 
             <div class="stat-top">
-
                 <small>Pendataan</small>
-
-                <span class="stat-icon">
-                    📄
-                </span>
-
+                <span class="stat-icon">📄</span>
             </div>
 
-            <h3 id="statBulanan">
-                0
-            </h3>
+            <h3 id="statBulanan">0</h3>
 
             <small>
                 Data masuk
@@ -1943,18 +1926,11 @@ th{
         <div class="stat">
 
             <div class="stat-top">
-
                 <small>Pengaduan</small>
-
-                <span class="stat-icon">
-                    💬
-                </span>
-
+                <span class="stat-icon">💬</span>
             </div>
 
-            <h3 id="statAspirasi">
-                0
-            </h3>
+            <h3 id="statAspirasi">0</h3>
 
             <small>
                 Baru
@@ -1975,13 +1951,11 @@ th{
                 </h3>
 
                 <div class="chart">
-
                     <div class="bar"></div>
                     <div class="bar"></div>
                     <div class="bar"></div>
                     <div class="bar"></div>
                     <div class="bar"></div>
-
                 </div>
 
                 <p style="margin-top:12px;color:#64748b;font-size:13px;">
@@ -1998,21 +1972,10 @@ th{
 
                 <div style="line-height:2;color:#475569;font-size:14px;">
 
-                    <div>
-                        🟢 Data penduduk diperbarui
-                    </div>
-
-                    <div>
-                        🔵 Pengajuan pelayanan diterima
-                    </div>
-
-                    <div>
-                        🟡 Laporan menunggu pemeriksaan
-                    </div>
-
-                    <div>
-                        🟣 Data absensi diperbarui
-                    </div>
+                    <div>🟢 Data penduduk diperbarui</div>
+                    <div>🔵 Pengajuan pelayanan diterima</div>
+                    <div>🟡 Laporan menunggu pemeriksaan</div>
+                    <div>🟣 Data absensi diperbarui</div>
 
                 </div>
 
@@ -2058,17 +2021,9 @@ th{
 
                 <div style="line-height:2;font-size:14px;">
 
-                    <div>
-                        📄 Pengajuan baru
-                    </div>
-
-                    <div>
-                        👥 Data perlu diperiksa
-                    </div>
-
-                    <div>
-                        🕐 Rekap absensi tersedia
-                    </div>
+                    <div>📄 Pengajuan baru</div>
+                    <div>👥 Data perlu diperiksa</div>
+                    <div>🕐 Rekap absensi tersedia</div>
 
                 </div>
 
@@ -2150,13 +2105,9 @@ th{
             <tbody id="pendudukBody">
 
                 <tr>
-
-                    <td
-                        colspan="6"
-                        class="loading">
+                    <td colspan="6" class="loading">
                         Silakan login untuk memuat data.
                     </td>
-
                 </tr>
 
             </tbody>
@@ -2170,7 +2121,7 @@ th{
 </section>
 
 <!-- =========================================================
-     KK - SUDAH TERHUBUNG SUPABASE
+     KK
 ========================================================= -->
 
 <section id="page-kk" class="page">
@@ -2182,6 +2133,11 @@ th{
     </h3>
 
     <div class="toolbar">
+
+        <!-- PENTING:
+             Tombol ini TIDAK mempunyai data-coming.
+             Tombol langsung membuka form KK.
+        -->
 
         <button
             type="button"
@@ -2226,21 +2182,13 @@ th{
             <thead>
 
                 <tr>
-
                     <th>No.</th>
-
                     <th>Nomor KK</th>
-
                     <th>Kepala Keluarga</th>
-
                     <th>Dusun</th>
-
                     <th>Alamat</th>
-
                     <th>Anggota</th>
-
                     <th>Aksi</th>
-
                 </tr>
 
             </thead>
@@ -2248,13 +2196,9 @@ th{
             <tbody id="kkBody">
 
                 <tr>
-
-                    <td
-                        colspan="7"
-                        class="loading">
+                    <td colspan="7" class="loading">
                         Silakan login untuk memuat data KK.
                     </td>
-
                 </tr>
 
             </tbody>
@@ -2275,36 +2219,26 @@ th{
 
 <div class="panel">
 
-    <h3>
-        📄 Pelayanan Desa
-    </h3>
+    <h3>📄 Pelayanan Desa</h3>
 
     <div class="toolbar">
 
-        <button
-            type="button"
-            class="btn-green"
+        <button type="button" class="btn-green"
             data-coming="Pengajuan pelayanan">
             ➕ Pengajuan
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Excel">
             📊 Excel
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="PDF">
             📕 PDF
         </button>
 
-        <button
-            type="button"
-            class="btn-gray print-any">
+        <button type="button" class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2328,29 +2262,21 @@ th{
 
 <div class="panel">
 
-    <h3>
-        📝 Surat Desa
-    </h3>
+    <h3>📝 Surat Desa</h3>
 
     <div class="toolbar">
 
-        <button
-            type="button"
-            class="btn-green"
+        <button type="button" class="btn-green"
             data-coming="Buat Surat">
             ➕ Buat Surat
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="PDF">
             📕 PDF
         </button>
 
-        <button
-            type="button"
-            class="btn-gray print-any">
+        <button type="button" class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2372,9 +2298,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        🕐 Absensi
-    </h3>
+    <h3>🕐 Absensi</h3>
 
     <div class="toolbar">
 
@@ -2392,30 +2316,22 @@ th{
             🔴 Absen Pulang
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Excel">
             📊 Excel
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Dokumen">
             📄 Dokumen
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="PDF">
             📕 PDF
         </button>
 
-        <button
-            type="button"
-            class="btn-gray print-any">
+        <button type="button" class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2428,14 +2344,12 @@ th{
             <thead>
 
                 <tr>
-
                     <th>Nama</th>
                     <th>Jabatan</th>
                     <th>Tanggal</th>
                     <th>Masuk</th>
                     <th>Pulang</th>
                     <th>Status</th>
-
                 </tr>
 
             </thead>
@@ -2443,14 +2357,12 @@ th{
             <tbody>
 
                 <tr>
-
                     <td>Belum ada data</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
                     <td>-</td>
-
                 </tr>
 
             </tbody>
@@ -2471,9 +2383,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        🏛️ Pemerintahan Desa
-    </h3>
+    <h3>🏛️ Pemerintahan Desa</h3>
 
     <p style="color:#64748b;">
         Struktur pemerintahan, perangkat desa,
@@ -2492,9 +2402,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        🎁 Bantuan & Kesejahteraan
-    </h3>
+    <h3>🎁 Bantuan & Kesejahteraan</h3>
 
     <p style="color:#64748b;">
         Data bantuan, penerima,
@@ -2513,9 +2421,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        🏗️ Pembangunan Desa
-    </h3>
+    <h3>🏗️ Pembangunan Desa</h3>
 
     <p style="color:#64748b;">
         Program pembangunan, kegiatan,
@@ -2534,9 +2440,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        💰 Keuangan Desa
-    </h3>
+    <h3>💰 Keuangan Desa</h3>
 
     <div class="stats">
 
@@ -2564,51 +2468,37 @@ th{
 
     <div class="toolbar">
 
-        <button
-            type="button"
-            class="btn-green"
+        <button type="button" class="btn-green"
             data-coming="Tambah Transaksi">
             ➕ Tambah Transaksi
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Edit">
             ✏️ Edit
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Import Excel">
             📥 Import Excel
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Excel">
             📊 Excel
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Dokumen">
             📄 Dokumen
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="PDF">
             📕 PDF
         </button>
 
-        <button
-            type="button"
-            class="btn-gray print-any">
+        <button type="button" class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2631,9 +2521,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        💬 Pengaduan Masyarakat
-    </h3>
+    <h3>💬 Pengaduan Masyarakat</h3>
 
     <p style="color:#64748b;">
         Kritik, saran, aspirasi dan pengaduan masyarakat.
@@ -2651,9 +2539,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        📢 Informasi Desa
-    </h3>
+    <h3>📢 Informasi Desa</h3>
 
     <p style="color:#64748b;">
         Berita, pengumuman, agenda dan informasi publik desa.
@@ -2671,36 +2557,26 @@ th{
 
 <div class="panel">
 
-    <h3>
-        📊 Laporan
-    </h3>
+    <h3>📊 Laporan</h3>
 
     <div class="toolbar">
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Excel">
             📊 Excel
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="Dokumen">
             📄 Dokumen
         </button>
 
-        <button
-            type="button"
-            class="btn-gray"
+        <button type="button" class="btn-gray"
             data-coming="PDF">
             📕 PDF
         </button>
 
-        <button
-            type="button"
-            class="btn-gray print-any">
+        <button type="button" class="btn-gray print-any">
             🖨️ Cetak
         </button>
 
@@ -2723,9 +2599,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        📁 Arsip Desa
-    </h3>
+    <h3>📁 Arsip Desa</h3>
 
     <p style="color:#64748b;">
         Arsip surat, dokumen, laporan dan dokumen kegiatan desa.
@@ -2743,9 +2617,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        👤 Pengguna & Hak Akses
-    </h3>
+    <h3>👤 Pengguna & Hak Akses</h3>
 
     <p style="color:#64748b;">
         Pengaturan pengguna dan hak akses sistem.
@@ -2764,9 +2636,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        📝 Log Aktivitas
-    </h3>
+    <h3>📝 Log Aktivitas</h3>
 
     <div class="table-wrap">
 
@@ -2808,9 +2678,7 @@ th{
 
 <div class="panel">
 
-    <h3>
-        ⚙️ Pengaturan
-    </h3>
+    <h3>⚙️ Pengaturan</h3>
 
     <p style="color:#64748b;">
         Identitas desa, logo, wilayah,
@@ -2841,7 +2709,7 @@ const SUPABASE_URL =
 "https://xetmoemzrahwljfspxyp.supabase.co";
 
 const SUPABASE_ANON_KEY =
-"sb_publishable_HwM_id1TLL7FxRH89DHg_Q_nAn7jxGS";
+"sb_publishable_HwM_id1TLL7FxRH89DHg_Q";
 
 
 /* =========================================================
@@ -2861,7 +2729,7 @@ let toastTimer = null;
 
 
 /* =========================================================
-   ELEMENT HELPER
+   ELEMENT
 ========================================================= */
 
 function $(id){
@@ -2887,18 +2755,17 @@ function showToast(message){
 
     clearTimeout(toastTimer);
 
-    toastTimer =
-        setTimeout(function(){
+    toastTimer = setTimeout(function(){
 
-            toast.classList.remove("show");
+        toast.classList.remove("show");
 
-        },3500);
+    },3500);
 
 }
 
 
 /* =========================================================
-   ERROR JAVASCRIPT
+   ERROR
 ========================================================= */
 
 window.addEventListener(
@@ -2918,14 +2785,15 @@ window.addEventListener(
 
             box.textContent =
                 "JavaScript Error: "+
-                (event.message ||
-                "Kesalahan tidak diketahui.");
+                (
+                    event.message ||
+                    "Kesalahan tidak diketahui."
+                );
 
         }
 
     }
 );
-
 
 window.addEventListener(
     "unhandledrejection",
@@ -2941,7 +2809,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   SUPABASE
+   SUPABASE REQUEST
 ========================================================= */
 
 function supabaseReady(){
@@ -2988,16 +2856,13 @@ async function sb(path,options={}){
 
     const response =
         await fetch(
-
             SUPABASE_URL+
             "/rest/v1/"+
             path,
-
             {
                 ...options,
                 headers
             }
-
         );
 
 
@@ -3007,15 +2872,12 @@ async function sb(path,options={}){
 
     if(!response.ok){
 
-        let errorMessage =
-            text;
-
+        let errorMessage = text;
 
         try{
 
             const json =
                 JSON.parse(text);
-
 
             errorMessage =
                 json.message ||
@@ -3037,9 +2899,7 @@ async function sb(path,options={}){
 
 
     if(!text){
-
         return null;
-
     }
 
 
@@ -3057,7 +2917,7 @@ async function sb(path,options={}){
 
 
 /* =========================================================
-   LOGIN
+   LOGIN MODAL
 ========================================================= */
 
 function openLogin(){
@@ -3065,7 +2925,6 @@ function openLogin(){
     $("loginModal")
         .classList
         .add("active");
-
 
     setTimeout(function(){
 
@@ -3091,8 +2950,7 @@ function closeLogin(){
 
 function selectRole(role,element){
 
-    selectedRole =
-        role;
+    selectedRole = role;
 
 
     document
@@ -3370,9 +3228,7 @@ function roleMatchesAccount(role,akun){
 
     if(role === "Operator"){
 
-        return (
-            accountRole === "operator"
-        );
+        return accountRole === "operator";
 
     }
 
@@ -3482,9 +3338,6 @@ function masukKeAplikasi(akun){
         "Anda masuk ke ruang kerja desa sesuai hak akses akun.";
 
 
-    applyRoleAccess();
-
-
     loadDashboard();
 
     loadPenduduk();
@@ -3501,9 +3354,7 @@ function masukKeAplikasi(akun){
 function displayRole(a){
 
     if(!a){
-
         return "Pengguna";
-
     }
 
 
@@ -3511,8 +3362,7 @@ function displayRole(a){
         String(
             a.role ||
             ""
-        )
-        .toLowerCase();
+        ).toLowerCase();
 
 
     if(
@@ -3567,22 +3417,21 @@ function dusunName(id){
     }
 
 
-    return "Dusun "+
+    const nomor =
         Number(id);
 
-}
+
+    if(
+        !Number.isFinite(nomor)
+    ){
+
+        return "Dusun";
+
+    }
 
 
-/* =========================================================
-   HAK AKSES
-========================================================= */
-
-function applyRoleAccess(){
-
-    /*
-       Pembatasan wilayah dilakukan
-       melalui query dusun_id.
-    */
+    return "Dusun "+
+        nomor;
 
 }
 
@@ -3619,7 +3468,7 @@ function showPage(page,button){
 
     document
         .querySelectorAll(
-            ".menu-item"
+            ".menu-item[data-page]"
         )
         .forEach(function(item){
 
@@ -3706,16 +3555,12 @@ function showPage(page,button){
 
 
     if(page === "penduduk"){
-
         loadPenduduk();
-
     }
 
 
     if(page === "kk"){
-
         loadKK();
-
     }
 
 }
@@ -3741,9 +3586,7 @@ function toggleSidebar(){
 async function loadDashboard(){
 
     if(!currentUser){
-
         return;
-
     }
 
 
@@ -3794,30 +3637,22 @@ async function loadDashboard(){
 
         $("statPenduduk").textContent =
             results[0].length
-            .toLocaleString(
-                "id-ID"
-            );
+            .toLocaleString("id-ID");
 
 
         $("statKK").textContent =
             results[1].length
-            .toLocaleString(
-                "id-ID"
-            );
+            .toLocaleString("id-ID");
 
 
         $("statBulanan").textContent =
             results[2].length
-            .toLocaleString(
-                "id-ID"
-            );
+            .toLocaleString("id-ID");
 
 
         $("statAspirasi").textContent =
             results[3].length
-            .toLocaleString(
-                "id-ID"
-            );
+            .toLocaleString("id-ID");
 
 
     }catch(error){
@@ -3837,7 +3672,7 @@ async function loadDashboard(){
 
 
 /* =========================================================
-   LOAD PENDUDUK
+   PENDUDUK
 ========================================================= */
 
 async function loadPenduduk(){
@@ -3847,9 +3682,7 @@ async function loadPenduduk(){
 
 
     if(!body){
-
         return;
-
     }
 
 
@@ -4218,16 +4051,6 @@ async function savePenduduk(event){
     }
 
 
-    /*
-       Dikirim dua nilai:
-       dusun_id = integer
-       dusun    = teks "Dusun 1", dst.
-
-       Ini dibuat untuk menyesuaikan
-       struktur tabel Anda yang sebelumnya
-       mempunyai kolom dusun NOT NULL.
-    */
-
     const payload = {
 
         nik:
@@ -4253,7 +4076,8 @@ async function savePenduduk(event){
             null,
 
         status_penduduk:
-            valueOf("pStatus"),
+            valueOf("pStatus") ||
+            "Aktif",
 
         dusun_id:
             dusun,
@@ -4300,10 +4124,7 @@ async function savePenduduk(event){
 
 
     if(submitButton){
-
-        submitButton.disabled =
-            true;
-
+        submitButton.disabled = true;
     }
 
 
@@ -4392,24 +4213,10 @@ async function savePenduduk(event){
     }finally{
 
         if(submitButton){
-
-            submitButton.disabled =
-                false;
-
+            submitButton.disabled = false;
         }
 
     }
-
-}
-
-
-/* =========================================================
-   EDIT PENDUDUK
-========================================================= */
-
-function editPenduduk(id){
-
-    openPendudukForm(id);
 
 }
 
@@ -4425,9 +4232,7 @@ async function deletePenduduk(id){
             "Hapus data penduduk ini?"
         )
     ){
-
         return;
-
     }
 
 
@@ -4439,14 +4244,12 @@ async function deletePenduduk(id){
             encodeURIComponent(id),
 
             {
-
                 method:"DELETE",
 
                 headers:{
                     Prefer:
                         "return=minimal"
                 }
-
             }
 
         );
@@ -4487,9 +4290,7 @@ async function loadKK(){
 
 
     if(!body){
-
         return;
-
     }
 
 
@@ -4584,9 +4385,7 @@ async function tambahJumlahAnggotaKK(){
         !kkCache ||
         !kkCache.length
     ){
-
         return;
-
     }
 
 
@@ -4648,9 +4447,12 @@ async function tambahJumlahAnggotaKK(){
 
 
                     return {
+
                         ...k,
+
                         jumlah_anggota:
                             counts[noKK] || 0
+
                     };
 
                 }
@@ -4670,8 +4472,11 @@ async function tambahJumlahAnggotaKK(){
                 function(k){
 
                     return {
+
                         ...k,
+
                         jumlah_anggota:0
+
                     };
 
                 }
@@ -4757,7 +4562,7 @@ function renderKK(data){
                                 k.jumlah_anggota || 0
                             )}
                         </strong>
-                            orang
+                        orang
                     </td>
 
                     <td>
@@ -4856,9 +4661,13 @@ function openKKForm(id=null){
         id;
 
 
-    $("kkModal")
-        .classList
-        .add("active");
+    $("kkForm")
+        .reset();
+
+
+    $("kkId")
+        .value =
+        id || "";
 
 
     $("kkFormTitle")
@@ -4868,15 +4677,6 @@ function openKKForm(id=null){
         "✏️ Edit Kartu Keluarga"
         :
         "➕ Tambah Kartu Keluarga";
-
-
-    $("kkForm")
-        .reset();
-
-
-    $("kkId")
-        .value =
-        id || "";
 
 
     if(id){
@@ -4892,21 +4692,28 @@ function openKKForm(id=null){
             );
 
 
-        if(kk){
+        if(!kk){
 
-            $("kkNo").value =
-                kk.no_kk ?? "";
+            alert(
+                "Data KK tidak ditemukan."
+            );
 
-            $("kkKepala").value =
-                kk.kepala_keluarga ?? "";
-
-            $("kkDusun").value =
-                kk.dusun_id ?? "";
-
-            $("kkAlamat").value =
-                kk.alamat ?? "";
+            return;
 
         }
+
+
+        $("kkNo").value =
+            kk.no_kk ?? "";
+
+        $("kkKepala").value =
+            kk.kepala_keluarga ?? "";
+
+        $("kkDusun").value =
+            kk.dusun_id ?? "";
+
+        $("kkAlamat").value =
+            kk.alamat ?? "";
 
     }else{
 
@@ -4921,6 +4728,11 @@ function openKKForm(id=null){
         }
 
     }
+
+
+    $("kkModal")
+        .classList
+        .add("active");
 
 }
 
@@ -4975,6 +4787,8 @@ async function saveKK(event){
             "Nomor KK wajib diisi."
         );
 
+        $("kkNo").focus();
+
         return;
 
     }
@@ -4986,6 +4800,8 @@ async function saveKK(event){
             "Nama kepala keluarga wajib diisi."
         );
 
+        $("kkKepala").focus();
+
         return;
 
     }
@@ -4996,6 +4812,8 @@ async function saveKK(event){
         alert(
             "Pilih dusun terlebih dahulu."
         );
+
+        $("kkDusun").focus();
 
         return;
 
@@ -5040,10 +4858,7 @@ async function saveKK(event){
 
 
     const button =
-        $("kkForm")
-        .querySelector(
-            'button[type="submit"]'
-        );
+        $("btnSimpanKK");
 
 
     if(button){
@@ -5051,10 +4866,17 @@ async function saveKK(event){
         button.disabled =
             true;
 
+        button.textContent =
+            "⏳ Menyimpan...";
+
     }
 
 
     try{
+
+        /* ==============================================
+           EDIT KK
+        ============================================== */
 
         if(editingKKId){
 
@@ -5085,10 +4907,42 @@ async function saveKK(event){
 
 
             showToast(
-                "Data KK berhasil diperbarui."
+                "✅ Data KK berhasil diperbarui."
             );
 
-        }else{
+        }
+
+        /* ==============================================
+           TAMBAH KK
+        ============================================== */
+
+        else{
+
+            /*
+               Cek apakah nomor KK sudah ada.
+            */
+
+            const existing =
+                await sb(
+                    "kk?no_kk=eq."+
+                    encodeURIComponent(
+                        noKK
+                    )+
+                    "&select=id"
+                );
+
+
+            if(
+                existing &&
+                existing.length
+            ){
+
+                throw new Error(
+                    "Nomor KK tersebut sudah terdaftar."
+                );
+
+            }
+
 
             await sb(
 
@@ -5114,7 +4968,7 @@ async function saveKK(event){
 
 
             showToast(
-                "Data KK berhasil ditambahkan."
+                "✅ Data KK berhasil ditambahkan ke Supabase."
             );
 
         }
@@ -5122,7 +4976,9 @@ async function saveKK(event){
 
         closeKKForm();
 
+
         await loadKK();
+
 
         await loadDashboard();
 
@@ -5130,13 +4986,13 @@ async function saveKK(event){
     }catch(error){
 
         console.error(
-            "Save KK:",
+            "SAVE KK ERROR:",
             error
         );
 
 
         alert(
-            "Gagal menyimpan data KK:\n\n"+
+            "❌ Gagal menyimpan data KK:\n\n"+
             error.message
         );
 
@@ -5146,6 +5002,9 @@ async function saveKK(event){
 
             button.disabled =
                 false;
+
+            button.textContent =
+                "💾 Simpan KK";
 
         }
 
@@ -5160,7 +5019,9 @@ async function saveKK(event){
 
 function editKK(id){
 
-    openKKForm(id);
+    openKKForm(
+        Number(id)
+    );
 
 }
 
@@ -5199,9 +5060,7 @@ async function deleteKK(id){
 
 
         if(!lanjut){
-
             return;
-
         }
 
     }else{
@@ -5241,7 +5100,7 @@ async function deleteKK(id){
 
 
         showToast(
-            "Data KK berhasil dihapus."
+            "✅ Data KK berhasil dihapus."
         );
 
 
@@ -5259,7 +5118,7 @@ async function deleteKK(id){
 
 
         alert(
-            "Gagal menghapus KK:\n\n"+
+            "❌ Gagal menghapus KK:\n\n"+
             error.message
         );
 
@@ -5375,7 +5234,9 @@ function exportKKCSV(){
 
                 return [
 
-                    csvCell(k.no_kk),
+                    csvCell(
+                        k.no_kk
+                    ),
 
                     csvCell(
                         k.kepala_keluarga
@@ -5425,17 +5286,14 @@ function downloadCSV(csv,filename){
 
     const blob =
         new Blob(
-
             [
                 "\ufeff"+
                 csv
             ],
-
             {
                 type:
                     "text/csv;charset=utf-8"
             }
-
         );
 
 
@@ -5547,9 +5405,7 @@ function valueOf(id){
 
 
     if(!element){
-
         return "";
-
     }
 
 
@@ -5667,9 +5523,7 @@ function logout(){
             "Apakah Anda yakin ingin keluar?"
         )
     ){
-
         return;
-
     }
 
 
@@ -5715,7 +5569,6 @@ function logout(){
     $("loginMessage").innerHTML =
         "";
 
-
     $("loginMessage").className =
         "login-status";
 
@@ -5750,29 +5603,6 @@ function logout(){
 
 
 /* =========================================================
-   CLOCK
-========================================================= */
-
-function updateClock(){
-
-    const c =
-        $("clockHome");
-
-
-    if(c){
-
-        c.textContent =
-            new Date()
-            .toLocaleTimeString(
-                "id-ID"
-            );
-
-    }
-
-}
-
-
-/* =========================================================
    RESTORE SESSION
 ========================================================= */
 
@@ -5785,9 +5615,7 @@ async function restoreSession(){
 
 
     if(!saved){
-
         return;
-
     }
 
 
@@ -5800,9 +5628,7 @@ async function restoreSession(){
 
 
         if(!currentUser){
-
             return;
-
         }
 
 
@@ -5840,7 +5666,9 @@ document.addEventListener(
     "DOMContentLoaded",
     function(){
 
-        /* LOGIN */
+        /* =====================================================
+           LOGIN
+        ===================================================== */
 
         $("btnOpenLogin")
             .addEventListener(
@@ -5877,7 +5705,9 @@ document.addEventListener(
             );
 
 
-        /* ROLE */
+        /* =====================================================
+           ROLE
+        ===================================================== */
 
         document
             .querySelectorAll(".role")
@@ -5898,7 +5728,9 @@ document.addEventListener(
             });
 
 
-        /* HOME */
+        /* =====================================================
+           HOME
+        ===================================================== */
 
         $("btnPublicInfo")
             .addEventListener(
@@ -5921,7 +5753,9 @@ document.addEventListener(
             );
 
 
-        /* ENTER LOGIN */
+        /* =====================================================
+           ENTER LOGIN
+        ===================================================== */
 
         $("username")
             .addEventListener(
@@ -5959,7 +5793,9 @@ document.addEventListener(
             );
 
 
-        /* MENU */
+        /* =====================================================
+           MENU
+        ===================================================== */
 
         document
             .querySelectorAll(
@@ -5996,7 +5832,9 @@ document.addEventListener(
             );
 
 
-        /* DASHBOARD AI */
+        /* =====================================================
+           DASHBOARD AI
+        ===================================================== */
 
         $("btnDashboardAI")
             .addEventListener(
@@ -6133,12 +5971,17 @@ document.addEventListener(
 
         /* =====================================================
            KK
+           TIDAK ADA data-coming DI SINI
         ===================================================== */
 
         $("btnTambahKK")
             .addEventListener(
                 "click",
-                function(){
+                function(event){
+
+                    event.preventDefault();
+
+                    event.stopPropagation();
 
                     openKKForm();
 
@@ -6170,7 +6013,11 @@ document.addEventListener(
         $("btnRefreshKK")
             .addEventListener(
                 "click",
-                loadKK
+                function(){
+
+                    loadKK();
+
+                }
             );
 
 
@@ -6299,6 +6146,12 @@ document.addEventListener(
 
         /* =====================================================
            COMING SOON
+           
+           KHUSUS tombol yang memang mempunyai
+           atribut data-coming.
+           
+           btnTambahKK TIDAK mempunyai data-coming,
+           sehingga tidak akan masuk ke sini.
         ===================================================== */
 
         document
@@ -6306,6 +6159,23 @@ document.addEventListener(
                 "[data-coming]"
             )
             .forEach(function(button){
+
+                /*
+                   Pengaman tambahan.
+                   Jika suatu saat btnTambahKK
+                   tidak sengaja mendapat data-coming,
+                   tetap jangan jalankan Coming Soon.
+                */
+
+                if(
+                    button.id ===
+                    "btnTambahKK"
+                ){
+
+                    return;
+
+                }
+
 
                 button.addEventListener(
                     "click",
@@ -6321,7 +6191,9 @@ document.addEventListener(
             });
 
 
-        /* PRINT */
+        /* =====================================================
+           PRINT
+        ===================================================== */
 
         document
             .querySelectorAll(
@@ -6341,7 +6213,9 @@ document.addEventListener(
             });
 
 
-        /* ABSENSI */
+        /* =====================================================
+           ABSENSI
+        ===================================================== */
 
         $("btnAbsenMasuk")
             .addEventListener(
@@ -6369,18 +6243,9 @@ document.addEventListener(
             );
 
 
-        /* CLOCK */
-
-        updateClock();
-
-
-        setInterval(
-            updateClock,
-            1000
-        );
-
-
-        /* SESSION */
+        /* =====================================================
+           SESSION
+        ===================================================== */
 
         restoreSession();
 
