@@ -1263,23 +1263,23 @@ function printTable(tableId,title){
     <h1>${escapeHTML(title)}</h1>
     ${table.outerHTML}
     <script>window.onload=function(){window.print();}<\/script>
-    
-<script>
+    </body></html>
+  `);
+  win.document.close();
+}
+
+/* =========================================================
+   VALIDASI INPUT NIK / KK
+   ========================================================= */
 document.addEventListener("DOMContentLoaded", function(){
   ["pNik","pNoKK","kkNo","kkNik"].forEach(function(id){
     const el = document.getElementById(id);
     if(!el) return;
     el.addEventListener("input", function(){
-      this.value = this.value.replace(/\D/g,"").slice(0,16);
+      this.value = this.value.replace(/\D/g, "").slice(0,16);
     });
   });
 });
-</script>
-
-</body></html>
-  `);
-  win.document.close();
-}
 
 /* =========================================================
    JAM
