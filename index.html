@@ -407,6 +407,22 @@ button{cursor:pointer}
 <div id="errorBox" class="error-box"></div>
 
 <script>
+// =========================================================
+// TAHAP 2 - STABILISASI KLIK & NAVIGASI
+// Semua tombol UI dibuat aman dari submit form yang tidak disengaja.
+// =========================================================
+document.addEventListener("DOMContentLoaded", function(){
+  document.querySelectorAll("button:not([type])").forEach(function(btn){
+    btn.type = "button";
+  });
+});
+window.addEventListener("error", function(e){
+  console.error("UI Error:", e.error || e.message);
+});
+window.addEventListener("unhandledrejection", function(e){
+  console.error("Async Error:", e.reason);
+});
+
 /* =========================================================
    KONFIGURASI SUPABASE
    ========================================================= */
@@ -697,9 +713,14 @@ const pageNames = {
 };
 
 async function showPage(page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   const target = document.getElementById("page-" + page);
-  if(!target) return;
+  if(!target){
+    console.warn("Halaman tidak ditemukan:", page);
+    showToast("Menu belum tersedia: " + page);
+    return false;
+  }
+
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   target.classList.add("active");
 
   document.querySelectorAll("#mainNav button[data-page]").forEach(btn=>{
@@ -712,6 +733,7 @@ async function showPage(page){
   if(page === "dashboard") await loadDashboard();
   if(page === "penduduk") await loadPenduduk();
   if(page === "kk") await loadKK();
+  return true;
 }
 
 function toggleSidebar(){
@@ -1262,10 +1284,11 @@ function printTable(tableId,title){
     </style></head><body>
     <h1>${escapeHTML(title)}</h1>
     ${table.outerHTML}
-    <script>window.onload=function(){window.print();}<\/script>
+    
     </body></html>
   `);
   win.document.close();
+  setTimeout(function(){ try{ win.focus(); win.print(); }catch(e){} }, 300);
 }
 
 /* =========================================================
