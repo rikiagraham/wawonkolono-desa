@@ -1113,11 +1113,58 @@ Data absensi akan tersimpan di database desa.
 
 <div class="page-title">
 <h2>🎁 Data Bantuan</h2>
-
-<button class="btn btn-primary"
-onclick="showToast('Modul Bantuan akan dihubungkan ke Supabase.')">
-+ Tambah Bantuan
+<button class="btn btn-primary" onclick="bukaFormAbsensi()">
+    + Tambah Absensi
 </button>
+
+<div id="formAbsensi" style="display:none; margin-top:20px;">
+
+    <div class="card">
+
+        <h3>📝 Form Absensi</h3>
+
+        <div class="form-group">
+            <label>Nama</label>
+            <input type="text" id="absenNama" placeholder="Masukkan nama">
+        </div>
+
+        <div class="form-group">
+            <label>Tanggal</label>
+            <input type="date" id="absenTanggal">
+        </div>
+
+        <div class="form-group">
+            <label>Status Kehadiran</label>
+            <select id="absenStatus">
+                <option value="">-- Pilih Status --</option>
+                <option value="Hadir">Hadir</option>
+                <option value="Izin">Izin</option>
+                <option value="Sakit">Sakit</option>
+                <option value="Alpa">Alpa</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Keterangan</label>
+            <textarea id="absenKeterangan"
+                placeholder="Keterangan"></textarea>
+        </div>
+
+        <button class="btn btn-primary" onclick="simpanAbsensi()">
+            💾 Simpan Absensi
+        </button>
+
+        <button class="btn btn-secondary" onclick="tutupFormAbsensi()">
+            Batal
+        </button>
+
+    </div>
+
+</div>
+
+<div id="daftarAbsensi" style="margin-top:20px;"></div>
+
+
 </div>
 
 <div class="panel">
@@ -1755,8 +1802,186 @@ placeholder="Tuliskan kritik atau saran..."></textarea>
 
 
 <script>
-/* ============================================================ SUPABASE
-============================================================ */
+// ==========================================
+// ABSENSI SUPABASE
+// ==========================================
+
+function bukaFormAbsensi() {
+
+    document.getElementById("formAbsensi").style.display = "block";
+
+    const tanggal = document.getElementById("absenTanggal");
+
+    if (!tanggal.value) {
+        tanggal.value = new Date().toISOString().split("T")[0];
+    }
+}
+
+function tutupFormAbsensi() {
+
+    document.getElementById("formAbsensi").style.display = "none";
+
+    document.getElementById("absenNama").value = "";
+    document.getElementById("absenStatus").value = "";
+    document.getElementById("absenKeterangan").value = "";
+}
+
+
+async function simpanAbsensi() {
+
+    const nama =
+        document.getElementById("absenNama").value.trim();
+
+    const tanggal =
+        document.getElementById("absenTanggal").value;
+
+    const status =
+        document.getElementById("absenStatus").value;
+
+    const keterangan =
+        document.getElementById("absenKeterangan").value.trim();
+
+    if (!nama) {
+        showToast("Nama wajib diisi.");
+        return;
+    }
+
+    if (!tanggal) {
+        showToast("Tanggal wajib diisi.");
+        return;
+    }
+
+    if (!status) {
+        showToast("Status kehadiran wajib dipilih.");
+        return;
+    }
+
+    try {
+
+        const { data, error } = await supabaseClient
+            .from("absensi")
+            .insert([{
+                nama: nama,
+                tanggal: tanggal,
+                status: status,
+                keterangan: keterangan || null
+            }])
+            .select();
+
+        if (error) {
+
+            console.error("Error Supabase Absensi:", error);
+
+            showToast(
+                "Gagal menyimpan absensi: " + error.message
+            );
+
+            return;
+        }
+
+        showToast("Absensi berhasil disimpan.");
+
+        tutupFormAbsensi();
+
+        loadAbsensi();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast("Terjadi kesalahan saat menyimpan absensi.");
+    }
+}
+
+
+// ==========================================
+// TAMPILKAN DATA ABSENSI
+// ==========================================
+
+async function loadAbsensi() {
+
+    const container =
+        document.getElementById("daftarAbsensi");
+
+    if (!container) return;
+
+    container.innerHTML =
+        "<p>Memuat data absensi...</p>";
+
+    const { data, error } = await supabaseClient
+        .from("absensi")
+        .select("*")
+        .order("tanggal", { ascending: false });
+
+    if (error) {
+
+        console.error("Gagal mengambil absensi:", error);
+
+        container.innerHTML =
+            "<p>Gagal mengambil data absensi.</p>";
+
+        return;
+    }
+
+    if (!data || data.length === 0) {
+
+        container.innerHTML =
+            "<p>Belum ada data absensi.</p>";
+
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="card">
+
+            <h3>📋 Data Absensi</h3>
+
+            <div style="overflow-x:auto;">
+
+                <table style="width:100%; border-collapse:collapse;">
+
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${data.map((item, index) => `
+                            <tr>
+
+                                <td>${index + 1}</td>
+
+                                <td>${item.nama || "-"}</td>
+
+                                <td>${item.tanggal || "-"}</td>
+
+                                <td>${item.status || "-"}</td>
+
+                                <td>${item.keterangan || "-"}</td>
+
+                            </tr>
+                        `).join("")}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    `;
+ loadAbsensi();
+ const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+}
 
 const SUPABASE_URL = "https://upsmpuzktefbrulsvydv.supabase.co";
  
