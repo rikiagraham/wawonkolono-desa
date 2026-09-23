@@ -1865,11 +1865,62 @@ function togglePassword(){
 }
 
 
-/* =========================================================
-   LOGIN
-========================================================= */
+async function login(){
 
-function login(){
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const message = document.getElementById("loginMessage");
+
+    if(selectedRole === ""){
+        message.innerHTML = "⚠️ Silakan pilih jenis akun terlebih dahulu.";
+        return;
+    }
+
+    if(username === "" || password === ""){
+        message.innerHTML = "⚠️ Username dan password harus diisi.";
+        return;
+    }
+
+    // Username otomatis menjadi email akun Supabase
+    const email = username + "@wawongkolono.desa";
+
+    message.style.color = "#0f766e";
+    message.innerHTML = "⏳ Memeriksa akun...";
+
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+    if(error){
+        message.style.color = "#dc2626";
+        message.innerHTML = "❌ Username atau password salah.";
+        return;
+    }
+
+    currentUser = username;
+
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("loginModal").classList.remove("active");
+    document.getElementById("app").style.display = "block";
+
+    document.getElementById("userName").innerText = username;
+    document.getElementById("userRole").innerText = selectedRole;
+    document.getElementById("sidebarRole").innerText = selectedRole;
+
+    document.getElementById("avatar").innerText =
+        username.charAt(0).toUpperCase();
+
+    document.getElementById("welcomeTitle").innerText =
+        "Selamat Datang, " + username;
+
+    document.getElementById("welcomeText").innerText =
+        "Anda masuk sebagai " + selectedRole +
+        ". Menu akan disesuaikan dengan hak akses Anda.";
+
+    applyRoleAccess();
+}
 
     const username =
         document.getElementById("username").value.trim();
