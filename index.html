@@ -3,863 +3,615 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#064e3b">
-<meta name="description" content="Sistem Informasi Desa Wawongkolono">
 <title>Sistem Informasi Desa Wawongkolono</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+
+/* ===== MODUL FUNGSIONAL TANPA MENGUBAH MODUL LAMA ===== */
+const DD_KEYS={surat:'DD_SURAT',absensi:'DD_ABSENSI',bantuan:'DD_BANTUAN',pembangunan:'DD_PEMBANGUNAN',dusun:'DD_DUSUN',keuangan:'DD_KEUANGAN',kritik:'DD_KRITIK',informasi:'DD_INFORMASI',arsip:'DD_ARSIP',pemerintahan:'DD_PEMERINTAHAN',pengguna:'DD_PENGGUNA',log:'DD_LOG',settings:'DD_SETTINGS'};
+function ddGet(k){try{return JSON.parse(localStorage.getItem(DD_KEYS[k])||'[]')}catch(e){return []}}
+function ddSet(k,v){localStorage.setItem(DD_KEYS[k],JSON.stringify(v))}
+function ddEsc(v){return escapeHtml(v==null?'':v)}
+function ddRp(v){return 'Rp '+Number(v||0).toLocaleString('id-ID')}
+function ddToday(){return new Date().toISOString().slice(0,10)}
+function ddActor(){return currentUser?.email||'Pengguna'}
+function ddLog(aktivitas,halaman){const a=ddGet('log');a.unshift({waktu:new Date().toLocaleString('id-ID'),pengguna:ddActor(),aktivitas,halaman});ddSet('log',a.slice(0,500));if(document.getElementById('page-log')?.classList.contains('active'))ddRenderLog()}
+function ddModal(id,title,body,onSave,saveText='💾 Simpan'){let m=document.getElementById(id);if(!m){m=document.createElement('div');m.id=id;m.className='modal';m.innerHTML=`<div class="modal-box"><div class="modal-header"><h3>${title}</h3><button class="modal-close" onclick="document.getElementById('${id}').style.display='none'">×</button></div>${body}<div class="modal-actions"><button class="btn btn-secondary" onclick="document.getElementById('${id}').style.display='none'">Batal</button><button class="btn btn-primary" id="${id}Save">${saveText}</button></div></div>`;document.body.appendChild(m);document.getElementById(id+'Save').onclick=onSave}m.style.display='flex';return m}
+function ddTable(id,headers,rows,empty='Belum ada data.'){const b=document.getElementById(id);if(!b)return;b.innerHTML=rows.length?rows.map((r,i)=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="empty">${empty}</td></tr>`}
+function ddEnsurePanel(page,title,html){const sec=document.getElementById('page-'+page);if(!sec)return;sec.innerHTML=`<div class="page-title"><h2>${title}</h2></div>${html}`}
+function ddRenderLog(){const a=ddGet('log');let b=document.getElementById('ddLogBody');if(!b)return;document.getElementById('ddLogTotal').textContent=a.length;document.getElementById('ddLogUsers').textContent=new Set(a.map(x=>x.pengguna)).size;b.innerHTML=a.length?a.map((x,i)=>`<tr><td>${i+1}</td><td>${ddEsc(x.waktu)}</td><td>${ddEsc(x.pengguna)}</td><td>${ddEsc(x.aktivitas)}</td><td>${ddEsc(x.halaman)}</td></tr>`).join(''):`<tr><td colspan="5" class="empty">Belum ada aktivitas.</td></tr>`}
+function ddClearLog(){if(confirm('Hapus semua log aktivitas?')){ddSet('log',[]);ddRenderLog();showToast('Log aktivitas dihapus.')}}
+function ddBuildDashboard(){const sec=document.getElementById('page-dashboard');if(!sec||sec.dataset.ddReady)return;sec.dataset.ddReady='1';const banner=document.createElement('div');banner.className='dashboard-banner';banner.innerHTML='<div><small>🌿 DESA WAWONGKOLONO DIGITAL</small><h2>Selamat Datang di Sistem Informasi Desa</h2><p>Kelola pelayanan, pembangunan, administrasi dan informasi desa dalam satu aplikasi.</p><div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="showPageByName(\'surat\')">📨 Pengajuan Surat</button><button class="btn btn-secondary" onclick="showPageByName(\'pembangunan\')">🏗 Program Desa</button></div></div><div class="dashboard-banner-art">🏡🌴</div>';sec.prepend(banner)}
+function ddSurat(){ddEnsurePanel('surat','📨 Surat Desa',`<div class="panel"><div class="module-note">Form pengajuan surat sudah aktif. Pengajuan dicatat dan siap disinkronkan ke Supabase.</div><button class="btn btn-primary" onclick="ddOpenSurat()">+ Pengajuan Surat</button></div><div class="panel"><h3>Daftar Pengajuan</h3><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Jenis Surat</th><th>Keperluan</th><th>Status</th><th>Tanggal</th></tr></thead><tbody id="ddSuratBody"></tbody></table></div></div>`);const a=ddGet('surat');ddTable('ddSuratBody',6,a.map((x,i)=>[i+1,ddEsc(x.nik),ddEsc(x.jenis),ddEsc(x.keperluan),'<span class="badge">'+ddEsc(x.status)+'</span>',ddEsc(x.tanggal)]),'Belum ada pengajuan surat.')}
+function ddOpenSurat(){ddModal('ddSuratModal','📨 Pengajuan Surat',`<div class="form-group"><label>NIK Pemohon *</label><input id="ddSNik"></div><div class="form-group"><label>Jenis Surat *</label><select id="ddSJenis"><option value="">Pilih</option><option>Surat Keterangan Domisili</option><option>Surat Keterangan Usaha</option><option>Surat Keterangan Tidak Mampu</option><option>Surat Keterangan Penghasilan</option><option>Surat Keterangan Kelahiran</option><option>Surat Keterangan Kematian</option><option>Surat Keterangan Belum Menikah</option><option>Surat Keterangan Menikah</option><option>Surat Keterangan Pindah</option><option>Surat Keterangan Umum</option></select></div><div class="form-group"><label>Keperluan *</label><textarea id="ddSKeperluan" rows="4"></textarea></div>`,async()=>{const nik=ddSNik.value.trim(),jenis=ddSJenis.value,keperluan=ddSKeperluan.value.trim();if(!nik||!jenis||!keperluan){showToast('NIK, jenis surat dan keperluan wajib diisi.');return}const row={nik,jenis_surat:jenis,keperluan,status:'Menunggu',tanggal:ddToday()};let saved=false;try{const r=await fetch(SUPABASE_URL+'/pengajuan_surat',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)});saved=r.ok;if(!r.ok)console.warn('Pengajuan surat Supabase:',await r.text())}catch(e){}const a=ddGet('surat');a.unshift(row);ddSet('surat',a);document.getElementById('ddSuratModal').style.display='none';ddSurat();ddLog('Mengajukan '+jenis,'Surat Desa');showToast(saved?'Pengajuan tersimpan ke Supabase.':'Pengajuan dicatat. Tabel Supabase belum tersedia/akses ditolak.')})}
+function ddAbsensi(){ddEnsurePanel('absensi','📅 Absensi Desa',`<div class="panel"><div class="module-note">API Supabase: ${SUPABASE_URL}/rest/v1/</div><button class="btn btn-primary" onclick="ddOpenAbsensi()">+ Tambah Absensi</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama</th><th>Tanggal</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="ddAbsBody"></tbody></table></div></div>`);ddLoadAbsensi()}
+async function ddLoadAbsensi(){let a=[];try{const r=await fetch(SUPABASE_URL+'/absensi?select=*&order=tanggal.desc',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(r.ok)a=await r.json()}catch(e){}if(!a.length)a=ddGet('absensi');if(a.length)ddSet('absensi',a);ddTable('ddAbsBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.tanggal),'<span class="badge">'+ddEsc(x.status)+'</span>',ddEsc(x.keterangan||'-')]),'Belum ada absensi.')}
+function ddOpenAbsensi(){ddModal('ddAbsModal','📅 Tambah Absensi',`<div class="form-grid"><div class="form-group"><label>Nama *</label><input id="ddANama"></div><div class="form-group"><label>Tanggal *</label><input type="date" id="ddATanggal" value="${ddToday()}"></div><div class="form-group"><label>Status</label><select id="ddAStatus"><option>Hadir</option><option>Izin</option><option>Sakit</option><option>Alpa</option></select></div><div class="form-group"><label>Keterangan</label><input id="ddAKet"></div></div>`,async()=>{const row={nama:ddANama.value.trim(),tanggal:ddATanggal.value,status:ddAStatus.value,keterangan:ddAKet.value.trim()};if(!row.nama||!row.tanggal){showToast('Nama dan tanggal wajib diisi.');return}let saved=false;try{const r=await fetch(SUPABASE_URL+'/absensi',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)});saved=r.ok;if(!r.ok)console.warn(await r.text())}catch(e){}const a=ddGet('absensi');a.unshift(row);ddSet('absensi',a);document.getElementById('ddAbsModal').style.display='none';ddAbsensi();ddLog('Menambah absensi '+row.nama,'Absensi');showToast(saved?'Absensi tersimpan ke Supabase.':'Absensi dicatat lokal karena tabel Supabase belum siap.')})}
+function ddBantuan(){ddEnsurePanel('bantuan','🎁 Data Bantuan',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenBantuan()">+ Tambah Bantuan</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Nama</th><th>Jenis</th><th>Nilai</th><th>Status</th></tr></thead><tbody id="ddBanBody"></tbody></table></div></div>`);const a=ddGet('bantuan');ddTable('ddBanBody',6,a.map((x,i)=>[i+1,ddEsc(x.nik||'-'),ddEsc(x.nama),ddEsc(x.jenis),ddRp(x.nilai),'<span class="badge">'+ddEsc(x.status)+'</span>']),'Belum ada data bantuan.');document.getElementById('statBantuan').textContent=a.length}
+function ddOpenBantuan(){ddModal('ddBanModal','🎁 Tambah Bantuan',`<div class="form-grid"><div class="form-group"><label>NIK</label><input id="ddBNik"></div><div class="form-group"><label>Nama *</label><input id="ddBNama"></div><div class="form-group"><label>Jenis Bantuan *</label><input id="ddBJenis"></div><div class="form-group"><label>Nilai</label><input type="number" id="ddBNilai" value="0"></div><div class="form-group"><label>Status</label><select id="ddBStatus"><option>Diterima</option><option>Menunggu</option><option>Ditolak</option></select></div></div>`,()=>{const row={nik:ddBNik.value.trim(),nama:ddBNama.value.trim(),jenis:ddBJenis.value.trim(),nilai:Number(ddBNilai.value||0),status:ddBStatus.value};if(!row.nama||!row.jenis){showToast('Nama dan jenis bantuan wajib diisi.');return}const a=ddGet('bantuan');a.unshift(row);ddSet('bantuan',a);document.getElementById('ddBanModal').style.display='none';ddBantuan();ddLog('Menambah bantuan','Bantuan');showToast('Data bantuan berhasil ditambahkan.')})}
+function ddPembangunan(){ddEnsurePanel('pembangunan','🏗 Pembangunan Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenPembangunan()">+ Program</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Program</th><th>Lokasi</th><th>Anggaran</th><th>Progres</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="ddProgBody"></tbody></table></div></div>`);ddRenderProg()}
+function ddRenderProg(filter=''){const a=ddGet('pembangunan').filter(x=>!filter||x.status===filter);ddTable('ddProgBody',7,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.lokasi||'-'),ddRp(x.anggaran),`${Number(x.progres||0)}%`,'<span class="badge">'+ddEsc(x.status)+'</span>',`<button class="btn btn-danger" onclick="ddDeleteProg(${i})">🗑</button>`]),'Belum ada program.');document.getElementById('statProgram').textContent=ddGet('pembangunan').length}
+function ddOpenPembangunan(){ddModal('ddProgModal','🏗 Program Pembangunan',`<div class="form-grid"><div class="form-group"><label>Program *</label><input id="ddPNama"></div><div class="form-group"><label>Lokasi</label><input id="ddPLokasi"></div><div class="form-group"><label>Anggaran</label><input type="number" id="ddPAnggaran" value="0"></div><div class="form-group"><label>Progres %</label><input type="number" id="ddPProgres" min="0" max="100" value="0"></div><div class="form-group"><label>Status</label><select id="ddPStatus"><option>Direncanakan</option><option>Berjalan</option><option>Selesai</option></select></div></div>`,()=>{const row={nama:ddPNama.value.trim(),lokasi:ddPLokasi.value.trim(),anggaran:Number(ddPAnggaran.value||0),progres:Number(ddPProgres.value||0),status:ddPStatus.value};if(!row.nama){showToast('Nama program wajib diisi.');return}const a=ddGet('pembangunan');a.unshift(row);ddSet('pembangunan',a);document.getElementById('ddProgModal').style.display='none';ddPembangunan();ddLog('Menambah program '+row.nama,'Pembangunan Desa');showToast('Program pembangunan berhasil ditambahkan.')})}
+function ddDeleteProg(i){const a=ddGet('pembangunan');a.splice(i,1);ddSet('pembangunan',a);ddRenderProg();showToast('Program dihapus.')}
+function ddDusun(){ddEnsurePanel('dusun','🌿 Program Dusun',`<div class="panel"><p style="color:#64748b;margin-bottom:12px">Pilih Dusun 1–5. Semua tombol sekarang aktif.</p><div class="quick-grid">${[1,2,3,4,5].map(i=>`<button class="quick-btn" onclick="ddShowDusun('Dusun ${i}')">🏘<br>Dusun ${i}</button>`).join('')}</div></div><div class="panel"><h3 id="ddDusunTitle">Program Dusun</h3><button class="btn btn-primary" onclick="ddOpenDusun()">+ Tambah Program</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Dusun</th><th>Program</th><th>Status</th><th>Anggaran</th></tr></thead><tbody id="ddDusunBody"></tbody></table></div></div>`);ddShowDusun('Dusun 1')}
+function ddShowDusun(d){document.getElementById('ddDusunTitle').textContent='Program '+d;document.getElementById('page-dusun').dataset.ddDusun=d;const a=ddGet('dusun').filter(x=>x.dusun===d);ddTable('ddDusunBody',5,a.map((x,i)=>[i+1,ddEsc(x.dusun),ddEsc(x.program),'<span class="badge">'+ddEsc(x.status)+'</span>',ddRp(x.anggaran)]),'Belum ada program di '+d+'.')}
+function ddOpenDusun(){const d=document.getElementById('page-dusun').dataset.ddDusun||'Dusun 1';ddModal('ddDusunModal','🌿 Program '+d,`<div class="form-group"><label>Program *</label><input id="ddDProgram"></div><div class="form-grid"><div class="form-group"><label>Status</label><select id="ddDStatus"><option>Direncanakan</option><option>Berjalan</option><option>Selesai</option></select></div><div class="form-group"><label>Anggaran</label><input type="number" id="ddDAnggaran" value="0"></div></div>`,()=>{const row={dusun:d,program:ddDProgram.value.trim(),status:ddDStatus.value,anggaran:Number(ddDAnggaran.value||0)};if(!row.program){showToast('Program wajib diisi.');return}const a=ddGet('dusun');a.unshift(row);ddSet('dusun',a);document.getElementById('ddDusunModal').style.display='none';ddShowDusun(d);ddLog('Menambah '+row.program,d);showToast('Program dusun berhasil ditambahkan.')})}
+function ddKeuangan(){ddEnsurePanel('keuangan','💰 Keuangan Desa',`<div class="stats"><div class="stat-card"><div class="stat-icon">📥</div><h3 id="ddKMasuk">Rp 0</h3><p>Pemasukan</p></div><div class="stat-card"><div class="stat-icon">📤</div><h3 id="ddKKeluar">Rp 0</h3><p>Pengeluaran</p></div><div class="stat-card"><div class="stat-icon">💵</div><h3 id="ddKSaldo">Rp 0</h3><p>Saldo</p></div></div><div class="panel"><button class="btn btn-primary" onclick="ddOpenKeu()">+ Transaksi</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th></tr></thead><tbody id="ddKeuBody"></tbody></table></div></div>`);ddRenderKeu()}
+function ddRenderKeu(){const a=ddGet('keuangan'),inm=a.filter(x=>x.jenis==='Pemasukan').reduce((s,x)=>s+Number(x.nominal),0),out=a.filter(x=>x.jenis==='Pengeluaran').reduce((s,x)=>s+Number(x.nominal),0);document.getElementById('ddKMasuk').textContent=ddRp(inm);document.getElementById('ddKKeluar').textContent=ddRp(out);document.getElementById('ddKSaldo').textContent=ddRp(inm-out);ddTable('ddKeuBody',5,a.map((x,i)=>[i+1,ddEsc(x.tanggal),ddEsc(x.jenis),ddEsc(x.keterangan),ddRp(x.nominal)]),'Belum ada transaksi.')}
+function ddOpenKeu(){ddModal('ddKeuModal','💰 Tambah Transaksi',`<div class="form-grid"><div class="form-group"><label>Tanggal</label><input type="date" id="ddKTanggal" value="${ddToday()}"></div><div class="form-group"><label>Jenis</label><select id="ddKJenis"><option>Pemasukan</option><option>Pengeluaran</option></select></div><div class="form-group full"><label>Keterangan *</label><input id="ddKKet"></div><div class="form-group"><label>Nominal *</label><input type="number" id="ddKNominal" value="0"></div></div>`,()=>{const row={tanggal:ddKTanggal.value,jenis:ddKJenis.value,keterangan:ddKKet.value.trim(),nominal:Number(ddKNominal.value||0)};if(!row.keterangan||row.nominal<=0){showToast('Keterangan dan nominal wajib diisi.');return}const a=ddGet('keuangan');a.unshift(row);ddSet('keuangan',a);document.getElementById('ddKeuModal').style.display='none';ddRenderKeu();ddLog('Menambah transaksi '+row.jenis,'Keuangan Desa');showToast('Transaksi berhasil dicatat.')})}
+function ddKritik(){ddEnsurePanel('kritik','💬 Kritik & Saran',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenKritik()">+ Kirim Kritik / Saran</button></div><div class="panel"><h3>🔔 Notifikasi Masuk</h3><div id="ddKritikList"></div></div>`);ddRenderKritik()}
+function ddRenderKritik(){const a=ddGet('kritik'),b=document.getElementById('ddKritikList');if(!b)return;b.innerHTML=a.length?a.map(x=>`<div style="padding:12px;border-bottom:1px solid #e2e8f0"><b>🔔 ${ddEsc(x.nama)}</b><p style="margin:6px 0">${ddEsc(x.isi)}</p><small>${ddEsc(x.waktu)} • ${ddEsc(x.status)}</small></div>`).join(''):'<div class="empty">Belum ada kritik atau saran.</div>'}
+function ddOpenKritik(){ddModal('ddKritikModal','💬 Kritik & Saran',`<div class="form-group"><label>Nama</label><input id="ddKNama" value="${ddEsc(ddActor())}"></div><div class="form-group"><label>Isi *</label><textarea id="ddKIsi" rows="6"></textarea></div>`,()=>{const row={nama:ddKNama.value.trim()||ddActor(),isi:ddKIsi.value.trim(),waktu:new Date().toLocaleString('id-ID'),status:'Notifikasi Baru'};if(!row.isi){showToast('Isi kritik/saran wajib diisi.');return}const a=ddGet('kritik');a.unshift(row);ddSet('kritik',a);document.getElementById('ddKritikModal').style.display='none';ddRenderKritik();ddLog('Mengirim kritik/saran','Kritik & Saran');showToast('Kritik/saran berhasil dikirim ke notifikasi.')})}
+function ddInformasi(){ddEnsurePanel('informasi','ℹ Informasi Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenInfo()">+ Informasi</button></div><div class="panel"><div id="ddInfoList"></div></div>`);ddRenderInfo()}
+function ddRenderInfo(){const a=ddGet('informasi'),b=document.getElementById('ddInfoList');b.innerHTML=a.length?a.map(x=>`<article style="padding:15px;border-bottom:1px solid #e2e8f0"><h3>📌 ${ddEsc(x.judul)}</h3><p style="line-height:1.7;margin-top:7px">${ddEsc(x.isi)}</p><small>${ddEsc(x.tanggal)}</small></article>`).join(''):'<div class="empty">Belum ada informasi.</div>'}
+function ddOpenInfo(){ddModal('ddInfoModal','ℹ Informasi Desa',`<div class="form-group"><label>Judul *</label><input id="ddIJudul"></div><div class="form-group"><label>Isi *</label><textarea id="ddIIsi" rows="6"></textarea></div>`,()=>{const row={judul:ddIJudul.value.trim(),isi:ddIIsi.value.trim(),tanggal:ddToday()};if(!row.judul||!row.isi){showToast('Judul dan isi wajib diisi.');return}const a=ddGet('informasi');a.unshift(row);ddSet('informasi',a);document.getElementById('ddInfoModal').style.display='none';ddRenderInfo();ddLog('Menambah informasi desa','Informasi Desa');showToast('Informasi berhasil disimpan.')})}
+function ddArsip(){ddEnsurePanel('arsip','🗄 Arsip Desa',`<div class="panel"><div class="module-note">Isi arsip desa di sini. Data arsip tersimpan pada browser agar modul langsung berfungsi; penyimpanan file ke Supabase Storage dapat ditambahkan setelah tabel/storage disiapkan.</div><button class="btn btn-primary" onclick="ddOpenArsip()">+ Tambah Dokumen</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Dokumen</th><th>Nomor</th><th>Tanggal</th><th>Keterangan</th></tr></thead><tbody id="ddArsipBody"></tbody></table></div></div>`);const a=ddGet('arsip');ddTable('ddArsipBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.nomor||'-'),ddEsc(x.tanggal),ddEsc(x.keterangan||'-')]),'Belum ada dokumen.');}
+function ddOpenArsip(){ddModal('ddArsipModal','🗄 Tambah Dokumen Arsip',`<div class="form-grid"><div class="form-group"><label>Nama Dokumen *</label><input id="ddArNama"></div><div class="form-group"><label>Nomor</label><input id="ddArNomor"></div><div class="form-group"><label>Tanggal</label><input type="date" id="ddArTanggal" value="${ddToday()}"></div><div class="form-group full"><label>Keterangan</label><textarea id="ddArKet"></textarea></div></div>`,()=>{const row={nama:ddArNama.value.trim(),nomor:ddArNomor.value.trim(),tanggal:ddArTanggal.value,keterangan:ddArKet.value.trim()};if(!row.nama){showToast('Nama dokumen wajib diisi.');return}const a=ddGet('arsip');a.unshift(row);ddSet('arsip',a);document.getElementById('ddArsipModal').style.display='none';ddArsip();ddLog('Menambah arsip '+row.nama,'Arsip Desa');showToast('Dokumen berhasil dicatat.')})}
+function ddPemerintahan(){ddEnsurePanel('pemerintahan','🏛 Pemerintahan Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenPem()">+ Tambah Perangkat</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama</th><th>Jabatan</th><th>Kontak</th></tr></thead><tbody id="ddPemBody"></tbody></table></div></div>`);const a=ddGet('pemerintahan');ddTable('ddPemBody',4,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.jabatan),ddEsc(x.kontak||'-')]),'Belum ada perangkat desa.')}
+function ddOpenPem(){ddModal('ddPemModal','🏛 Tambah Perangkat Desa',`<div class="form-grid"><div class="form-group"><label>Nama *</label><input id="ddPemNama"></div><div class="form-group"><label>Jabatan *</label><input id="ddPemJabatan"></div><div class="form-group"><label>Kontak</label><input id="ddPemKontak"></div></div>`,()=>{const row={nama:ddPemNama.value.trim(),jabatan:ddPemJabatan.value.trim(),kontak:ddPemKontak.value.trim()};if(!row.nama||!row.jabatan){showToast('Nama dan jabatan wajib diisi.');return}const a=ddGet('pemerintahan');a.unshift(row);ddSet('pemerintahan',a);document.getElementById('ddPemModal').style.display='none';ddPemerintahan();ddLog('Menambah perangkat desa','Pemerintahan Desa');showToast('Perangkat desa berhasil ditambahkan.')})}
+function ddPengguna(){ddEnsurePanel('pengguna','👤 Pengguna & Hak Akses',`<div class="panel"><div class="module-grid"><div class="module-card"><h4>🔐 Admin</h4><p>Akses penuh sistem</p></div><div class="module-card"><h4>💻 Operator</h4><p>Operasional desa</p></div><div class="module-card"><h4>🏘 Dusun 1–5</h4><p>Akses wilayah</p></div></div><button class="btn btn-primary" style="margin-top:15px" onclick="ddOpenUser()">+ Tambah Hak Akses</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama/Email</th><th>Role</th><th>Wilayah</th><th>Status</th></tr></thead><tbody id="ddUserBody"></tbody></table></div></div>`);const a=ddGet('pengguna');ddTable('ddUserBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.role),ddEsc(x.wilayah),'<span class="badge">'+ddEsc(x.status)+'</span>']),'Belum ada pengguna tambahan.')}
+function ddOpenUser(){ddModal('ddUserModal','👤 Tambah Hak Akses',`<div class="form-grid"><div class="form-group"><label>Nama/Email *</label><input id="ddUNama"></div><div class="form-group"><label>Role</label><select id="ddURole"><option>Admin</option><option>Operator</option><option>Kepala Desa</option><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>Wilayah</label><input id="ddUWilayah" placeholder="Semua Dusun / Dusun tertentu"></div><div class="form-group"><label>Status</label><select id="ddUStatus"><option>Aktif</option><option>Nonaktif</option></select></div></div>`,()=>{const row={nama:ddUNama.value.trim(),role:ddURole.value,wilayah:ddUWilayah.value.trim()||'Sesuai Role',status:ddUStatus.value};if(!row.nama){showToast('Nama/email wajib diisi.');return}const a=ddGet('pengguna');a.unshift(row);ddSet('pengguna',a);document.getElementById('ddUserModal').style.display='none';ddPengguna();ddLog('Menambah hak akses '+row.role,'Pengguna & Hak Akses');showToast('Hak akses dicatat.')})}
+function ddPengaturan(){ddEnsurePanel('pengaturan','⚙ Pengaturan & Profil',`<div class="panel"><h3>Identitas Desa</h3><div class="form-grid"><div class="form-group"><label>Nama Desa</label><input id="ddSNama" value="Desa Wawongkolono"></div><div class="form-group"><label>Kecamatan</label><input id="ddSKec" value="Menui Kepulauan"></div><div class="form-group"><label>Kabupaten</label><input id="ddSKab" value="Morowali"></div><div class="form-group"><label>Provinsi</label><input id="ddSProv" value="Sulawesi Tengah"></div></div><button class="btn btn-primary" onclick="ddSaveSettings()">💾 Simpan</button></div><div class="panel"><h3>👤 Profil</h3><div class="profile-box"><b>Akun:</b> ${ddEsc(ddActor())}<br><b>Ruang Kerja:</b> ${ddEsc(selectedRole||'Pengguna')}<br><b>Status:</b> 🟢 Aktif</div></div>`)}
+function ddSaveSettings(){ddSet('settings',[{nama:ddSNama.value,kecamatan:ddSKec.value,kabupaten:ddSKab.value,provinsi:ddSProv.value}]);ddLog('Menyimpan pengaturan','Pengaturan');showToast('Pengaturan berhasil disimpan.')}
+function ddAI(){const q=document.getElementById('aiQuestion');const a=document.getElementById('aiAnswer');if(!q||!a)return;const old=a.innerHTML;a.innerHTML=old.replace('Integrasi AI Desa dengan informasi dan database Desa Wawongkolono akan kita pasang pada tahap berikutnya.','');}
+function ddRoute(page){if(page==='dashboard')ddBuildDashboard();if(page==='surat')ddSurat();if(page==='absensi')ddAbsensi();if(page==='pemerintahan')ddPemerintahan();if(page==='bantuan')ddBantuan();if(page==='pembangunan')ddPembangunan();if(page==='dusun')ddDusun();if(page==='keuangan')ddKeuangan();if(page==='kritik')ddKritik();if(page==='informasi')ddInformasi();if(page==='arsip')ddArsip();if(page==='pengguna')ddPengguna();if(page==='log'){ddEnsurePanel('log','📝 Log Aktivitas',`<div class="panel"><div class="stats"><div class="stat-card"><h3 id="ddLogTotal">0</h3><p>Total Aktivitas</p></div><div class="stat-card"><h3 id="ddLogUsers">0</h3><p>Pengguna Aktif</p></div></div><button class="btn btn-secondary" onclick="ddClearLog()">Bersihkan Log</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Halaman</th></tr></thead><tbody id="ddLogBody"></tbody></table></div></div>`);ddRenderLog()}if(page==='pengaturan')ddPengaturan();ddLog('Membuka '+(pageNames[page]||page),pageNames[page]||page)}
+const ddOriginalShowPage=showPage;showPage=function(page,button){ddOriginalShowPage(page,button);setTimeout(()=>ddRoute(page),0)};
+const ddOriginalDashboard=loadDashboard;loadDashboard=async function(){await ddOriginalDashboard();document.getElementById('statBantuan').textContent=ddGet('bantuan').length;document.getElementById('statProgram').textContent=ddGet('pembangunan').length};
+window.addEventListener('DOMContentLoaded',()=>{ddBuildDashboard()});
+
+</script>
 
 <style>
 *{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+box-sizing:border-box; margin:0;
+padding:0;
 }
 
 body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#f1f5f9;
-    color:#1e293b;
+font-family:Arial,Helvetica,sans-serif; background:#f1f5f9;
+color:#1e293b;
 }
 
-button,input,select,textarea{
-    font-family:inherit;
+button,input,select,textarea{ font-family:inherit;
 }
 
 button{
-    cursor:pointer;
+cursor:pointer;
 }
 
 .hidden{
-    display:none!important;
+display:none!important;
 }
 
 /* ================= HEADER ================= */
 
 .home-header{
-    background:linear-gradient(135deg,#064e3b,#047857);
-    color:white;
-    padding:18px 5%;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
+background:linear-gradient(135deg,#064e3b,#047857); color:white;
+padding:18px 5%; display:flex;
+justify-content:space-between; align-items:center;
+gap:20px;
 }
 
 .brand{
-    display:flex;
-    align-items:center;
-    gap:14px;
+display:flex;
+ 
+align-items:center; gap:14px;
 }
 
 .logo{
-    width:52px;
-    height:52px;
-    background:white;
-    color:#047857;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:27px;
+width:52px; height:52px; background:white; color:#047857; border-radius:50%; display:flex;
+align-items:center; justify-content:center; font-size:27px;
 }
 
 .brand h1{
-    font-size:21px;
+font-size:21px;
 }
 
 .brand p{
-    font-size:13px;
-    opacity:.9;
-    margin-top:3px;
+font-size:13px; opacity:.9; margin-top:3px;
 }
 
-.login-home-btn{
-    border:none;
-    background:white;
-    color:#047857;
-    padding:11px 18px;
-    border-radius:10px;
-    font-weight:bold;
+.login-home-btn{ border:none; background:white; color:#047857; padding:11px 18px; border-radius:10px; font-weight:bold;
 }
 
 /* ================= HOME ================= */
 
 #homePage{
-    min-height:100vh;
+min-height:100vh;
 }
 
 .hero{
-    padding:65px 20px;
-    text-align:center;
-    background:
-        linear-gradient(rgba(6,78,59,.82),rgba(4,120,87,.82)),
-        radial-gradient(circle at top,#34d399,#064e3b);
-    color:white;
+padding:65px 20px; text-align:center; background:
+linear-gradient(rgba(6,78,59,.82),rgba(4,120,87,.82)), radial-gradient(circle at top,#34d399,#064e3b);
+color:white;
+ 
 }
 
 .hero h2{
-    font-size:35px;
-    margin-bottom:12px;
+font-size:35px; margin-bottom:12px;
 }
 
 .hero p{
-    max-width:700px;
-    margin:auto;
-    line-height:1.7;
+max-width:700px; margin:auto;
+line-height:1.7;
 }
 
 .hero-btn{
-    margin-top:25px;
-    border:none;
-    background:white;
-    color:#047857;
-    padding:13px 25px;
-    border-radius:10px;
-    font-weight:bold;
+margin-top:25px; border:none; background:white; color:#047857; padding:13px 25px; border-radius:10px; font-weight:bold;
 }
 
-.info-section{
-    padding:35px 5%;
+.info-section{ padding:35px 5%;
 }
 
-.info-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:18px;
-    max-width:1100px;
-    margin:auto;
+.info-grid{ display:grid;
+grid-template-columns:repeat(4,1fr); gap:18px;
+max-width:1100px; margin:auto;
 }
 
-.info-card{
-    background:white;
-    padding:22px;
-    border-radius:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,.06);
-    text-align:center;
+.info-card{ background:white; padding:22px; border-radius:15px;
+box-shadow:0 5px 20px rgba(0,0,0,.06); text-align:center;
 }
 
-.info-card .icon{
-    font-size:32px;
-    margin-bottom:10px;
+.info-card .icon{ font-size:32px;
+margin-bottom:10px;
 }
-
-.info-card h3{
-    font-size:16px;
-    margin-bottom:7px;
+ 
+.info-card h3{ font-size:16px;
+margin-bottom:7px;
 }
 
 .info-card p{
-    font-size:13px;
-    color:#64748b;
-    line-height:1.5;
+font-size:13px; color:#64748b; line-height:1.5;
 }
 
 /* ================= LOGIN ================= */
 
-.login-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,.75);
-    z-index:1000;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:15px;
+.login-overlay{ position:fixed; inset:0;
+background:rgba(15,23,42,.75); z-index:1000;
+display:none; align-items:center;
+justify-content:center; padding:15px;
 }
 
-.login-box{
-    background:white;
-    width:100%;
-    max-width:430px;
-    border-radius:18px;
-    padding:28px;
-    box-shadow:0 20px 50px rgba(0,0,0,.25);
+.login-box{ background:white; width:100%;
+max-width:430px; border-radius:18px; padding:28px;
+box-shadow:0 20px 50px rgba(0,0,0,.25);
 }
 
 .login-title{
-    text-align:center;
-    margin-bottom:20px;
+text-align:center; margin-bottom:20px;
 }
 
-.login-title .big-icon{
-    font-size:45px;
+.login-title .big-icon{ font-size:45px;
 }
 
-.login-title h2{
-    color:#065f46;
-    margin-top:8px;
+.login-title h2{ color:#065f46; margin-top:8px;
 }
 
 .role-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:8px;
-    margin-bottom:17px;
-    margin-top:8px;
+ 
+display:grid;
+grid-template-columns:repeat(2,1fr); gap:8px;
+margin-bottom:17px;
 }
 
 .role-btn{
-    border:1px solid #cbd5e1;
-    background:#f8fafc;
-    padding:10px 5px;
-    border-radius:9px;
-    font-size:12px;
+border:1px solid #cbd5e1; background:#f8fafc; padding:10px 5px;
+border-radius:9px; font-size:12px;
 }
 
-.role-btn.active{
-    background:#047857;
-    color:white;
-    border-color:#047857;
+.role-btn.active{ background:#047857; color:white;
+border-color:#047857;
 }
 
 .form-group{
-    margin-bottom:13px;
+margin-bottom:13px;
 }
 
-.form-group label{
-    display:block;
-    font-size:13px;
-    font-weight:bold;
-    margin-bottom:6px;
+.form-group label{ display:block; font-size:13px; font-weight:bold;
+margin-bottom:6px;
 }
 
 .form-group input,
 .form-group select,
-.form-group textarea{
-    width:100%;
-    padding:11px 12px;
-    border:1px solid #cbd5e1;
-    border-radius:9px;
-    outline:none;
+.form-group textarea{ width:100%; padding:11px 12px; border:1px solid #cbd5e1; border-radius:9px; outline:none;
 }
 
 .form-group input:focus,
 .form-group select:focus,
-.form-group textarea:focus{
-    border-color:#10b981;
+.form-group textarea:focus{ border-color:#10b981;
 }
 
 .password-wrap{
-    position:relative;
+ 
+position:relative;
 }
 
-.password-wrap input{
-    padding-right:45px;
+.password-wrap input{ padding-right:45px;
 }
 
-.password-toggle{
-    position:absolute;
-    right:10px;
-    top:8px;
-    border:none;
-    background:transparent;
-    font-size:18px;
+.password-toggle{ position:absolute; right:10px; top:8px; border:none;
+background:transparent; font-size:18px;
 }
 
-.login-submit{
-    width:100%;
-    border:none;
-    background:#047857;
-    color:white;
-    padding:12px;
-    border-radius:9px;
-    font-weight:bold;
-    margin-top:5px;
+.login-submit{ width:100%; border:none; background:#047857; color:white; padding:12px;
+border-radius:9px; font-weight:bold; margin-top:5px;
 }
 
-.close-login{
-    width:100%;
-    margin-top:8px;
-    border:none;
-    background:#e2e8f0;
-    padding:10px;
-    border-radius:9px;
+.close-login{ width:100%; margin-top:8px; border:none;
+background:#e2e8f0; padding:10px; border-radius:9px;
 }
 
-.login-message{
-    margin-top:12px;
-    font-size:13px;
-    text-align:center;
-    color:#dc2626;
+.login-message{ margin-top:12px; font-size:13px; text-align:center; color:#dc2626;
 }
 
 /* ================= APP ================= */
 
-#appPage{
-    display:none;
-    min-height:100vh;
+#appPage{ display:none;
+min-height:100vh;
+ 
 }
 
-.sidebar{
-    position:fixed;
-    left:0;
-    top:0;
-    bottom:0;
-    width:245px;
-    background:#064e3b;
-    color:white;
-    overflow-y:auto;
-    z-index:100;
+.sidebar{ position:fixed; left:0;
+top:0; bottom:0; width:245px;
+background:#064e3b; color:white;
+overflow-y:auto; z-index:100;
 }
 
-.sidebar-brand{
-    padding:20px 17px;
-    border-bottom:1px solid rgba(255,255,255,.12);
+.sidebar-brand{ padding:20px 17px;
+border-bottom:1px solid rgba(255,255,255,.12);
 }
 
-.sidebar-brand h2{
-    font-size:17px;
+.sidebar-brand h2{ font-size:17px;
 }
 
-.sidebar-brand p{
-    font-size:11px;
-    opacity:.75;
-    margin-top:5px;
+.sidebar-brand p{ font-size:11px; opacity:.75; margin-top:5px;
 }
 
 .menu{
-    padding:12px;
+padding:12px;
 }
 
 .menu-title{
-    font-size:10px;
-    text-transform:uppercase;
-    opacity:.55;
-    padding:12px 9px 6px;
+font-size:10px;
+text-transform:uppercase; opacity:.55; padding:12px 9px 6px;
 }
 
-.menu-btn{
-    width:100%;
-    text-align:left;
-    border:none;
-    background:transparent;
-    color:#d1fae5;
-    padding:10px 11px;
-    border-radius:8px;
-    margin-bottom:3px;
-    font-size:13px;
+.menu-btn{ width:100%; text-align:left; border:none;
+background:transparent; color:#d1fae5; padding:10px 11px; border-radius:8px;
+ 
+margin-bottom:3px; font-size:13px;
 }
 
 .menu-btn:hover,
-.menu-btn.active{
-    background:#047857;
-    color:white;
+.menu-btn.active{ background:#047857; color:white;
 }
 
 .logout-btn{
-    margin-top:15px;
-    background:#991b1b!important;
-    color:white!important;
+margin-top:15px; background:#991b1b!important; color:white!important;
 }
 
 .main{
-    margin-left:245px;
-    min-height:100vh;
+margin-left:245px; min-height:100vh;
 }
 
 .topbar{
-    background:white;
-    height:65px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0 25px;
-    border-bottom:1px solid #e2e8f0;
-    position:sticky;
-    top:0;
-    z-index:50;
+background:white; height:65px; display:flex;
+justify-content:space-between; align-items:center;
+padding:0 25px;
+border-bottom:1px solid #e2e8f0; position:sticky;
+top:0;
+z-index:50;
 }
 
 .topbar h2{
-    font-size:19px;
+font-size:19px;
 }
 
 .user-info{
-    font-size:13px;
-    text-align:right;
+font-size:13px; text-align:right;
 }
 
-.user-info strong{
-    display:block;
-    color:#047857;
+.user-info strong{ display:block; color:#047857;
 }
-
-.content{
-    padding:25px;
+ 
+.content{ padding:25px;
 }
 
 /* ================= DASHBOARD ================= */
 
 .stats{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:16px;
-    margin-bottom:20px;
+display:grid;
+grid-template-columns:repeat(4,1fr); gap:16px;
+margin-bottom:20px;
 }
 
-.stat-card{
-    background:white;
-    border-radius:14px;
-    padding:18px;
-    box-shadow:0 3px 15px rgba(0,0,0,.05);
+.stat-card{ background:white; border-radius:14px; padding:18px;
+box-shadow:0 3px 15px rgba(0,0,0,.05);
 }
 
-.stat-card .stat-icon{
-    font-size:25px;
+.stat-card .stat-icon{ font-size:25px;
 }
 
-.stat-card h3{
-    font-size:25px;
-    margin-top:8px;
+.stat-card h3{ font-size:25px;
+margin-top:8px;
 }
 
-.stat-card p{
-    color:#64748b;
-    font-size:12px;
-    margin-top:4px;
+.stat-card p{ color:#64748b; font-size:12px; margin-top:4px;
 }
 
 .grid-2{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:18px;
+display:grid;
+grid-template-columns:1fr 1fr; gap:18px;
 }
 
 .panel{
-    background:white;
-    border-radius:14px;
-    padding:20px;
-    box-shadow:0 3px 15px rgba(0,0,0,.05);
-    margin-bottom:18px;
+background:white; border-radius:14px; padding:20px;
+box-shadow:0 3px 15px rgba(0,0,0,.05); margin-bottom:18px;
 }
-
+ 
 .panel h3{
-    margin-bottom:15px;
+margin-bottom:15px;
 }
 
-.quick-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
+.quick-grid{ display:grid;
+grid-template-columns:repeat(3,1fr); gap:10px;
 }
 
 .quick-btn{
-    border:1px solid #dbeafe;
-    background:#f8fafc;
-    padding:15px 8px;
-    border-radius:10px;
-    font-size:12px;
+border:1px solid #dbeafe; background:#f8fafc; padding:15px 8px; border-radius:10px;
+font-size:12px;
 }
 
 /* ================= PAGE ================= */
 
 .page{
-    display:none;
+display:none;
 }
 
-.page.active{
-    display:block;
+.page.active{ display:block;
 }
 
-.page-title{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    margin-bottom:18px;
+.page-title{ display:flex;
+justify-content:space-between; align-items:center;
+gap:10px;
+margin-bottom:18px;
 }
 
-.page-title h2{
-    font-size:21px;
+.page-title h2{ font-size:21px;
 }
 
 .toolbar{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-bottom:15px;
+display:flex; gap:8px;
+flex-wrap:wrap; margin-bottom:15px;
 }
-
+ 
 .btn{
-    border:none;
-    padding:10px 14px;
-    border-radius:8px;
-    font-size:12px;
-    font-weight:bold;
+border:none; padding:10px 14px; border-radius:8px; font-size:12px;
+font-weight:bold;
 }
 
-.btn-primary{
-    background:#047857;
-    color:white;
+.btn-primary{ background:#047857; color:white;
 }
 
-.btn-secondary{
-    background:#e2e8f0;
-    color:#334155;
+.btn-secondary{ background:#e2e8f0; color:#334155;
 }
 
-.btn-danger{
-    background:#dc2626;
-    color:white;
+.btn-danger{ background:#dc2626; color:white;
 }
 
-.btn-warning{
-    background:#f59e0b;
-    color:white;
+.btn-warning{ background:#f59e0b; color:white;
 }
 
-.btn-info{
-    background:#2563eb;
-    color:white;
-}
-
-.btn-success{
-    background:#16a34a;
-    color:white;
-}
-
-.search-box{
-    width:100%;
-    max-width:350px;
-    padding:10px 12px;
-    border:1px solid #cbd5e1;
-    border-radius:8px;
+.search-box{ width:100%;
+max-width:350px; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px;
 }
 
 /* ================= TABLE ================= */
 
-.table-wrap{
-    overflow-x:auto;
+.table-wrap{ overflow-x:auto;
 }
 
 table{
-    width:100%;
-    border-collapse:collapse;
-    min-width:900px;
+width:100%;
+border-collapse:collapse; min-width:900px;
 }
-
+ 
 th,td{
-    border-bottom:1px solid #e2e8f0;
-    padding:10px 8px;
-    font-size:12px;
-    text-align:left;
+border-bottom:1px solid #e2e8f0; padding:10px 8px;
+font-size:12px; text-align:left;
 }
 
 th{
-    background:#f8fafc;
-    color:#475569;
+background:#f8fafc; color:#475569;
 }
 
 .badge{
-    display:inline-block;
-    padding:4px 8px;
-    border-radius:20px;
-    font-size:10px;
-    background:#dcfce7;
-    color:#166534;
-}
-
-.badge-warning{
-    background:#fef3c7;
-    color:#92400e;
-}
-
-.badge-danger{
-    background:#fee2e2;
-    color:#991b1b;
-}
-
-.badge-info{
-    background:#dbeafe;
-    color:#1d4ed8;
-}
-
-.badge-success{
-    background:#dcfce7;
-    color:#166534;
+display:inline-block; padding:4px 8px; border-radius:20px; font-size:10px; background:#dcfce7; color:#166534;
 }
 
 .empty{
-    text-align:center;
-    padding:35px;
-    color:#64748b;
+text-align:center; padding:35px; color:#64748b;
 }
 
 /* ================= MODAL ================= */
 
 .modal{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,.65);
-    z-index:500;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:15px;
+position:fixed; inset:0;
+background:rgba(15,23,42,.65); z-index:500;
+display:none; align-items:center;
+justify-content:center; padding:15px;
 }
 
-.modal-box{
-    background:white;
-    width:100%;
-    max-width:750px;
-    max-height:92vh;
-    overflow-y:auto;
-    border-radius:15px;
-    padding:22px;
+.modal-box{ background:white; width:100%;
+max-width:750px; max-height:92vh; overflow-y:auto; border-radius:15px; padding:22px;
+ 
 }
 
-.modal-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:18px;
+.modal-header{ display:flex;
+justify-content:space-between; align-items:center;
+margin-bottom:18px;
 }
 
-.modal-close{
-    border:none;
-    background:#e2e8f0;
-    width:32px;
-    height:32px;
-    border-radius:50%;
+.modal-close{ border:none; background:#e2e8f0; width:32px; height:32px;
+border-radius:50%;
 }
 
-.form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
+.form-grid{ display:grid;
+grid-template-columns:1fr 1fr; gap:12px;
 }
 
 .full{
-    grid-column:1/-1;
+grid-column:1/-1;
 }
 
-.modal-actions{
-    display:flex;
-    justify-content:flex-end;
-    gap:8px;
-    margin-top:18px;
-}
-
-/* ================= DETAIL ================= */
-
-.detail-box{
-    background:#f8fafc;
-    padding:15px;
-    border-radius:10px;
-    margin-bottom:15px;
-}
-
-.detail-row{
-    display:grid;
-    grid-template-columns:180px 1fr;
-    gap:10px;
-    padding:7px 0;
-    border-bottom:1px solid #e2e8f0;
-    font-size:13px;
-}
-
-.detail-row:last-child{
-    border-bottom:none;
-}
-
-.detail-label{
-    font-weight:bold;
-    color:#475569;
+.modal-actions{ display:flex;
+justify-content:flex-end; gap:8px;
+margin-top:18px;
 }
 
 /* ================= TOAST ================= */
 
 .toast{
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    background:#064e3b;
-    color:white;
-    padding:13px 18px;
-    border-radius:10px;
-    z-index:2000;
-    display:none;
-    max-width:350px;
-    font-size:13px;
+position:fixed; right:20px; bottom:20px; background:#064e3b; color:white; padding:13px 18px; border-radius:10px;
+z-index:2000; display:none; max-width:350px; font-size:13px;
+ 
 }
 
 /* ================= MOBILE ================= */
 
-.mobile-menu{
-    display:none;
-    border:none;
-    background:#064e3b;
-    color:white;
-    font-size:22px;
-}
-
-@media(max-width:1100px){
-
-    .stats{
-        grid-template-columns:repeat(3,1fr);
-    }
+.mobile-menu{ display:none; border:none; background:#064e3b; color:white;
+font-size:22px;
 }
 
 @media(max-width:900px){
+.info-grid{
+grid-template-columns:repeat(2,1fr);
+}
 
-    .info-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
+.stats{
+grid-template-columns:repeat(2,1fr);
+}
 
-    .stats{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    .grid-2{
-        grid-template-columns:1fr;
-    }
+.grid-2{
+grid-template-columns:1fr;
+}
 }
 
 @media(max-width:700px){
-
-    .home-header{
-        padding:13px;
-    }
-
-    .brand h1{
-        font-size:15px;
-    }
-
-    .brand p{
-        font-size:10px;
-    }
-
-    .logo{
-        width:42px;
-        height:42px;
-        font-size:21px;
-    }
-
-    .hero h2{
-        font-size:26px;
-    }
-
-    .info-grid{
-        grid-template-columns:1fr;
-    }
-
-    .sidebar{
-        transform:translateX(-100%);
-        transition:.25s;
-    }
-
-    .sidebar.open{
-        transform:translateX(0);
-    }
-
-    .main{
-        margin-left:0;
-    }
-
-    .mobile-menu{
-        display:block;
-    }
-
-    .topbar{
-        padding:0 12px;
-    }
-
-    .topbar h2{
-        font-size:15px;
-    }
-
-    .user-info{
-        font-size:10px;
-    }
-
-    .content{
-        padding:15px;
-    }
-
-    .stats{
-        grid-template-columns:1fr 1fr;
-        gap:10px;
-    }
-
-    .stat-card{
-        padding:13px;
-    }
-
-    .stat-card h3{
-        font-size:20px;
-    }
-
-    .quick-grid{
-        grid-template-columns:1fr 1fr;
-    }
-
-    .form-grid{
-        grid-template-columns:1fr;
-    }
-
-    .full{
-        grid-column:auto;
-    }
-
-    .detail-row{
-        grid-template-columns:1fr;
-        gap:3px;
-    }
-
-    .page-title{
-        align-items:flex-start;
-        flex-direction:column;
-    }
+.home-header{ padding:13px;
 }
+
+.brand h1{
+font-size:15px;
+}
+
+.brand p{
+font-size:10px;
+}
+
+.logo{
+width:42px; height:42px; font-size:21px;
+}
+
+.hero h2{
+font-size:26px;
+}
+ 
+.info-grid{
+grid-template-columns:1fr;
+}
+
+.sidebar{
+transform:translateX(-100%); transition:.25s;
+}
+
+.sidebar.open{ transform:translateX(0);
+}
+
+.main{
+margin-left:0;
+}
+
+.mobile-menu{ display:block;
+}
+
+.topbar{
+padding:0 12px;
+}
+
+.topbar h2{
+font-size:15px;
+}
+
+.user-info{
+font-size:10px;
+}
+
+.content{ padding:15px;
+}
+
+.stats{
+grid-template-columns:1fr 1fr; gap:10px;
+}
+
+.stat-card{ padding:13px;
+}
+
+.stat-card h3{
+ 
+font-size:20px;
+}
+
+.quick-grid{
+grid-template-columns:1fr 1fr;
+}
+
+.form-grid{
+grid-template-columns:1fr;
+}
+
+.full{
+grid-column:auto;
+}
+}
+
+/* ===== PENYEMPURNAAN MODUL DESA ===== */
+.dashboard-banner{display:flex;justify-content:space-between;align-items:center;gap:20px;background:linear-gradient(135deg,#064e3b,#10b981);color:#fff;border-radius:18px;padding:28px;margin-bottom:20px;overflow:hidden}.dashboard-banner h2{font-size:26px;margin:8px 0}.dashboard-banner p{line-height:1.6;opacity:.92}.dashboard-banner-art{font-size:86px}.module-note{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:14px;border-radius:10px;line-height:1.6;margin-bottom:15px}.module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.module-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px}.module-card h4{margin-bottom:7px}.profile-box{background:#f8fafc;padding:15px;border-radius:10px;line-height:1.8;margin-bottom:12px}.quick-btn{transition:.2s}.quick-btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.08)}@media(max-width:700px){.dashboard-banner{padding:20px}.dashboard-banner h2{font-size:20px}.dashboard-banner-art{font-size:58px}.module-grid{grid-template-columns:1fr}}
 </style>
 </head>
 
 <body>
 
-<!-- =========================================================
-HALAMAN DEPAN
+<!-- ========================================================= HALAMAN DEPAN
 ========================================================= -->
 
 <div id="homePage">
 
 <header class="home-header">
-
 <div class="brand">
-
 <div class="logo">🏛</div>
-
 <div>
 <h1>Desa Wawongkolono</h1>
 <p>Kecamatan Menui Kepulauan • Kabupaten Morowali</p>
 </div>
-
 </div>
 
 <button class="login-home-btn" onclick="openLogin()">
 🔐 Login Sistem
 </button>
-
 </header>
 
 <section class="hero">
-
 <h2>Sistem Informasi Desa Pintar</h2>
-
 <p>
-Sistem informasi dan pelayanan digital Desa Wawongkolono
-untuk membantu pengelolaan data desa, pelayanan masyarakat,
-administrasi, pembangunan dan pemerintahan desa.
+Sistem informasi dan pelayanan digital Desa Wawongkolono untuk membantu pengelolaan data desa, pelayanan masyarakat, administrasi, pembangunan dan pemerintahan desa.
 </p>
-
-<button class="hero-btn" onclick="openLogin()">
-Masuk ke Sistem
+ 
+<button class="hero-btn" onclick="openLogin()"> Masuk ke Sistem
 </button>
-
 </section>
 
 <section class="info-section">
-
 <div class="info-grid">
 
 <div class="info-card">
@@ -887,14 +639,12 @@ Masuk ke Sistem
 </div>
 
 </div>
-
 </section>
 
 </div>
 
 
-<!-- =========================================================
-LOGIN
+<!-- ========================================================= LOGIN
 ========================================================= -->
 
 <div id="loginOverlay" class="login-overlay">
@@ -902,119 +652,67 @@ LOGIN
 <div class="login-box">
 
 <div class="login-title">
-
 <div class="big-icon">🏛</div>
-
+ 
 <h2>Login Sistem Desa</h2>
-
-<p style="font-size:12px;color:#64748b;margin-top:5px;">
-Desa Wawongkolono
+<p style="font-size:12px;color:#64748b;margin-top:5px;"> Desa Wawongkolono
 </p>
-
 </div>
 
-<label style="font-size:12px;font-weight:bold;">
-Pilih Ruang Kerja
+<label style="font-size:12px;font-weight:bold;"> Pilih Ruang Kerja
 </label>
 
 <div class="role-grid">
 
-<button class="role-btn" onclick="selectRole(this,'Admin')">
-🔐 Admin
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Kepala Desa')">
-🏛 Kepala Desa
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Sekretaris Desa')">
-📋 Sekretaris
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Operator')">
-💻 Operator
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Bendahara Desa')">
-💰 Bendahara
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'BPD')">
-🏛 BPD
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Dusun 1')">
-🏘 Dusun 1
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Dusun 2')">
-🏘 Dusun 2
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Dusun 3')">
-🏘 Dusun 3
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Dusun 4')">
-🏘 Dusun 4
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Dusun 5')">
-🏘 Dusun 5
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Pemerintah Desa')">
-🏢 Pemerintah
-</button>
-
-<button class="role-btn" onclick="selectRole(this,'Masyarakat')">
-👥 Masyarakat
-</button>
+<button class="role-btn" onclick="selectRole(this,'Admin')"> Admin</button>
+<button class="role-btn" onclick="selectRole(this,'Kepala Desa')"> Kepala
+Desa</button>
+<button class="role-btn" onclick="selectRole(this,'Sekretaris Desa')">📋 Sekretaris</button>
+<button class="role-btn" onclick="selectRole(this,'Operator')">💻 Operator</button>
+<button class="role-btn" onclick="selectRole(this,'Bendahara Desa')">💰
+Bendahara</button>
+<button class="role-btn" onclick="selectRole(this,'BPD')">🏛 BPD</button>
+<button class="role-btn" onclick="selectRole(this,'Dusun 1')">🏘 Dusun 1</button>
+<button class="role-btn" onclick="selectRole(this,'Dusun 2')">🏘 Dusun 2</button>
+<button class="role-btn" onclick="selectRole(this,'Dusun 3')">🏘 Dusun 3</button>
+<button class="role-btn" onclick="selectRole(this,'Dusun 4')">🏘 Dusun 4</button>
+<button class="role-btn" onclick="selectRole(this,'Dusun 5')">🏘 Dusun 5</button>
+<button class="role-btn" onclick="selectRole(this,'Pemerintah Desa')">🏢
+Pemerintah</button>
+<button class="role-btn" onclick="selectRole(this,'Masyarakat')">Masyarakat</button>
 
 </div>
 
 <div class="form-group">
-
 <label>Email</label>
-
 <input
-type="email"
-id="loginEmail"
-autocomplete="username"
+type="email" id="loginEmail"
+placeholder="Masukkan email" autocomplete="username"
 >
-
 </div>
 
 <div class="form-group">
-
 <label>Password</label>
 
 <div class="password-wrap">
-
 <input
-type="password"
-id="loginPassword"
-autocomplete="current-password"
+ 
+type="password" id="loginPassword" placeholder="Masukkan password" autocomplete="current-password"
 >
 
 <button
-type="button"
-class="password-toggle"
-onclick="togglePassword()"
+type="button" class="password-toggle" onclick="togglePassword()"
 >
 👁
 </button>
-
 </div>
-
 </div>
 
 <button class="login-submit" onclick="login()">
 🔐 Masuk
 </button>
 
-<button class="close-login" onclick="closeLogin()">
-Tutup
+<button class="close-login" onclick="closeLogin()"> Tutup
 </button>
 
 <div id="loginMessage" class="login-message"></div>
@@ -1024,8 +722,7 @@ Tutup
 </div>
 
 
-<!-- =========================================================
-APLIKASI
+<!-- ========================================================= APLIKASI
 ========================================================= -->
 
 <div id="appPage">
@@ -1035,15 +732,12 @@ APLIKASI
 <aside id="sidebar" class="sidebar">
 
 <div class="sidebar-brand">
-
 <h2>🏛 Desa Wawongkolono</h2>
-
 <p>Sistem Informasi Desa Pintar</p>
-
 </div>
 
 <div class="menu">
-
+ 
 <div class="menu-title">Utama</div>
 
 <button class="menu-btn active" onclick="showPage('dashboard',this)">
@@ -1055,18 +749,13 @@ APLIKASI
 </button>
 
 <button class="menu-btn" onclick="showPage('kk',this)">
-👨‍👩‍👧 Data KK
+ Data KK
 </button>
-
 
 <div class="menu-title">Pelayanan</div>
 
 <button class="menu-btn" onclick="showPage('pelayanan',this)">
 📋 Pelayanan Desa
-</button>
-
-<button class="menu-btn" onclick="showPage('pengajuan',this)">
-📝 Pengajuan
 </button>
 
 <button class="menu-btn" onclick="showPage('surat',this)">
@@ -1076,7 +765,6 @@ APLIKASI
 <button class="menu-btn" onclick="showPage('absensi',this)">
 📅 Absensi
 </button>
-
 
 <div class="menu-title">Desa</div>
 
@@ -1096,9 +784,8 @@ APLIKASI
 🌿 Program Dusun
 </button>
 
-
 <div class="menu-title">Administrasi</div>
-
+ 
 <button class="menu-btn" onclick="showPage('keuangan',this)">
 💰 Keuangan Desa
 </button>
@@ -1118,7 +805,6 @@ APLIKASI
 <button class="menu-btn" onclick="showPage('arsip',this)">
 🗄 Arsip
 </button>
-
 
 <div class="menu-title">Sistem</div>
 
@@ -1148,39 +834,27 @@ APLIKASI
 
 
 <!-- MAIN -->
-
+ 
 <main class="main">
 
 <div class="topbar">
 
 <div style="display:flex;align-items:center;gap:12px;">
-
-<button class="mobile-menu" onclick="toggleSidebar()">
-☰
-</button>
-
-<h2 id="pageTitle">
-Dashboard
-</h2>
-
+<button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+<h2 id="pageTitle">Dashboard</h2>
 </div>
 
 <div class="user-info">
-
 <strong id="displayUser">-</strong>
-
 <span id="displayRole">-</span>
-
 </div>
 
 </div>
-
 
 <div class="content">
 
 
-<!-- =================================================
-DASHBOARD
+<!-- ================================================= DASHBOARD
 ================================================= -->
 
 <section id="page-dashboard" class="page active">
@@ -1194,15 +868,9 @@ DASHBOARD
 </div>
 
 <div class="stat-card">
-<div class="stat-icon">👨‍👩‍👧</div>
+<div class="stat-icon"></div>
 <h3 id="statKK">0</h3>
 <p>Total Kartu Keluarga</p>
-</div>
-
-<div class="stat-card">
-<div class="stat-icon">📝</div>
-<h3 id="statPengajuan">0</h3>
-<p>Total Pengajuan</p>
 </div>
 
 <div class="stat-card">
@@ -1213,12 +881,12 @@ DASHBOARD
 
 <div class="stat-card">
 <div class="stat-icon">🏗</div>
+ 
 <h3 id="statProgram">0</h3>
 <p>Program Desa</p>
 </div>
 
 </div>
-
 
 <div class="grid-2">
 
@@ -1228,65 +896,44 @@ DASHBOARD
 
 <div class="quick-grid">
 
-<button class="quick-btn"
-onclick="showPageByName('penduduk')">
-👥<br>
-Data Penduduk
+<button class="quick-btn" onclick="showPageByName('penduduk')">
+👥<br>Tambah Penduduk
 </button>
 
-<button class="quick-btn"
-onclick="showPageByName('kk')">
-👨‍👩‍👧<br>
-Data KK
+<button class="quick-btn" onclick="showPageByName('kk')">
+<br>Data KK
 </button>
 
-<button class="quick-btn"
-onclick="showPageByName('pengajuan')">
-📝<br>
-Pengajuan
+<button class="quick-btn" onclick="showPageByName('surat')">
+📨<br>Surat Desa
 </button>
 
-<button class="quick-btn"
-onclick="showPageByName('surat')">
-📨<br>
-Surat Desa
+<button class="quick-btn" onclick="showPageByName('bantuan')">
+🎁<br>Bantuan
 </button>
 
-<button class="quick-btn"
-onclick="showPageByName('bantuan')">
-🎁<br>
-Bantuan
+<button class="quick-btn" onclick="showPageByName('keuangan')">
+💰<br>Keuangan
 </button>
 
-<button class="quick-btn"
-onclick="showPageByName('keuangan')">
-💰<br>
-Keuangan
+<button class="quick-btn" onclick="showPageByName('laporan')">
+📊<br>Laporan
 </button>
 
 </div>
 
 </div>
-
-
+ 
 <div class="panel">
 
 <h3>☁ Status Database</h3>
 
-<p style="font-size:13px;color:#64748b;line-height:1.7;">
-
-Sistem menggunakan Supabase sebagai database utama.
-Data yang dimasukkan melalui aplikasi akan disimpan
-ke database desa.
-
+<p style="font-size:13px;color:#64748b;line-height:1.7;"> Sistem menggunakan Supabase sebagai database utama. Data yang dimasukkan melalui aplikasi
+akan disimpan ke database desa.
 </p>
 
 <div style="margin-top:15px;">
-
-<span class="badge">
-● Supabase Terhubung
-</span>
-
+<span class="badge">● Supabase Terhubung</span>
 </div>
 
 </div>
@@ -1296,21 +943,17 @@ ke database desa.
 </section>
 
 
-<!-- =================================================
-PENDUDUK
+<!-- ================================================= PENDUDUK
 ================================================= -->
 
 <section id="page-penduduk" class="page">
 
 <div class="page-title">
-
 <h2>👥 Data Penduduk</h2>
 
-<button class="btn btn-primary"
-onclick="openPendudukModal()">
+<button class="btn btn-primary" onclick="openPendudukModal()">
 + Tambah Penduduk
 </button>
-
 </div>
 
 <div class="panel">
@@ -1318,20 +961,16 @@ onclick="openPendudukModal()">
 <div class="toolbar">
 
 <input
-type="text"
-id="searchPenduduk"
-class="search-box"
+type="text" id="searchPenduduk" class="search-box"
 placeholder="🔎 Cari NIK atau nama..."
 oninput="filterPenduduk()"
 >
-
-<button class="btn btn-secondary"
-onclick="loadPenduduk()">
+ 
+<button class="btn btn-secondary" onclick="loadPenduduk()">
 🔄 Muat Ulang
 </button>
 
-<button class="btn btn-secondary"
-onclick="printPenduduk()">
+<button class="btn btn-secondary" onclick="printPenduduk()">
 🖨 Cetak
 </button>
 
@@ -1342,7 +981,6 @@ onclick="printPenduduk()">
 <table>
 
 <thead>
-
 <tr>
 <th>No</th>
 <th>NIK</th>
@@ -1354,14 +992,12 @@ onclick="printPenduduk()">
 <th>Status</th>
 <th>Aksi</th>
 </tr>
-
 </thead>
 
 <tbody id="pendudukTableBody">
 
 <tr>
-<td colspan="9" class="empty">
-Memuat data...
+<td colspan="9" class="empty"> Memuat data...
 </td>
 </tr>
 
@@ -1374,41 +1010,32 @@ Memuat data...
 </div>
 
 </section>
-
-
-<!-- =================================================
-KK
+ 
+<!-- ================================================= KK
 ================================================= -->
 
 <section id="page-kk" class="page">
 
 <div class="page-title">
+<h2> Data Kartu Keluarga</h2>
 
-<h2>👨‍👩‍👧 Data Kartu Keluarga</h2>
-
-<button class="btn btn-primary"
-onclick="openKKModal()">
+<button class="btn btn-primary" onclick="openKKModal()">
 + Tambah KK
 </button>
-
 </div>
 
 <div class="panel">
 
 <div class="toolbar">
-
 <input
-class="search-box"
-id="searchKK"
+class="search-box" id="searchKK"
 placeholder="🔎 Cari nomor KK atau kepala keluarga..."
 oninput="filterKK()"
 >
 
-<button class="btn btn-secondary"
-onclick="loadKK()">
+<button class="btn btn-secondary" onclick="loadKK()">
 🔄 Muat Ulang
 </button>
-
 </div>
 
 <div class="table-wrap">
@@ -1416,7 +1043,6 @@ onclick="loadKK()">
 <table>
 
 <thead>
-
 <tr>
 <th>No</th>
 <th>Nomor KK</th>
@@ -1426,17 +1052,13 @@ onclick="loadKK()">
 <th>RT/RW</th>
 <th>Aksi</th>
 </tr>
-
 </thead>
-
+ 
 <tbody id="kkTableBody">
-
 <tr>
-<td colspan="7" class="empty">
-Belum ada data.
+<td colspan="7" class="empty"> Belum ada data.
 </td>
 </tr>
-
 </tbody>
 
 </table>
@@ -1448,8 +1070,7 @@ Belum ada data.
 </section>
 
 
-<!-- =================================================
-PELAYANAN
+<!-- ================================================= PELAYANAN
 ================================================= -->
 
 <section id="page-pelayanan" class="page">
@@ -1459,228 +1080,41 @@ PELAYANAN
 </div>
 
 <div class="panel">
-
-<h3>📋 Sistem Pelayanan</h3>
-
-<p style="color:#64748b;line-height:1.7;margin-bottom:15px;">
-
-Pelayanan administrasi Desa Wawongkolono dilakukan
-melalui pengajuan masyarakat dan diproses oleh petugas
-desa sesuai tahapan pelayanan.
-
+<p style="color:#64748b;">
+Modul pelayanan desa siap dihubungkan ke tabel Supabase pada tahap berikutnya.
 </p>
-
-<div class="quick-grid">
-
-<button class="quick-btn"
-onclick="showPageByName('pengajuan')">
-📝<br>
-Pengajuan Baru
-</button>
-
-<button class="quick-btn"
-onclick="showPageByName('surat')">
-📨<br>
-Surat Desa
-</button>
-
-<button class="quick-btn"
-onclick="showPageByName('penduduk')">
-👥<br>
-Data Penduduk
-</button>
-
-</div>
-
 </div>
 
 </section>
 
 
-<!-- =================================================
-PENGAJUAN
-================================================= -->
-
-<section id="page-pengajuan" class="page">
-
-<div class="page-title">
-
-<h2>📝 Pengajuan Pelayanan</h2>
-
-<button class="btn btn-primary"
-onclick="openPengajuanModal()">
-+ Pengajuan Baru
-</button>
-
-</div>
-
-<div class="panel">
-
-<div class="toolbar">
-
-<input
-type="text"
-id="searchPengajuan"
-class="search-box"
-placeholder="🔎 Cari NIK, nama atau jenis pengajuan..."
-oninput="filterPengajuan()"
->
-
-<select
-id="filterStatusPengajuan"
-class="search-box"
-style="max-width:220px;"
-onchange="filterPengajuan()">
-
-<option value="">Semua Status</option>
-<option value="Diajukan">Diajukan</option>
-<option value="Diverifikasi">Diverifikasi</option>
-<option value="Disetujui">Disetujui</option>
-<option value="Selesai">Selesai</option>
-<option value="Ditolak">Ditolak</option>
-
-</select>
-
-<button class="btn btn-secondary"
-onclick="loadPengajuan()">
-🔄 Muat Ulang
-</button>
-
-</div>
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
-<th>No</th>
-<th>Tanggal</th>
-<th>NIK</th>
-<th>Nama</th>
-<th>Jenis Pengajuan</th>
-<th>Keperluan</th>
-<th>Status</th>
-<th>Aksi</th>
-</tr>
-
-</thead>
-
-<tbody id="pengajuanTableBody">
-
-<tr>
-<td colspan="8" class="empty">
-Memuat data pengajuan...
-</td>
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</section>
-
-
-<!-- =================================================
-SURAT
+<!-- ================================================= SURAT
 ================================================= -->
 
 <section id="page-surat" class="page">
 
 <div class="page-title">
-
 <h2>📨 Surat Desa</h2>
 
-<button class="btn btn-primary"
-onclick="openPengajuanModal('surat')">
+<button class="btn btn-primary" onclick="openSuratModal()">
+ 
 + Pengajuan Surat
 </button>
-
 </div>
 
 <div class="panel">
 
-<p style="color:#64748b;margin-bottom:15px;">
-Alur pelayanan surat:
+<p style="color:#64748b;margin-bottom:12px;"> Alur pelayanan:
 </p>
 
 <div class="quick-grid">
 
-<button class="quick-btn"
-onclick="showPageByName('penduduk')">
-👤<br>
-Data Penduduk
-</button>
-
-<button class="quick-btn"
-onclick="showPageByName('pengajuan')">
-📝<br>
-Pengajuan
-</button>
-
-<button class="quick-btn">
-🔍<br>
-Verifikasi
-</button>
-
-<button class="quick-btn">
-✅<br>
-Persetujuan
-</button>
-
-<button class="quick-btn">
-✔<br>
-Selesai
-</button>
-
-<button class="quick-btn"
-onclick="printPengajuanSelesai()">
-🖨<br>
-Cetak
-</button>
-
-</div>
-
-</div>
-
-<div class="panel">
-
-<h3>📨 Pengajuan Surat</h3>
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-
-<tr>
-<th>No</th>
-<th>Tanggal</th>
-<th>NIK</th>
-<th>Nama</th>
-<th>Jenis Surat</th>
-<th>Status</th>
-<th>Aksi</th>
-</tr>
-
-</thead>
-
-<tbody id="suratTableBody">
-
-<tr>
-<td colspan="7" class="empty">
-Belum ada pengajuan surat.
-</td>
-</tr>
-
-</tbody>
-
-</table>
+<button class="quick-btn">👤<br>Data Penduduk</button>
+<button class="quick-btn">📨<br>Pengajuan</button>
+<button class="quick-btn">🔍<br>Verifikasi</button>
+<button class="quick-btn">✅<br>Persetujuan</button>
+<button class="quick-btn">✔<br>Selesai</button>
+<button class="quick-btn">🖨<br>Cetak</button>
 
 </div>
 
@@ -1689,39 +1123,29 @@ Belum ada pengajuan surat.
 </section>
 
 
-<!-- =================================================
-ABSENSI
+<!-- ================================================= ABSENSI
 ================================================= -->
 
 <section id="page-absensi" class="page">
 
 <div class="page-title">
-
 <h2>📅 Absensi</h2>
 
 <button class="btn btn-primary"
-onclick="showToast('https://upsmpuzktefbrulsvydv.supabase.co/rest/v1/')">
+onclick="showToast('Form absensi akan kita hubungkan ke Supabase.')">
 + Tambah Absensi
 </button>
-
 </div>
 
 <div class="panel">
-
-<p style="color:#64748b;line-height:1.7;">
-
-Absen masuk akan disimpan ke database pada tahap
-pengembangan berikutnya.
-
+<p style="color:#64748b;">
+Data absensi akan tersimpan di database desa.
 </p>
-
 </div>
 
 </section>
-
-
-<!-- =================================================
-PEMERINTAHAN
+ 
+<!-- ================================================= PEMERINTAHAN
 ================================================= -->
 
 <section id="page-pemerintahan" class="page">
@@ -1731,82 +1155,66 @@ PEMERINTAHAN
 </div>
 
 <div class="panel">
-
-<p style="color:#64748b;">
-Modul pemerintahan desa.
+<p style="color:#64748b;"> Modul pemerintahan desa.
 </p>
-
 </div>
 
 </section>
 
 
-<!-- =================================================
-BANTUAN
+<!-- ================================================= BANTUAN
 ================================================= -->
 
 <section id="page-bantuan" class="page">
 
 <div class="page-title">
-
 <h2>🎁 Data Bantuan</h2>
 
 <button class="btn btn-primary"
-onclick="showToast('Modul Bantuan akan dihubungkan ke Supabase pada tahap berikutnya.')">
+onclick="showToast('Modul Bantuan akan dihubungkan ke Supabase.')">
 + Tambah Bantuan
 </button>
-
 </div>
 
 <div class="panel">
-
-<p style="color:#64748b;">
-Data penerima bantuan desa.
+<p style="color:#64748b;"> Data penerima bantuan desa.
 </p>
-
 </div>
 
 </section>
 
 
-<!-- =================================================
-PEMBANGUNAN
+<!-- ================================================= PEMBANGUNAN
 ================================================= -->
-
+ 
 <section id="page-pembangunan" class="page">
 
 <div class="page-title">
-
 <h2>🏗 Pembangunan Desa</h2>
 
 <button class="btn btn-primary"
-onclick="showToast('Modul pembangunan akan dihubungkan ke Supabase pada tahap berikutnya.')">
+onclick="showToast('Modul pembangunan akan dihubungkan ke
+Supabase.')">
 + Program
 </button>
-
 </div>
 
 <div class="panel">
-
 <p style="color:#64748b;">
 Data pembangunan dan progres kegiatan desa.
 </p>
-
 </div>
 
 </section>
 
 
-<!-- =================================================
-DUSUN
+<!-- ================================================= DUSUN
 ================================================= -->
 
 <section id="page-dusun" class="page">
 
 <div class="page-title">
-
 <h2>🌿 Program Dusun</h2>
-
 </div>
 
 <div class="panel">
@@ -1824,23 +1232,19 @@ DUSUN
 </div>
 
 </section>
-
-
-<!-- =================================================
-KEUANGAN
+ 
+<!-- ================================================= KEUANGAN
 ================================================= -->
 
 <section id="page-keuangan" class="page">
 
 <div class="page-title">
-
 <h2>💰 Keuangan Desa</h2>
 
 <button class="btn btn-primary"
-onclick="showToast('Form transaksi akan kita buat pada tahap pengembangan Keuangan Desa.')">
+onclick="showToast('Modul Keuangan akan dihubungkan ke Supabase.')">
 + Transaksi
 </button>
-
 </div>
 
 <div class="stats">
@@ -1868,34 +1272,24 @@ onclick="showToast('Form transaksi akan kita buat pada tahap pengembangan Keuang
 </section>
 
 
-<!-- =================================================
-KRITIK
+<!-- ================================================= KRITIK
 ================================================= -->
 
 <section id="page-kritik" class="page">
 
 <div class="page-title">
-
+ 
 <h2>💬 Kritik & Saran</h2>
-
 </div>
 
 <div class="panel">
 
 <p style="line-height:1.7;color:#64748b;">
-
-Kritik dan saran masyarakat menjadi bahan perhatian
-untuk Kantor Desa Wawongkolono.
-
+Kritik dan saran masyarakat menjadi bahan perhatian untuk Kantor Desa Wawongkolono.
 </p>
 
-<button
-class="btn btn-primary"
-style="margin-top:15px;"
-onclick="openKritikModal()">
-
+<button class="btn btn-primary" style="margin-top:15px;" onclick="openKritikModal()">
 + Kirim Kritik / Saran
-
 </button>
 
 </div>
@@ -1903,81 +1297,64 @@ onclick="openKritikModal()">
 </section>
 
 
-<!-- =================================================
-INFORMASI
+<!-- ================================================= INFORMASI
 ================================================= -->
 
 <section id="page-informasi" class="page">
 
 <div class="page-title">
-
 <h2>ℹ Informasi Desa</h2>
 
 <button class="btn btn-primary"
-onclick="showToast('Modul informasi akan dihubungkan ke Supabase pada tahap berikutnya.')">
+onclick="showToast('Modul informasi akan dihubungkan ke Supabase.')">
 + Informasi
 </button>
-
 </div>
 
 <div class="panel">
-
 <p style="color:#64748b;">
 Berita, pengumuman dan informasi Desa Wawongkolono.
 </p>
-
 </div>
 
 </section>
 
 
-<!-- =================================================
-LAPORAN
+<!-- ================================================= LAPORAN
 ================================================= -->
-
+ 
 <section id="page-laporan" class="page">
 
 <div class="page-title">
-
 <h2>📊 Laporan</h2>
-
 </div>
 
 <div class="panel">
 
 <div class="quick-grid">
 
-<button class="quick-btn"
-onclick="showPageByName('penduduk')">
-👥<br>
-Laporan Penduduk
+<button class="quick-btn" onclick="showPageByName('penduduk')">
+👥<br>Laporan Penduduk
 </button>
 
-<button class="quick-btn"
-onclick="showPageByName('kk')">
-👨‍👩‍👧<br>
-Laporan KK
-</button>
-
-<button class="quick-btn"
-onclick="showPageByName('pengajuan')">
-📝<br>
-Laporan Pengajuan
+<button class="quick-btn" onclick="showPageByName('kk')">
+<br>Laporan KK
 </button>
 
 <button class="quick-btn">
-🎁<br>
-Laporan Bantuan
+🎁<br>Laporan Bantuan
 </button>
 
 <button class="quick-btn">
-🏗<br>
-Laporan Pembangunan
+🏗<br>Laporan Pembangunan
 </button>
 
 <button class="quick-btn">
-💰<br>
-Laporan Keuangan
+💰<br>Laporan Keuangan
+</button>
+
+<button class="quick-btn">
+🖨<br>Cetak Laporan
 </button>
 
 </div>
@@ -1987,49 +1364,36 @@ Laporan Keuangan
 </section>
 
 
-<!-- =================================================
-ARSIP
+<!-- ================================================= ARSIP
 ================================================= -->
-
+ 
 <section id="page-arsip" class="page">
 
 <div class="page-title">
-
 <h2>🗄 Arsip Desa</h2>
-
 </div>
 
 <div class="panel">
-
 <p style="color:#64748b;">
 Tempat penyimpanan arsip dan dokumen desa.
 </p>
-
 </div>
 
 </section>
 
 
-<!-- =================================================
-PENGGUNA
+<!-- ================================================= PENGGUNA
 ================================================= -->
 
 <section id="page-pengguna" class="page">
 
 <div class="page-title">
-
 <h2>👤 Pengguna & Hak Akses</h2>
-
 </div>
 
 <div class="panel">
 
-<p style="color:#64748b;line-height:1.7;">
-
-Pengaturan pengguna dan hak akses sistem.
-Nantinya setiap akun akan memiliki ruang kerja
-sesuai dengan role masing-masing.
-
+<p style="color:#64748b;line-height:1.7;"> Pengaturan pengguna dan hak akses sistem. Nantinya setiap akun akan memiliki ruang kerja sesuai dengan role masing-masing.
 </p>
 
 </div>
@@ -2037,40 +1401,31 @@ sesuai dengan role masing-masing.
 </section>
 
 
-<!-- =================================================
-LOG
+<!-- ================================================= LOG
 ================================================= -->
 
 <section id="page-log" class="page">
 
 <div class="page-title">
-
 <h2>📝 Log Aktivitas</h2>
-
 </div>
-
+ 
 <div class="panel">
-
 <p style="color:#64748b;">
-Aktivitas pengguna akan dicatat di database
-pada tahap berikutnya.
+Aktivitas pengguna akan dicatat di database.
 </p>
-
 </div>
 
 </section>
 
 
-<!-- =================================================
-PENGATURAN
+<!-- ================================================= PENGATURAN
 ================================================= -->
 
 <section id="page-pengaturan" class="page">
 
 <div class="page-title">
-
 <h2>⚙ Pengaturan</h2>
-
 </div>
 
 <div class="panel">
@@ -2102,53 +1457,41 @@ PENGATURAN
 </div>
 
 </div>
-
+ 
 </section>
 
 
-<!-- =================================================
-AI
+<!-- ================================================= AI
 ================================================= -->
 
 <section id="page-ai" class="page">
 
 <div class="page-title">
-
 <h2>🤖 AI Desa</h2>
-
 </div>
 
 <div class="panel">
 
 <h3>Asisten Desa</h3>
 
-<p style="color:#64748b;line-height:1.7;margin-bottom:15px;">
-
-Asisten AI Desa nantinya dapat membantu menjawab
-pertanyaan masyarakat berdasarkan informasi yang
-tersedia di sistem.
-
+<p style="color:#64748b;line-height:1.7;margin-bottom:15px;"> Asisten AI Desa nantinya dapat membantu menjawab pertanyaan masyarakat berdasarkan informasi
+yang tersedia di sistem.
 </p>
 
 <div class="form-group">
-
 <input
 id="aiQuestion"
 placeholder="Contoh: Bagaimana cara mengurus surat domisili?"
 >
-
 </div>
 
 <button class="btn btn-primary" onclick="askAI()">
 🤖 Tanya AI
 </button>
 
-<div
-id="aiAnswer"
-style="margin-top:15px;padding:15px;background:#f8fafc;border-radius:10px;">
+<div id="aiAnswer"
 
-Belum ada pertanyaan.
-
+style="margin-top:15px;padding:15px;background:#f8fafc;border-radius:10px;"> Belum ada pertanyaan.
 </div>
 
 </div>
@@ -2156,14 +1499,13 @@ Belum ada pertanyaan.
 </section>
 
 </div>
-
+ 
 </main>
 
 </div>
 
 
-<!-- =========================================================
-MODAL PENDUDUK
+<!-- ========================================================= MODAL PENDUDUK
 ========================================================= -->
 
 <div id="pendudukModal" class="modal">
@@ -2171,16 +1513,9 @@ MODAL PENDUDUK
 <div class="modal-box">
 
 <div class="modal-header">
+<h3 id="pendudukModalTitle">Tambah Penduduk</h3>
 
-<h3 id="pendudukModalTitle">
-Tambah Penduduk
-</h3>
-
-<button class="modal-close"
-onclick="closePendudukModal()">
-×
-</button>
-
+<button class="modal-close" onclick="closePendudukModal()">×</button>
 </div>
 
 <input type="hidden" id="pendudukId">
@@ -2210,7 +1545,7 @@ onclick="closePendudukModal()">
 <label>Tempat Lahir</label>
 <input id="pTempatLahir">
 </div>
-
+ 
 <div class="form-group">
 <label>Tanggal Lahir</label>
 <input type="date" id="pTanggalLahir">
@@ -2259,6 +1594,7 @@ onclick="closePendudukModal()">
 <option>Belum Kawin</option>
 <option>Kawin</option>
 <option>Cerai Hidup</option>
+ 
 <option>Cerai Mati</option>
 </select>
 </div>
@@ -2291,13 +1627,10 @@ onclick="closePendudukModal()">
 
 <div class="modal-actions">
 
-<button class="btn btn-secondary"
-onclick="closePendudukModal()">
-Batal
+<button class="btn btn-secondary" onclick="closePendudukModal()"> Batal
 </button>
 
-<button class="btn btn-primary"
-onclick="savePenduduk()">
+<button class="btn btn-primary" onclick="savePenduduk()">
 💾 Simpan
 </button>
 
@@ -2306,10 +1639,8 @@ onclick="savePenduduk()">
 </div>
 
 </div>
-
-
-<!-- =========================================================
-MODAL KK
+ 
+<!-- ========================================================= MODAL KK
 ========================================================= -->
 
 <div id="kkModal" class="modal">
@@ -2317,14 +1648,9 @@ MODAL KK
 <div class="modal-box">
 
 <div class="modal-header">
-
 <h3>Tambah Kartu Keluarga</h3>
 
-<button class="modal-close"
-onclick="closeKKModal()">
-×
-</button>
-
+<button class="modal-close" onclick="closeKKModal()">×</button>
 </div>
 
 <div class="form-grid">
@@ -2359,6 +1685,7 @@ onclick="closeKKModal()">
 <div class="form-group">
 <label>RW</label>
 <input id="kkRW">
+ 
 </div>
 
 <div class="form-group full">
@@ -2370,13 +1697,10 @@ onclick="closeKKModal()">
 
 <div class="modal-actions">
 
-<button class="btn btn-secondary"
-onclick="closeKKModal()">
-Batal
+<button class="btn btn-secondary" onclick="closeKKModal()"> Batal
 </button>
 
-<button class="btn btn-primary"
-onclick="saveKK()">
+<button class="btn btn-primary" onclick="saveKK()">
 💾 Simpan
 </button>
 
@@ -2387,145 +1711,52 @@ onclick="saveKK()">
 </div>
 
 
-<!-- =========================================================
-MODAL PENGAJUAN
+<!-- ========================================================= MODAL SURAT
 ========================================================= -->
 
-<div id="pengajuanModal" class="modal">
+<div id="suratModal" class="modal">
 
 <div class="modal-box">
 
 <div class="modal-header">
+<h3>📨 Pengajuan Surat</h3>
 
-<h3 id="pengajuanModalTitle">
-📝 Pengajuan Pelayanan
-</h3>
-
-<button class="modal-close"
-onclick="closePengajuanModal()">
-×
-</button>
-
-</div>
-
-<input type="hidden" id="pengajuanId">
-
-<div class="form-grid">
-
-<div class="form-group">
-
-<label>NIK Pemohon *</label>
-
-<input
-id="pengajuanNIK"
-maxlength="16"
-placeholder="Masukkan NIK"
-oninput="cariPemohonPengajuan()"
->
-
+<button class="modal-close" onclick="closeSuratModal()">×</button>
 </div>
 
 <div class="form-group">
-
-<label>Nama Pemohon</label>
-
-<input
-id="pengajuanNama"
-readonly
-placeholder="Nama otomatis dari data penduduk"
->
-
+<label>NIK Pemohon</label>
+<input id="suratNIK" placeholder="Masukkan NIK">
 </div>
-
-<div class="form-group full">
-
-<label>Jenis Pengajuan *</label>
-
-<select id="pengajuanJenis">
-
-<option value="">
-Pilih Jenis Pengajuan
-</option>
-
-<option>
-Surat Keterangan Domisili
-</option>
-
-<option>
-Surat Keterangan Usaha
-</option>
-
-<option>
-Surat Keterangan Tidak Mampu
-</option>
-
-<option>
-Surat Keterangan Penghasilan
-</option>
-
-<option>
-Surat Keterangan Kelahiran
-</option>
-
-<option>
-Surat Keterangan Kematian
-</option>
-
-<option>
-Surat Keterangan Belum Menikah
-</option>
-
-<option>
-Surat Keterangan Menikah
-</option>
-
-<option>
-Surat Keterangan Pindah
-</option>
-
-<option>
-Surat Keterangan Umum
-</option>
-
+ 
+<div class="form-group">
+<label>Jenis Surat</label>
+<select id="jenisSurat">
+<option value="">Pilih Jenis Surat</option>
+<option>Surat Keterangan Domisili</option>
+<option>Surat Keterangan Usaha</option>
+<option>Surat Keterangan Tidak Mampu</option>
+<option>Surat Keterangan Penghasilan</option>
+<option>Surat Keterangan Kelahiran</option>
+<option>Surat Keterangan Kematian</option>
+<option>Surat Keterangan Belum Menikah</option>
+<option>Surat Keterangan Menikah</option>
+<option>Surat Keterangan Pindah</option>
+<option>Surat Keterangan Umum</option>
 </select>
-
 </div>
 
-<div class="form-group full">
-
-<label>Keperluan *</label>
-
-<textarea
-id="pengajuanKeperluan"
-rows="4"
-placeholder="Jelaskan keperluan pengajuan..."
-></textarea>
-
-</div>
-
-<div class="form-group full">
-
-<label>Catatan Petugas</label>
-
-<textarea
-id="pengajuanCatatan"
-rows="3"
-placeholder="Catatan verifikasi jika diperlukan..."
-></textarea>
-
-</div>
-
+<div class="form-group">
+<label>Keperluan</label>
+<textarea id="suratKeperluan" rows="4"></textarea>
 </div>
 
 <div class="modal-actions">
 
-<button class="btn btn-secondary"
-onclick="closePengajuanModal()">
-Batal
+<button class="btn btn-secondary" onclick="closeSuratModal()"> Batal
 </button>
 
-<button class="btn btn-primary"
-onclick="savePengajuan()">
+<button class="btn btn-primary" onclick="submitSurat()">
 📤 Ajukan
 </button>
 
@@ -2536,90 +1767,36 @@ onclick="savePengajuan()">
 </div>
 
 
-<!-- =========================================================
-MODAL DETAIL PENGAJUAN
-========================================================= -->
-
-<div id="detailPengajuanModal" class="modal">
-
-<div class="modal-box">
-
-<div class="modal-header">
-
-<h3>📋 Detail Pengajuan</h3>
-
-<button class="modal-close"
-onclick="closeDetailPengajuan()">
-×
-</button>
-
-</div>
-
-<div id="detailPengajuanContent">
-</div>
-
-<div class="modal-actions">
-
-<button class="btn btn-secondary"
-onclick="closeDetailPengajuan()">
-Tutup
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-
-<!-- =========================================================
-MODAL KRITIK
+<!-- ========================================================= MODAL KRITIK
 ========================================================= -->
 
 <div id="kritikModal" class="modal">
 
 <div class="modal-box">
-
+ 
 <div class="modal-header">
-
 <h3>💬 Kritik & Saran</h3>
 
-<button class="modal-close"
-onclick="closeKritikModal()">
-×
-</button>
-
+<button class="modal-close" onclick="closeKritikModal()">×</button>
 </div>
 
 <div class="form-group">
-
 <label>Nama</label>
-
 <input id="kritikNama">
-
 </div>
 
 <div class="form-group">
-
 <label>Isi Kritik / Saran</label>
-
-<textarea
-id="kritikIsi"
-rows="6"
-placeholder="Tuliskan kritik atau saran..."
-></textarea>
-
+<textarea id="kritikIsi" rows="6"
+placeholder="Tuliskan kritik atau saran..."></textarea>
 </div>
 
 <div class="modal-actions">
 
-<button class="btn btn-secondary"
-onclick="closeKritikModal()">
-Batal
+<button class="btn btn-secondary" onclick="closeKritikModal()"> Batal
 </button>
 
-<button class="btn btn-primary"
-onclick="submitKritik()">
+<button class="btn btn-primary" onclick="submitKritik()">
 📤 Kirim
 </button>
 
@@ -2634,3033 +1811,884 @@ onclick="submitKritik()">
 
 
 <script>
-
-/* ============================================================
-SUPABASE
+/* ============================================================ SUPABASE
 ============================================================ */
 
-const SUPABASE_URL =
-"https://upsmpuzktefbrulsvydv.supabase.co";
+const SUPABASE_URL = "https://upsmpuzktefbrulsvydv.supabase.co";
+ 
+const SUPABASE_KEY = "sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ";
 
-const SUPABASE_KEY =
-"sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ";
-
-const supabaseClient =
-window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
+const supabaseClient = window.supabase.createClient(
+SUPABASE_URL, SUPABASE_KEY
 );
 
 
-/* ============================================================
-VARIABEL
+/* ============================================================ VARIABEL
 ============================================================ */
 
-let selectedRole = "";
-let currentUser = null;
-
-let pendudukData = [];
-let kkData = [];
-let pengajuanData = [];
+let selectedRole = ""; let currentUser = null; let pendudukData = []; let kkData = [];
 
 
-/* ============================================================
-LOGIN
+/* ============================================================ LOGIN
 ============================================================ */
 
-function openLogin(){
-
-    document.getElementById("loginOverlay")
-        .style.display = "flex";
-
-    document.getElementById("loginMessage")
-        .textContent = "";
-
+function openLogin(){ document.getElementById("loginOverlay").style.display="flex"; document.getElementById("loginMessage").textContent="";
 }
 
-function closeLogin(){
-
-    document.getElementById("loginOverlay")
-        .style.display = "none";
-
+function closeLogin(){ document.getElementById("loginOverlay").style.display="none";
 }
-
-function selectRole(button,role){
-
-    document.querySelectorAll(".role-btn")
-        .forEach(btn =>
-            btn.classList.remove("active")
-        );
-
-    button.classList.add("active");
-
-    selectedRole = role;
-
+function selectRole(button,role){ document.querySelectorAll(".role-btn")
+.forEach(btn=>btn.classList.remove("active")); button.classList.add("active"); selectedRole=role;
+ 
 }
 
 function togglePassword(){
-
-    const input =
-        document.getElementById("loginPassword");
-
-    input.type =
-        input.type === "password"
-        ? "text"
-        : "password";
+const input=document.getElementById("loginPassword"); input.type =
+input.type==="password"
+? "text"
+: "password";
 
 }
+async function login(){ const email =
+document.getElementById("loginEmail").value.trim();
 
-async function login(){
+const password = document.getElementById("loginPassword").value;
 
-    const email =
-        document.getElementById("loginEmail")
-        .value.trim();
+const message = document.getElementById("loginMessage");
 
-    const password =
-        document.getElementById("loginPassword")
-        .value;
-
-    const message =
-        document.getElementById("loginMessage");
-
-    message.style.color = "#dc2626";
-
-    if(!selectedRole){
-
-        message.textContent =
-            "Silakan pilih ruang kerja.";
-
-        return;
-    }
-
-    if(!email || !password){
-
-        message.textContent =
-            "Email dan password wajib diisi.";
-
-        return;
-    }
-
-    message.textContent =
-        "Sedang masuk...";
-
-    const {data,error} =
-        await supabaseClient.auth.signInWithPassword({
-            email:email,
-            password:password
-        });
-
-    if(error){
-
-        console.error(error);
-
-        message.textContent =
-            "Login gagal: " + error.message;
-
-        return;
-    }
-
-    currentUser = data.user;
-
-    localStorage.setItem(
-        "DESA_ROLE",
-        selectedRole
-    );
-
-    document.getElementById("homePage")
-        .style.display = "none";
-
-    document.getElementById("loginOverlay")
-        .style.display = "none";
-
-    document.getElementById("appPage")
-        .style.display = "block";
-
-    document.getElementById("displayUser")
-        .textContent = currentUser.email;
-
-    document.getElementById("displayRole")
-        .textContent = selectedRole;
-
-    showToast("Login berhasil.");
-
-    await loadDashboard();
-
+message.style.color="#dc2626"; if(!selectedRole){
+message.textContent="Silakan pilih ruang kerja."; return;
 }
 
+if(!email || !password){
 
-/* ============================================================
-LOGOUT
-============================================================ */
+message.textContent="Email dan password wajib diisi."; return;
+}
+message.textContent="Sedang masuk..."; const {data,error} =
+await supabaseClient.auth.signInWithPassword({ email:email,
+password:password
+ 
+});
+
+if(error){
+console.error(error); message.textContent =
+"Login gagal: "+error.message; return;
+}
+currentUser=data.user; document.getElementById("homePage").style.display="none"; document.getElementById("loginOverlay").style.display="none"; document.getElementById("appPage").style.display="block"; document.getElementById("displayUser").textContent =
+currentUser.email;
+
+document.getElementById("displayRole").textContent = selectedRole;
+
+showToast("Login berhasil."); await loadDashboard();
+}
 
 async function logout(){
 
-    await supabaseClient.auth.signOut();
-
-    currentUser = null;
-
-    localStorage.removeItem("DESA_ROLE");
-
-    document.getElementById("appPage")
-        .style.display = "none";
-
-    document.getElementById("homePage")
-        .style.display = "block";
-
-    selectedRole = "";
-
-    document.querySelectorAll(".role-btn")
-        .forEach(btn =>
-            btn.classList.remove("active")
-        );
-
+await supabaseClient.auth.signOut(); currentUser=null;
+document.getElementById("appPage").style.display="none"; document.getElementById("homePage").style.display="block"; selectedRole="";
+document.querySelectorAll(".role-btn")
+.forEach(btn=>btn.classList.remove("active"));
+ 
 }
 
 
-/* ============================================================
-NAVIGASI
+/* ============================================================ NAVIGASI
 ============================================================ */
 
-const pageNames = {
+const pageNames={
 
-    dashboard:"Dashboard",
-
-    penduduk:"Data Penduduk",
-
-    kk:"Data Kartu Keluarga",
-
-    pelayanan:"Pelayanan Desa",
-
-    pengajuan:"Pengajuan",
-
-    surat:"Surat Desa",
-
-    absensi:"Absensi",
-
-    pemerintahan:"Pemerintahan Desa",
-
-    bantuan:"Bantuan",
-
-    pembangunan:"Pembangunan Desa",
-
-    dusun:"Program Dusun",
-
-    keuangan:"Keuangan Desa",
-
-    kritik:"Kritik & Saran",
-
-    informasi:"Informasi Desa",
-
-    laporan:"Laporan",
-
-    arsip:"Arsip Desa",
-
-    pengguna:"Pengguna & Hak Akses",
-
-    log:"Log Aktivitas",
-
-    pengaturan:"Pengaturan",
-
-    ai:"AI Desa"
+dashboard:"Dashboard", penduduk:"Data Penduduk", kk:"Data Kartu Keluarga", pelayanan:"Pelayanan Desa", surat:"Surat Desa", absensi:"Absensi", pemerintahan:"Pemerintahan Desa", bantuan:"Bantuan",
+pembangunan:"Pembangunan Desa", dusun:"Program Dusun", keuangan:"Keuangan Desa", kritik:"Kritik & Saran", informasi:"Informasi Desa", laporan:"Laporan",
+arsip:"Arsip Desa", pengguna:"Pengguna & Hak Akses", log:"Log Aktivitas", pengaturan:"Pengaturan",
+ai:"AI Desa"
 
 };
+function showPage(page,button){ document.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
 
+const target = document.getElementById("page-"+page);
 
-function showPage(page,button){
+if(target){ target.classList.add("active");
+document.getElementById("pageTitle").textContent = pageNames[page] || page;
 
-    document.querySelectorAll(".page")
-        .forEach(p =>
-            p.classList.remove("active")
-        );
-
-    const target =
-        document.getElementById("page-" + page);
-
-    if(target){
-
-        target.classList.add("active");
-
-        document.getElementById("pageTitle")
-            .textContent =
-            pageNames[page] || page;
-
-    }
-
-    document.querySelectorAll(".menu-btn")
-        .forEach(btn =>
-            btn.classList.remove("active")
-        );
-
-    if(button){
-
-        button.classList.add("active");
-
-    }
-
-    document.getElementById("sidebar")
-        .classList.remove("open");
-
-
-    if(page === "dashboard"){
-        loadDashboard();
-    }
-
-    if(page === "penduduk"){
-        loadPenduduk();
-    }
-
-    if(page === "kk"){
-        loadKK();
-    }
-
-    if(page === "pengajuan"){
-        loadPengajuan();
-    }
-
-    if(page === "surat"){
-        loadSurat();
-    }
+}
+ 
+document.querySelectorAll(".menu-btn")
+.forEach(btn=>btn.classList.remove("active")); if(button){
+button.classList.add("active");
 
 }
 
+document.getElementById("sidebar")
+.classList.remove("open");
 
-function showPageByName(page){
 
-    const button =
-        [...document.querySelectorAll(".menu-btn")]
-        .find(btn => {
-
-            const onclick =
-                btn.getAttribute("onclick");
-
-            return onclick &&
-                onclick.includes("'" + page + "'");
-
-        });
-
-    showPage(page,button);
-
+if(page==="dashboard"){ loadDashboard();
 }
 
+if(page==="penduduk"){ loadPenduduk();
+}
+
+if(page==="kk"){ loadKK();
+}
+
+}
+function showPageByName(page){ const button =
+[...document.querySelectorAll(".menu-btn")]
+.find(btn => btn.getAttribute("onclick") && btn.getAttribute("onclick")
+.includes("'"+page+"'")
+);
+
+showPage(page,button);
+
+}
 
 function toggleSidebar(){
-
-    document.getElementById("sidebar")
-        .classList.toggle("open");
+ 
+document.getElementById("sidebar")
+.classList.toggle("open");
 
 }
 
 
-/* ============================================================
-DASHBOARD
+/* ============================================================ DASHBOARD
 ============================================================ */
 
-async function loadDashboard(){
+async function loadDashboard(){ try{
+const penduduk =
+await supabaseClient
+.from("penduduk")
+.select("*",{count:"exact",head:true});
 
-    try{
+const kk =
+await supabaseClient
+.from("kartu_keluarga")
+.select("*",{count:"exact",head:true});
 
-        const penduduk =
-            await supabaseClient
-            .from("penduduk")
-            .select("*",{count:"exact",head:true});
+document.getElementById("statPenduduk").textContent = penduduk.count || 0;
 
-        const kk =
-            await supabaseClient
-            .from("kartu_keluarga")
-            .select("*",{count:"exact",head:true});
+document.getElementById("statKK").textContent = kk.count || 0;
 
-        const pengajuan =
-            await supabaseClient
-            .from("pengajuan")
-            .select("*",{count:"exact",head:true});
-
-        document.getElementById("statPenduduk")
-            .textContent =
-            penduduk.count || 0;
-
-        document.getElementById("statKK")
-            .textContent =
-            kk.count || 0;
-
-        document.getElementById("statPengajuan")
-            .textContent =
-            pengajuan.error
-            ? 0
-            : (pengajuan.count || 0);
-
-    }catch(error){
-
-        console.error(error);
-
-    }
+}catch(error){ console.error(error);
+}
 
 }
 
 
-/* ============================================================
-PENDUDUK
+/* ============================================================ PENDUDUK
 ============================================================ */
+async function loadPenduduk(){ const tbody =
+document.getElementById("pendudukTableBody");
+ 
+tbody.innerHTML=`
+<tr>
+<td colspan="9" class="empty">
+⏳ Memuat data penduduk...
+</td>
+</tr>
+`;
 
-async function loadPenduduk(){
+const {data,error} = await supabaseClient
+.from("penduduk")
+.select("*")
+.order("nama",{ascending:true}); if(error){
+console.error(error);
 
-    const tbody =
-        document.getElementById(
-            "pendudukTableBody"
-        );
-
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="9" class="empty">
-                ⏳ Memuat data penduduk...
-            </td>
-        </tr>
-    `;
-
-    const {data,error} =
-        await supabaseClient
-        .from("penduduk")
-        .select("*")
-        .order("nama",{ascending:true});
-
-    if(error){
-
-        console.error(error);
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="9" class="empty">
-                    ❌ Gagal mengambil data.<br>
-                    ${escapeHtml(error.message)}
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    pendudukData = data || [];
-
-    renderPenduduk(pendudukData);
-
-    document.getElementById("statPenduduk")
-        .textContent =
-        pendudukData.length;
+tbody.innerHTML=`
+<tr>
+<td colspan="9" class="empty">
+❌ Gagal mengambil data.<br>
+${escapeHtml(error.message)}
+</td>
+</tr>
+`; return;
+}
+pendudukData=data || []; renderPenduduk(pendudukData); document.getElementById("statPenduduk").textContent =
+pendudukData.length;
 
 }
-
-
-function renderPenduduk(data){
-
-    const tbody =
-        document.getElementById(
-            "pendudukTableBody"
-        );
-
-    if(!data.length){
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="9" class="empty">
-                    Belum ada data penduduk.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    tbody.innerHTML =
-        data.map((p,index)=>{
-
-            const lahir =
-                p.tempat_lahir ||
-                p.tanggal_lahir
-                ?
-                `${escapeHtml(p.tempat_lahir || "-")}
-                 / ${formatDate(p.tanggal_lahir)}`
-                :
-                "-";
-
-            return `
-                <tr>
-
-                    <td>${index+1}</td>
-
-                    <td>
-                        ${escapeHtml(p.nik || "-")}
-                    </td>
-
-                    <td>
-                        <strong>
-                            ${escapeHtml(p.nama || "-")}
-                        </strong>
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            p.jenis_kelamin || "-"
-                        )}
-                    </td>
-
-                    <td>${lahir}</td>
-
-                    <td>
-                        ${escapeHtml(p.dusun || "-")}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(p.rt || "-")}
-                        /
-                        ${escapeHtml(p.rw || "-")}
-                    </td>
-
-                    <td>
-                        <span class="badge">
-                            ${escapeHtml(
-                                p.status_penduduk ||
-                                "Aktif"
-                            )}
-                        </span>
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="btn btn-warning"
-                            onclick="editPenduduk(${p.id})">
-                            ✏
-                        </button>
-
-                        <button
-                            class="btn btn-danger"
-                            onclick="deletePenduduk(${p.id})">
-                            🗑
-                        </button>
-
-                    </td>
-
-                </tr>
-            `;
-
-        }).join("");
-
+function renderPenduduk(data){ const tbody =
+document.getElementById("pendudukTableBody"); if(!data.length){
+ 
+tbody.innerHTML=`
+<tr>
+<td colspan="9" class="empty"> Belum ada data penduduk.
+</td>
+</tr>
+`; return;
 }
 
+tbody.innerHTML = data.map((p,index)=>{
 
-function filterPenduduk(){
+const lahir =
+p.tempat_lahir || p.tanggal_lahir
+? `${escapeHtml(p.tempat_lahir || "-")} / ${formatDate(p.tanggal_lahir)}`
+: "-";
 
-    const keyword =
-        document.getElementById(
-            "searchPenduduk"
-        ).value.toLowerCase().trim();
+return `
+<tr>
 
-    const filtered =
-        pendudukData.filter(p=>{
+<td>${index+1}</td>
 
-            return (
+<td>${escapeHtml(p.nik || "-")}</td>
 
-                (p.nik || "")
-                .toLowerCase()
-                .includes(keyword)
+<td>
+<strong>${escapeHtml(p.nama || "-")}</strong>
+</td>
 
-                ||
+<td>${escapeHtml(p.jenis_kelamin || "-")}</td>
 
-                (p.nama || "")
-                .toLowerCase()
-                .includes(keyword)
+<td>${lahir}</td>
 
-                ||
+<td>${escapeHtml(p.dusun || "-")}</td>
 
-                (p.dusun || "")
-                .toLowerCase()
-                .includes(keyword)
+<td>
+${escapeHtml(p.rt || "-")}
+/
+${escapeHtml(p.rw || "-")}
+</td>
 
-            );
+<td>
+<span class="badge">
+${escapeHtml(p.status_penduduk || "Aktif")}
+</span>
+</td>
+ 
+<td>
 
-        });
+<button
+class="btn btn-warning" onclick="editPenduduk(${p.id})">
+✏
+</button>
 
-    renderPenduduk(filtered);
+<button
+class="btn btn-danger" onclick="deletePenduduk(${p.id})">
+🗑
+</button>
+
+</td>
+
+</tr>
+`;
+
+}).join("");
 
 }
+function filterPenduduk(){ const keyword =
+document.getElementById("searchPenduduk")
+.value
+.toLowerCase()
+.trim();
 
+const filtered = pendudukData.filter(p=>{
 
-/* ============================================================
-MODAL PENDUDUK
+return (
+(p.nik || "").toLowerCase().includes(keyword) || (p.nama || "").toLowerCase().includes(keyword) || (p.dusun || "").toLowerCase().includes(keyword)
+);
+
+});
+
+renderPenduduk(filtered);
+
+}
+ 
+/* ============================================================ MODAL PENDUDUK
 ============================================================ */
-
-function openPendudukModal(){
-
-    document.getElementById(
-        "pendudukModalTitle"
-    ).textContent =
-        "Tambah Penduduk";
-
-    document.getElementById(
-        "pendudukId"
-    ).value = "";
-
-    clearPendudukForm();
-
-    document.getElementById(
-        "pendudukModal"
-    ).style.display = "flex";
+function openPendudukModal(){ document.getElementById("pendudukModalTitle")
+.textContent="Tambah Penduduk"; document.getElementById("pendudukId").value=""; clearPendudukForm();
+document.getElementById("pendudukModal")
+.style.display="flex";
 
 }
-
-
-function closePendudukModal(){
-
-    document.getElementById(
-        "pendudukModal"
-    ).style.display = "none";
+function closePendudukModal(){ document.getElementById("pendudukModal")
+.style.display="none";
 
 }
-
 
 function clearPendudukForm(){
 
-    [
-        "pNIK",
-        "pNama",
-        "pTempatLahir",
-        "pTanggalLahir",
-        "pRT",
-        "pRW",
-        "pPekerjaan",
-        "pPendidikan",
-        "pAlamat"
-    ].forEach(id=>{
+[
+"pNIK",
+"pNama", "pTempatLahir", "pTanggalLahir", "pRT",
+"pRW",
+"pPekerjaan", "pPendidikan", "pAlamat"
+].forEach(id=>{ document.getElementById(id).value="";
+});
 
-        document.getElementById(id)
-            .value = "";
-
-    });
-
-    document.getElementById("pJK").value = "";
-
-    document.getElementById("pDusun").value = "";
-
-    document.getElementById("pAgama").value = "";
-
-    document.getElementById("pStatusKawin").value = "";
-
-    document.getElementById(
-        "pStatusPenduduk"
-    ).value = "Aktif";
+document.getElementById("pJK").value=""; document.getElementById("pDusun").value=""; document.getElementById("pAgama").value=""; document.getElementById("pStatusKawin").value=""; document.getElementById("pStatusPenduduk").value="Aktif";
 
 }
-
-
+ 
 async function savePenduduk(){
 
-    const id =
-        document.getElementById(
-            "pendudukId"
-        ).value;
+const id = document.getElementById("pendudukId").value;
 
-    const nik =
-        document.getElementById(
-            "pNIK"
-        ).value.trim();
+const nik = document.getElementById("pNIK").value.trim();
 
-    const nama =
-        document.getElementById(
-            "pNama"
-        ).value.trim();
+const nama = document.getElementById("pNama").value.trim();
 
-    if(!nik || !nama){
+if(!nik || !nama){
 
-        showToast(
-            "NIK dan nama wajib diisi."
-        );
+showToast("NIK dan nama wajib diisi."); return;
+}
 
-        return;
-    }
+if(!/^\d{16}$/.test(nik)){
 
-    if(!/^\d{16}$/.test(nik)){
+showToast("NIK harus terdiri dari 16 digit."); return;
+}
+const payload={ nik:nik, nama:nama, jenis_kelamin:
+document.getElementById("pJK").value || null,
 
-        showToast(
-            "NIK harus terdiri dari 16 digit."
-        );
+tempat_lahir: document.getElementById("pTempatLahir").value.trim() || null,
 
-        return;
-    }
+tanggal_lahir: document.getElementById("pTanggalLahir").value || null,
 
-    const payload = {
+alamat:
+document.getElementById("pAlamat").value.trim() || null,
 
-        nik:nik,
+dusun:
+document.getElementById("pDusun").value || null,
+ 
+rt:
+document.getElementById("pRT").value.trim() || null,
 
-        nama:nama,
+rw:
+document.getElementById("pRW").value.trim() || null,
 
-        jenis_kelamin:
-            document.getElementById(
-                "pJK"
-            ).value || null,
+agama:
+document.getElementById("pAgama").value || null,
 
-        tempat_lahir:
-            document.getElementById(
-                "pTempatLahir"
-            ).value.trim() || null,
+status_perkawinan: document.getElementById("pStatusKawin").value || null,
 
-        tanggal_lahir:
-            document.getElementById(
-                "pTanggalLahir"
-            ).value || null,
+pekerjaan: document.getElementById("pPekerjaan").value.trim() || null,
 
-        alamat:
-            document.getElementById(
-                "pAlamat"
-            ).value.trim() || null,
+pendidikan: document.getElementById("pPendidikan").value.trim() || null,
 
-        dusun:
-            document.getElementById(
-                "pDusun"
-            ).value || null,
+status_penduduk: document.getElementById("pStatusPenduduk").value || "Aktif",
 
-        rt:
-            document.getElementById(
-                "pRT"
-            ).value.trim() || null,
+updated_at:new Date().toISOString()
 
-        rw:
-            document.getElementById(
-                "pRW"
-            ).value.trim() || null,
+};
 
-        agama:
-            document.getElementById(
-                "pAgama"
-            ).value || null,
+let result; if(id){
+result =
+await supabaseClient
+.from("penduduk")
+.update(payload)
+.eq("id",id);
 
-        status_perkawinan:
-            document.getElementById(
-                "pStatusKawin"
-            ).value || null,
+}else{
 
-        pekerjaan:
-            document.getElementById(
-                "pPekerjaan"
-            ).value.trim() || null,
-
-        pendidikan:
-            document.getElementById(
-                "pPendidikan"
-            ).value.trim() || null,
-
-        status_penduduk:
-            document.getElementById(
-                "pStatusPenduduk"
-            ).value || "Aktif",
-
-        updated_at:
-            new Date().toISOString()
-
-    };
-
-
-    let result;
-
-    if(id){
-
-        result =
-            await supabaseClient
-            .from("penduduk")
-            .update(payload)
-            .eq("id",id);
-
-    }else{
-
-        result =
-            await supabaseClient
-            .from("penduduk")
-            .insert([payload]);
-
-    }
-
-
-    if(result.error){
-
-        console.error(result.error);
-
-        if(result.error.code === "23505"){
-
-            showToast(
-                "NIK tersebut sudah terdaftar."
-            );
-
-        }else{
-
-            showToast(
-                "Gagal menyimpan: " +
-                result.error.message
-            );
-
-        }
-
-        return;
-    }
-
-
-    closePendudukModal();
-
-    showToast(
-        id
-        ?
-        "Data penduduk berhasil diperbarui."
-        :
-        "Data penduduk berhasil ditambahkan."
-    );
-
-    await loadPenduduk();
-
-    await loadDashboard();
+result =
+await supabaseClient
+.from("penduduk")
+.insert([payload]);
 
 }
 
+if(result.error){ console.error(result.error);
+ 
+if(result.error.code==="23505"){ showToast("NIK tersebut sudah terdaftar.");
+}else{
 
-function editPenduduk(id){
-
-    const p =
-        pendudukData.find(
-            item =>
-            String(item.id) === String(id)
-        );
-
-    if(!p){
-
-        showToast(
-            "Data tidak ditemukan."
-        );
-
-        return;
-    }
-
-    document.getElementById(
-        "pendudukModalTitle"
-    ).textContent =
-        "Edit Data Penduduk";
-
-    document.getElementById(
-        "pendudukId"
-    ).value = p.id;
-
-    document.getElementById("pNIK").value =
-        p.nik || "";
-
-    document.getElementById("pNama").value =
-        p.nama || "";
-
-    document.getElementById("pJK").value =
-        p.jenis_kelamin || "";
-
-    document.getElementById(
-        "pTempatLahir"
-    ).value =
-        p.tempat_lahir || "";
-
-    document.getElementById(
-        "pTanggalLahir"
-    ).value =
-        p.tanggal_lahir || "";
-
-    document.getElementById("pDusun").value =
-        p.dusun || "";
-
-    document.getElementById("pRT").value =
-        p.rt || "";
-
-    document.getElementById("pRW").value =
-        p.rw || "";
-
-    document.getElementById("pAgama").value =
-        p.agama || "";
-
-    document.getElementById(
-        "pStatusKawin"
-    ).value =
-        p.status_perkawinan || "";
-
-    document.getElementById(
-        "pPekerjaan"
-    ).value =
-        p.pekerjaan || "";
-
-    document.getElementById(
-        "pPendidikan"
-    ).value =
-        p.pendidikan || "";
-
-    document.getElementById(
-        "pStatusPenduduk"
-    ).value =
-        p.status_penduduk || "Aktif";
-
-    document.getElementById(
-        "pAlamat"
-    ).value =
-        p.alamat || "";
-
-    document.getElementById(
-        "pendudukModal"
-    ).style.display = "flex";
+showToast(
+"Gagal menyimpan: "+ result.error.message
+);
 
 }
 
+return;
+
+}
+closePendudukModal(); showToast(
+id
+? "Data penduduk berhasil diperbarui."
+: "Data penduduk berhasil ditambahkan."
+);
+
+await loadPenduduk(); await loadDashboard();
+}
+function editPenduduk(id){ const p =
+pendudukData.find(item=>String(item.id)===String(id)); if(!p){
+showToast("Data tidak ditemukan."); return;
+}
+
+document.getElementById("pendudukModalTitle")
+.textContent="Edit Data Penduduk";
+ 
+document.getElementById("pendudukId").value=p.id; document.getElementById("pNIK").value=p.nik || ""; document.getElementById("pNama").value=p.nama || ""; document.getElementById("pJK").value=p.jenis_kelamin || "";
+document.getElementById("pTempatLahir").value= p.tempat_lahir || "";
+
+document.getElementById("pTanggalLahir").value= p.tanggal_lahir || "";
+
+document.getElementById("pDusun").value= p.dusun || "";
+
+document.getElementById("pRT").value= p.rt || "";
+
+document.getElementById("pRW").value= p.rw || "";
+
+document.getElementById("pAgama").value= p.agama || "";
+
+document.getElementById("pStatusKawin").value= p.status_perkawinan || "";
+
+document.getElementById("pPekerjaan").value= p.pekerjaan || "";
+
+document.getElementById("pPendidikan").value= p.pendidikan || "";
+
+document.getElementById("pStatusPenduduk").value= p.status_penduduk || "Aktif";
+
+document.getElementById("pAlamat").value= p.alamat || "";
+
+document.getElementById("pendudukModal")
+.style.display="flex";
+
+}
 
 async function deletePenduduk(id){
+ 
+const yakin = confirm(
+"Yakin ingin menghapus data penduduk ini?"
+);
+if(!yakin)return; const {error} =
+await supabaseClient
+.from("penduduk")
+.delete()
+.eq("id",id); if(error){
+console.error(error);
 
-    if(!confirm(
-        "Yakin ingin menghapus data penduduk ini?"
-    )) return;
+showToast(
+"Gagal menghapus: "+ error.message
+);
 
-    const {error} =
-        await supabaseClient
-        .from("penduduk")
-        .delete()
-        .eq("id",id);
+return;
 
-    if(error){
+}
 
-        console.error(error);
-
-        showToast(
-            "Gagal menghapus: " +
-            error.message
-        );
-
-        return;
-    }
-
-    showToast(
-        "Data penduduk berhasil dihapus."
-    );
-
-    await loadPenduduk();
-
-    await loadDashboard();
+showToast("Data penduduk berhasil dihapus."); await loadPenduduk();
+await loadDashboard();
 
 }
 
 
-/* ============================================================
-KK
+/* ============================================================ KK
 ============================================================ */
+async function loadKK(){ const tbody =
+document.getElementById("kkTableBody");
 
-async function loadKK(){
+tbody.innerHTML=`
+<tr>
+<td colspan="7" class="empty">
+⏳ Memuat data KK...
+ 
+</td>
+</tr>
+`;
 
-    const tbody =
-        document.getElementById(
-            "kkTableBody"
-        );
+const {data,error} = await supabaseClient
+.from("kartu_keluarga")
+.select("*")
+.order("nomor_kk",{ascending:true}); if(error){
+tbody.innerHTML=`
+<tr>
+<td colspan="7" class="empty">
+❌ ${escapeHtml(error.message)}
+</td>
+</tr>
+`; return;
+}
 
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="7" class="empty">
-                ⏳ Memuat data KK...
-            </td>
-        </tr>
-    `;
+kkData=data || []; renderKK(kkData);
+document.getElementById("statKK").textContent = kkData.length;
 
-    const {data,error} =
-        await supabaseClient
-        .from("kartu_keluarga")
-        .select("*")
-        .order("nomor_kk",{ascending:true});
-
-    if(error){
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="empty">
-                    ❌ ${escapeHtml(error.message)}
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-    kkData = data || [];
-
-    renderKK(kkData);
-
-    document.getElementById("statKK")
-        .textContent =
-        kkData.length;
+}
+function renderKK(data){ const tbody =
+document.getElementById("kkTableBody"); if(!data.length){
+tbody.innerHTML=`
+<tr>
+<td colspan="7" class="empty"> Belum ada data KK.
+</td>
+</tr>
+`;
+ 
+return;
 
 }
 
+tbody.innerHTML = data.map((k,index)=>{
 
-function renderKK(data){
+return `
+<tr>
 
-    const tbody =
-        document.getElementById(
-            "kkTableBody"
-        );
+<td>${index+1}</td>
 
-    if(!data.length){
+<td>${escapeHtml(k.nomor_kk || "-")}</td>
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="empty">
-                    Belum ada data KK.
-                </td>
-            </tr>
-        `;
+<td>${escapeHtml(k.kepala_keluarga || "-")}</td>
 
-        return;
-    }
+<td>${escapeHtml(k.alamat || "-")}</td>
 
-    tbody.innerHTML =
-        data.map((k,index)=>{
+<td>${escapeHtml(k.dusun || "-")}</td>
 
-            return `
-                <tr>
+<td>
+${escapeHtml(k.rt || "-")}
+/
+${escapeHtml(k.rw || "-")}
+</td>
 
-                    <td>${index+1}</td>
+<td>
+<button
+class="btn btn-danger" onclick="deleteKK(${k.id})">
+🗑
+</button>
+</td>
 
-                    <td>
-                        ${escapeHtml(
-                            k.nomor_kk || "-"
-                        )}
-                    </td>
+</tr>
+`;
 
-                    <td>
-                        ${escapeHtml(
-                            k.kepala_keluarga || "-"
-                        )}
-                    </td>
+}).join("");
 
-                    <td>
-                        ${escapeHtml(
-                            k.alamat || "-"
-                        )}
-                    </td>
+}
+function filterKK(){ const keyword =
+document.getElementById("searchKK")
+.value
+.toLowerCase()
+.trim();
+ 
+const filtered = kkData.filter(k=>
+(k.nomor_kk || "")
+.toLowerCase()
+.includes(keyword) ||
 
-                    <td>
-                        ${escapeHtml(
-                            k.dusun || "-"
-                        )}
-                    </td>
+(k.kepala_keluarga || "")
+.toLowerCase()
+.includes(keyword)
+);
 
-                    <td>
-                        ${escapeHtml(k.rt || "-")}
-                        /
-                        ${escapeHtml(k.rw || "-")}
-                    </td>
+renderKK(filtered);
 
-                    <td>
+}
+function openKKModal(){ document.getElementById("kkModal")
+.style.display="flex";
 
-                        <button
-                            class="btn btn-danger"
-                            onclick="deleteKK(${k.id})">
-                            🗑
-                        </button>
+}
+function closeKKModal(){ document.getElementById("kkModal")
+.style.display="none";
 
-                    </td>
+}
+async function saveKK(){ const nomor =
+document.getElementById("kkNomor").value.trim(); if(!/^\d{16}$/.test(nomor)){
+showToast("Nomor KK harus terdiri dari 16 digit."); return;
+}
 
-                </tr>
-            `;
+const payload={ nomor_kk:nomor, kepala_keluarga:
+ 
+document.getElementById("kkKepala").value.trim() || null,
 
-        }).join("");
+alamat:
+document.getElementById("kkAlamat").value.trim() || null,
+
+dusun:
+document.getElementById("kkDusun").value || null,
+
+rt:
+document.getElementById("kkRT").value.trim() || null,
+
+rw:
+document.getElementById("kkRW").value.trim() || null
+
+};
+
+const {error} =
+await supabaseClient
+.from("kartu_keluarga")
+.insert([payload]); if(error){
+console.error(error);
+
+showToast(
+"Gagal menyimpan KK: "+ error.message
+);
+
+return;
 
 }
 
+document.getElementById("kkNomor").value=""; document.getElementById("kkKepala").value=""; document.getElementById("kkAlamat").value=""; document.getElementById("kkDusun").value=""; document.getElementById("kkRT").value=""; document.getElementById("kkRW").value="";
 
-function filterKK(){
+closeKKModal();
 
-    const keyword =
-        document.getElementById(
-            "searchKK"
-        ).value.toLowerCase().trim();
-
-    const filtered =
-        kkData.filter(k=>
-
-            (k.nomor_kk || "")
-            .toLowerCase()
-            .includes(keyword)
-
-            ||
-
-            (k.kepala_keluarga || "")
-            .toLowerCase()
-            .includes(keyword)
-
-        );
-
-    renderKK(filtered);
-
+showToast("Data KK berhasil ditambahkan."); await loadKK();
+await loadDashboard();
+ 
 }
-
-
-function openKKModal(){
-
-    document.getElementById(
-        "kkModal"
-    ).style.display = "flex";
-
-}
-
-
-function closeKKModal(){
-
-    document.getElementById(
-        "kkModal"
-    ).style.display = "none";
-
-}
-
-
-async function saveKK(){
-
-    const nomor =
-        document.getElementById(
-            "kkNomor"
-        ).value.trim();
-
-    if(!/^\d{16}$/.test(nomor)){
-
-        showToast(
-            "Nomor KK harus terdiri dari 16 digit."
-        );
-
-        return;
-    }
-
-    const payload = {
-
-        nomor_kk:nomor,
-
-        kepala_keluarga:
-            document.getElementById(
-                "kkKepala"
-            ).value.trim() || null,
-
-        alamat:
-            document.getElementById(
-                "kkAlamat"
-            ).value.trim() || null,
-
-        dusun:
-            document.getElementById(
-                "kkDusun"
-            ).value || null,
-
-        rt:
-            document.getElementById(
-                "kkRT"
-            ).value.trim() || null,
-
-        rw:
-            document.getElementById(
-                "kkRW"
-            ).value.trim() || null
-
-    };
-
-
-    const {error} =
-        await supabaseClient
-        .from("kartu_keluarga")
-        .insert([payload]);
-
-
-    if(error){
-
-        console.error(error);
-
-        showToast(
-            "Gagal menyimpan KK: " +
-            error.message
-        );
-
-        return;
-    }
-
-
-    document.getElementById("kkNomor").value = "";
-    document.getElementById("kkKepala").value = "";
-    document.getElementById("kkAlamat").value = "";
-    document.getElementById("kkDusun").value = "";
-    document.getElementById("kkRT").value = "";
-    document.getElementById("kkRW").value = "";
-
-    closeKKModal();
-
-    showToast(
-        "Data KK berhasil ditambahkan."
-    );
-
-    await loadKK();
-
-    await loadDashboard();
-
-}
-
 
 async function deleteKK(id){
+if(!confirm("Yakin ingin menghapus KK ini?"))return; const {error} =
+await supabaseClient
+.from("kartu_keluarga")
+.delete()
+.eq("id",id); if(error){
+showToast(
+"Gagal menghapus KK: "+ error.message
+);
 
-    if(!confirm(
-        "Yakin ingin menghapus KK ini?"
-    )) return;
+return;
 
-    const {error} =
-        await supabaseClient
-        .from("kartu_keluarga")
-        .delete()
-        .eq("id",id);
+}
 
-    if(error){
-
-        showToast(
-            "Gagal menghapus KK: " +
-            error.message
-        );
-
-        return;
-    }
-
-    showToast(
-        "Data KK berhasil dihapus."
-    );
-
-    await loadKK();
-
-    await loadDashboard();
+showToast("Data KK berhasil dihapus."); await loadKK();
+await loadDashboard();
 
 }
 
 
-/* ============================================================
-PENGAJUAN
+/* ============================================================ SURAT
 ============================================================ */
+function openSuratModal(){ document.getElementById("suratModal")
+.style.display="flex";
 
-function openPengajuanModal(mode="pengajuan"){
-
-    document.getElementById(
-        "pengajuanId"
-    ).value = "";
-
-    document.getElementById(
-        "pengajuanNIK"
-    ).value = "";
-
-    document.getElementById(
-        "pengajuanNama"
-    ).value = "";
-
-    document.getElementById(
-        "pengajuanJenis"
-    ).value = "";
-
-    document.getElementById(
-        "pengajuanKeperluan"
-    ).value = "";
-
-    document.getElementById(
-        "pengajuanCatatan"
-    ).value = "";
-
-    document.getElementById(
-        "pengajuanModalTitle"
-    ).textContent =
-        mode === "surat"
-        ? "📨 Pengajuan Surat Desa"
-        : "📝 Pengajuan Pelayanan";
-
-    document.getElementById(
-        "pengajuanModal"
-    ).style.display = "flex";
+}
+function closeSuratModal(){ document.getElementById("suratModal")
+.style.display="none";
+ 
+}
+function submitSurat(){ showToast(
+"Form surat sudah siap. Tabel pengajuan surat akan kita sambungkan pada tahap berikutnya."
+);
 
 }
 
 
-function closePengajuanModal(){
-
-    document.getElementById(
-        "pengajuanModal"
-    ).style.display = "none";
-
-}
-
-
-async function cariPemohonPengajuan(){
-
-    const nik =
-        document.getElementById(
-            "pengajuanNIK"
-        ).value.trim();
-
-    const nama =
-        document.getElementById(
-            "pengajuanNama"
-        );
-
-    if(nik.length !== 16){
-
-        nama.value = "";
-
-        return;
-    }
-
-    const {data,error} =
-        await supabaseClient
-        .from("penduduk")
-        .select("nama")
-        .eq("nik",nik)
-        .maybeSingle();
-
-    if(error){
-
-        console.error(error);
-
-        nama.value = "";
-
-        return;
-    }
-
-    if(data){
-
-        nama.value = data.nama || "";
-
-        nama.style.borderColor =
-            "#10b981";
-
-    }else{
-
-        nama.value = "";
-
-        nama.style.borderColor =
-            "#dc2626";
-
-        showToast(
-            "NIK belum ditemukan pada Data Penduduk."
-        );
-
-    }
-
-}
-
-
-async function savePengajuan(){
-
-    const id =
-        document.getElementById(
-            "pengajuanId"
-        ).value;
-
-    const nik =
-        document.getElementById(
-            "pengajuanNIK"
-        ).value.trim();
-
-    const nama =
-        document.getElementById(
-            "pengajuanNama"
-        ).value.trim();
-
-    const jenis =
-        document.getElementById(
-            "pengajuanJenis"
-        ).value;
-
-    const keperluan =
-        document.getElementById(
-            "pengajuanKeperluan"
-        ).value.trim();
-
-    const catatan =
-        document.getElementById(
-            "pengajuanCatatan"
-        ).value.trim();
-
-
-    if(!/^\d{16}$/.test(nik)){
-
-        showToast(
-            "NIK harus terdiri dari 16 digit."
-        );
-
-        return;
-    }
-
-    if(!nama){
-
-        showToast(
-            "NIK pemohon belum ditemukan."
-        );
-
-        return;
-    }
-
-    if(!jenis){
-
-        showToast(
-            "Jenis pengajuan wajib dipilih."
-        );
-
-        return;
-    }
-
-    if(!keperluan){
-
-        showToast(
-            "Keperluan wajib diisi."
-        );
-
-        return;
-    }
-
-
-    const payload = {
-
-        nik_pemohon:nik,
-
-        nama_pemohon:nama,
-
-        jenis_pengajuan:jenis,
-
-        keperluan:keperluan,
-
-        catatan:catatan || null,
-
-        updated_at:
-            new Date().toISOString()
-
-    };
-
-
-    let result;
-
-
-    if(id){
-
-        result =
-            await supabaseClient
-            .from("pengajuan")
-            .update(payload)
-            .eq("id",id);
-
-    }else{
-
-        payload.status = "Diajukan";
-
-        result =
-            await supabaseClient
-            .from("pengajuan")
-            .insert([payload]);
-
-    }
-
-
-    if(result.error){
-
-        console.error(result.error);
-
-        showToast(
-            "Gagal menyimpan pengajuan: " +
-            result.error.message
-        );
-
-        return;
-    }
-
-
-    closePengajuanModal();
-
-    showToast(
-        id
-        ?
-        "Pengajuan berhasil diperbarui."
-        :
-        "Pengajuan berhasil dikirim."
-    );
-
-    await loadPengajuan();
-
-    await loadSurat();
-
-    await loadDashboard();
-
-}
-
-
-/* ============================================================
-LOAD PENGAJUAN
+/* ============================================================ KRITIK
 ============================================================ */
+function openKritikModal(){ document.getElementById("kritikModal")
+.style.display="flex";
 
-async function loadPengajuan(){
+}
+function closeKritikModal(){ document.getElementById("kritikModal")
+.style.display="none";
 
-    const tbody =
-        document.getElementById(
-            "pengajuanTableBody"
-        );
+}
+function submitKritik(){ const nama =
+document.getElementById("kritikNama").value.trim();
 
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="8" class="empty">
-                ⏳ Memuat data pengajuan...
-            </td>
-        </tr>
-    `;
+const isi = document.getElementById("kritikIsi").value.trim();
 
+if(!isi){
 
-    const {data,error} =
-        await supabaseClient
-        .from("pengajuan")
-        .select("*")
-        .order(
-            "created_at",
-            {ascending:false}
-        );
+showToast("Isi kritik atau saran wajib diisi."); return;
+}
 
+showToast(
+ 
+"Kritik & saran siap disimpan ke Supabase pada tahap modul berikutnya."
+);
 
-    if(error){
+document.getElementById("kritikNama").value=""; document.getElementById("kritikIsi").value="";
 
-        console.error(error);
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty">
-
-                    ❌ Gagal mengambil pengajuan.<br><br>
-
-                    ${escapeHtml(
-                        error.message
-                    )}
-
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    pengajuanData = data || [];
-
-    renderPengajuan(pengajuanData);
-
-    renderSurat(pengajuanData);
-
-    document.getElementById(
-        "statPengajuan"
-    ).textContent =
-        pengajuanData.length;
+closeKritikModal();
 
 }
 
 
-function renderPengajuan(data){
-
-    const tbody =
-        document.getElementById(
-            "pengajuanTableBody"
-        );
-
-    if(!data.length){
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty">
-                    Belum ada pengajuan.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tbody.innerHTML =
-        data.map((p,index)=>{
-
-            return `
-                <tr>
-
-                    <td>${index+1}</td>
-
-                    <td>
-                        ${formatDate(
-                            p.created_at
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            p.nik_pemohon || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        <strong>
-                            ${escapeHtml(
-                                p.nama_pemohon || "-"
-                            )}
-                        </strong>
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            p.jenis_pengajuan || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            p.keperluan || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${statusBadge(
-                            p.status
-                        )}
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="btn btn-info"
-                            onclick="lihatPengajuan(${p.id})">
-                            👁
-                        </button>
-
-                        <button
-                            class="btn btn-warning"
-                            onclick="ubahStatusPengajuan(${p.id})">
-                            🔄
-                        </button>
-
-                        <button
-                            class="btn btn-danger"
-                            onclick="deletePengajuan(${p.id})">
-                            🗑
-                        </button>
-
-                    </td>
-
-                </tr>
-            `;
-
-        }).join("");
-
-}
-
-
-/* ============================================================
-FILTER PENGAJUAN
+/* ============================================================ CETAK PENDUDUK
 ============================================================ */
+function printPenduduk(){ const data =
+pendudukData || [];
 
-function filterPengajuan(){
+const rows = data.map((p,i)=>`
 
-    const keyword =
-        document.getElementById(
-            "searchPengajuan"
-        ).value.toLowerCase().trim();
+<tr>
+<td>${i+1}</td>
+<td>${escapeHtml(p.nik || "")}</td>
+<td>${escapeHtml(p.nama || "")}</td>
+<td>${escapeHtml(p.jenis_kelamin || "")}</td>
+<td>${escapeHtml(p.dusun || "")}</td>
+<td>${escapeHtml(p.rt || "")}/${escapeHtml(p.rw || "")}</td>
+<td>${escapeHtml(p.status_penduduk || "")}</td>
+</tr>
+`).join(""); const win =
+window.open("","_blank"); win.document.write(`
+<html>
 
-    const status =
-        document.getElementById(
-            "filterStatusPengajuan"
-        ).value;
+<head>
 
+<title>Data Penduduk Desa Wawongkolono</title>
 
-    const filtered =
-        pengajuanData.filter(p=>{
+<style>
+ 
+body{
+font-family:Arial; padding:30px;
+}
 
-            const cocokKeyword =
+h2{
+text-align:center;
+}
 
-                (p.nik_pemohon || "")
-                .toLowerCase()
-                .includes(keyword)
+p{
+text-align:center;
+}
 
-                ||
+table{
+width:100%;
+border-collapse:collapse; margin-top:25px;
+}
 
-                (p.nama_pemohon || "")
-                .toLowerCase()
-                .includes(keyword)
+th,td{
+border:1px solid #333; padding:7px;
+font-size:12px;
+}
 
-                ||
+th{
+background:#eee;
+}
 
-                (p.jenis_pengajuan || "")
-                .toLowerCase()
-                .includes(keyword)
+</style>
 
-                ||
+</head>
 
-                (p.keperluan || "")
-                .toLowerCase()
-                .includes(keyword);
+<body>
 
+<h2>DESA WAWONGKOLONO</h2>
 
-            const cocokStatus =
-                !status ||
-                p.status === status;
+<p>
+Kecamatan Menui Kepulauan<br> Kabupaten Morowali<br>
+Provinsi Sulawesi Tengah
+</p>
 
+<h3>DATA PENDUDUK</h3>
 
-            return cocokKeyword &&
-                   cocokStatus;
+<table>
 
-        });
+<thead>
+ 
+<tr>
+<th>No</th>
+<th>NIK</th>
+<th>Nama</th>
+<th>JK</th>
+<th>Dusun</th>
+<th>RT/RW</th>
+<th>Status</th>
+</tr>
 
+</thead>
 
-    renderPengajuan(filtered);
+<tbody>
+${rows}
+</tbody>
 
+</table>
+
+</body>
+
+</html>
+
+`); win.document.close(); win.print();
 }
 
 
-/* ============================================================
-STATUS PENGAJUAN
+/* ============================================================ AI SEMENTARA
 ============================================================ */
+function askAI(){ const question =
+document.getElementById("aiQuestion")
+.value
+.trim();
 
-function statusBadge(status){
+const answer = document.getElementById("aiAnswer");
 
-    const value =
-        status || "Diajukan";
+if(!question){
+ 
+answer.textContent=
+"Silakan tuliskan pertanyaan."; return;
+}
 
-    let cls =
-        "badge-info";
-
-    if(value === "Diajukan"){
-        cls = "badge-info";
-    }
-
-    if(value === "Diverifikasi"){
-        cls = "badge-warning";
-    }
-
-    if(value === "Disetujui"){
-        cls = "badge-success";
-    }
-
-    if(value === "Selesai"){
-        cls = "badge-success";
-    }
-
-    if(value === "Ditolak"){
-        cls = "badge-danger";
-    }
-
-    return `
-        <span class="badge ${cls}">
-            ${escapeHtml(value)}
-        </span>
-    `;
+answer.innerHTML=`
+<strong>🤖 Asisten Desa:</strong><br><br> Pertanyaan Anda sudah diterima.
+Integrasi AI Desa dengan informasi dan database
+Desa Wawongkolono akan kita pasang pada tahap berikutnya.
+`;
 
 }
 
 
-async function ubahStatusPengajuan(id){
-
-    const data =
-        pengajuanData.find(
-            p => String(p.id) === String(id)
-        );
-
-    if(!data){
-
-        showToast(
-            "Data pengajuan tidak ditemukan."
-        );
-
-        return;
-    }
-
-
-    const pilihan =
-        prompt(
-            "Masukkan status baru:\n\n" +
-            "1 = Diajukan\n" +
-            "2 = Diverifikasi\n" +
-            "3 = Disetujui\n" +
-            "4 = Selesai\n" +
-            "5 = Ditolak",
-            statusNumber(data.status)
-        );
-
-
-    if(pilihan === null){
-        return;
-    }
-
-
-    const daftar = {
-
-        "1":"Diajukan",
-
-        "2":"Diverifikasi",
-
-        "3":"Disetujui",
-
-        "4":"Selesai",
-
-        "5":"Ditolak"
-
-    };
-
-
-    const statusBaru =
-        daftar[String(pilihan).trim()];
-
-
-    if(!statusBaru){
-
-        showToast(
-            "Pilihan status tidak valid."
-        );
-
-        return;
-    }
-
-
-    const payload = {
-
-        status:statusBaru,
-
-        updated_at:
-            new Date().toISOString()
-
-    };
-
-
-    if(statusBaru === "Diverifikasi"){
-
-        payload.tanggal_verifikasi =
-            new Date().toISOString();
-
-    }
-
-
-    if(statusBaru === "Selesai"){
-
-        payload.tanggal_selesai =
-            new Date().toISOString();
-
-    }
-
-
-    const {error} =
-        await supabaseClient
-        .from("pengajuan")
-        .update(payload)
-        .eq("id",id);
-
-
-    if(error){
-
-        console.error(error);
-
-        showToast(
-            "Gagal mengubah status: " +
-            error.message
-        );
-
-        return;
-    }
-
-
-    showToast(
-        "Status pengajuan berhasil diubah."
-    );
-
-
-    await loadPengajuan();
-
-    await loadDashboard();
-
-}
-
-
-function statusNumber(status){
-
-    const map = {
-
-        "Diajukan":"1",
-
-        "Diverifikasi":"2",
-
-        "Disetujui":"3",
-
-        "Selesai":"4",
-
-        "Ditolak":"5"
-
-    };
-
-    return map[status] || "1";
-
-}
-
-
-/* ============================================================
-DETAIL PENGAJUAN
-============================================================ */
-
-function lihatPengajuan(id){
-
-    const p =
-        pengajuanData.find(
-            item =>
-            String(item.id) === String(id)
-        );
-
-    if(!p){
-
-        showToast(
-            "Data tidak ditemukan."
-        );
-
-        return;
-    }
-
-
-    document.getElementById(
-        "detailPengajuanContent"
-    ).innerHTML = `
-
-        <div class="detail-box">
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Nomor Pengajuan
-                </div>
-
-                <div>
-                    #${escapeHtml(p.id)}
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Tanggal Pengajuan
-                </div>
-
-                <div>
-                    ${formatDate(p.created_at)}
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    NIK Pemohon
-                </div>
-
-                <div>
-                    ${escapeHtml(
-                        p.nik_pemohon || "-"
-                    )}
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Nama Pemohon
-                </div>
-
-                <div>
-                    ${escapeHtml(
-                        p.nama_pemohon || "-"
-                    )}
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Jenis Pengajuan
-                </div>
-
-                <div>
-                    ${escapeHtml(
-                        p.jenis_pengajuan || "-"
-                    )}
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Keperluan
-                </div>
-
-                <div>
-                    ${escapeHtml(
-                        p.keperluan || "-"
-                    )}
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Status
-                </div>
-
-                <div>
-                    ${statusBadge(p.status)}
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Catatan
-                </div>
-
-                <div>
-                    ${escapeHtml(
-                        p.catatan || "-"
-                    )}
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Verifikasi
-                </div>
-
-                <div>
-                    ${
-                        p.tanggal_verifikasi
-                        ?
-                        formatDate(
-                            p.tanggal_verifikasi
-                        )
-                        :
-                        "-"
-                    }
-                </div>
-
-            </div>
-
-
-            <div class="detail-row">
-
-                <div class="detail-label">
-                    Selesai
-                </div>
-
-                <div>
-                    ${
-                        p.tanggal_selesai
-                        ?
-                        formatDate(
-                            p.tanggal_selesai
-                        )
-                        :
-                        "-"
-                    }
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    document.getElementById(
-        "detailPengajuanModal"
-    ).style.display = "flex";
-
-}
-
-
-function closeDetailPengajuan(){
-
-    document.getElementById(
-        "detailPengajuanModal"
-    ).style.display = "none";
-
-}
-
-
-/* ============================================================
-HAPUS PENGAJUAN
-============================================================ */
-
-async function deletePengajuan(id){
-
-    if(!confirm(
-        "Yakin ingin menghapus pengajuan ini?"
-    )) return;
-
-
-    const {error} =
-        await supabaseClient
-        .from("pengajuan")
-        .delete()
-        .eq("id",id);
-
-
-    if(error){
-
-        console.error(error);
-
-        showToast(
-            "Gagal menghapus pengajuan: " +
-            error.message
-        );
-
-        return;
-    }
-
-
-    showToast(
-        "Pengajuan berhasil dihapus."
-    );
-
-
-    await loadPengajuan();
-
-    await loadDashboard();
-
-}
-
-
-/* ============================================================
-SURAT DESA
-============================================================ */
-
-async function loadSurat(){
-
-    const tbody =
-        document.getElementById(
-            "suratTableBody"
-        );
-
-    if(!tbody) return;
-
-
-    const {data,error} =
-        await supabaseClient
-        .from("pengajuan")
-        .select("*")
-        .order(
-            "created_at",
-            {ascending:false}
-        );
-
-
-    if(error){
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="empty">
-                    ❌ ${escapeHtml(
-                        error.message
-                    )}
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    renderSurat(data || []);
-
-}
-
-
-function renderSurat(data){
-
-    const tbody =
-        document.getElementById(
-            "suratTableBody"
-        );
-
-    if(!tbody) return;
-
-
-    if(!data.length){
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="7" class="empty">
-                    Belum ada pengajuan surat.
-                </td>
-            </tr>
-        `;
-
-        return;
-    }
-
-
-    tbody.innerHTML =
-        data.map((p,index)=>{
-
-            return `
-
-                <tr>
-
-                    <td>${index+1}</td>
-
-                    <td>
-                        ${formatDate(
-                            p.created_at
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            p.nik_pemohon || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            p.nama_pemohon || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            p.jenis_pengajuan || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${statusBadge(p.status)}
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="btn btn-info"
-                            onclick="lihatPengajuan(${p.id})">
-                            👁
-                        </button>
-
-                        ${
-                            p.status === "Selesai"
-                            ?
-                            `
-                            <button
-                                class="btn btn-success"
-                                onclick="cetakSurat(${p.id})">
-                                🖨
-                            </button>
-                            `
-                            :
-                            ""
-                        }
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }).join("");
-
-}
-
-
-/* ============================================================
-CETAK SURAT
-============================================================ */
-
-function cetakSurat(id){
-
-    const p =
-        pengajuanData.find(
-            item =>
-            String(item.id) === String(id)
-        );
-
-    if(!p){
-
-        showToast(
-            "Data surat tidak ditemukan."
-        );
-
-        return;
-    }
-
-
-    if(p.status !== "Selesai"){
-
-        showToast(
-            "Surat hanya dapat dicetak setelah status Selesai."
-        );
-
-        return;
-    }
-
-
-    const win =
-        window.open("","_blank");
-
-
-    win.document.write(`
-
-        <html>
-
-        <head>
-
-            <title>
-                Surat Desa Wawongkolono
-            </title>
-
-            <style>
-
-                body{
-                    font-family:Arial;
-                    padding:45px;
-                    color:#111;
-                }
-
-                h2{
-                    text-align:center;
-                    margin-bottom:5px;
-                }
-
-                .center{
-                    text-align:center;
-                }
-
-                hr{
-                    border:0;
-                    border-top:2px solid #111;
-                    margin:15px 0 30px;
-                }
-
-                .nomor{
-                    text-align:center;
-                    margin-bottom:30px;
-                }
-
-                .isi{
-                    line-height:1.8;
-                    font-size:14px;
-                }
-
-                .ttd{
-                    width:250px;
-                    margin-left:auto;
-                    margin-top:50px;
-                    text-align:center;
-                }
-
-                @media print{
-                    body{
-                        padding:20px;
-                    }
-                }
-
-            </style>
-
-        </head>
-
-        <body>
-
-            <h2>
-                PEMERINTAH DESA WAWONGKOLONO
-            </h2>
-
-            <div class="center">
-                KECAMATAN MENUI KEPULAUAN
-                <br>
-                KABUPATEN MOROWALI
-                <br>
-                PROVINSI SULAWESI TENGAH
-            </div>
-
-            <hr>
-
-            <div class="nomor">
-
-                <strong>
-                    ${escapeHtml(
-                        p.jenis_pengajuan || "SURAT"
-                    )}
-                </strong>
-
-                <br><br>
-
-                Nomor: __________________
-
-            </div>
-
-            <div class="isi">
-
-                Yang bertanda tangan di bawah ini
-                menerangkan bahwa:
-
-                <br><br>
-
-                <strong>NIK</strong> :
-                ${escapeHtml(
-                    p.nik_pemohon || "-"
-                )}
-
-                <br>
-
-                <strong>Nama</strong> :
-                ${escapeHtml(
-                    p.nama_pemohon || "-"
-                )}
-
-                <br><br>
-
-                Yang bersangkutan mengajukan
-                pelayanan dengan keperluan:
-
-                <br><br>
-
-                <strong>
-                    ${escapeHtml(
-                        p.keperluan || "-"
-                    )}
-                </strong>
-
-                <br><br>
-
-                Demikian surat ini dibuat untuk
-                dapat dipergunakan sebagaimana
-                mestinya.
-
-            </div>
-
-            <div class="ttd">
-
-                Wawongkolono,
-                ${new Date().toLocaleDateString("id-ID")}
-
-                <br><br><br><br>
-
-                <strong>
-                    Kepala Desa Wawongkolono
-                </strong>
-
-            </div>
-
-        </body>
-
-        </html>
-
-    `);
-
-    win.document.close();
-
-    win.print();
-
-}
-
-
-function printPengajuanSelesai(){
-
-    const selesai =
-        pengajuanData.filter(
-            p => p.status === "Selesai"
-        );
-
-
-    if(!selesai.length){
-
-        showToast(
-            "Belum ada pengajuan yang selesai."
-        );
-
-        return;
-    }
-
-
-    const rows =
-        selesai.map((p,i)=>`
-
-            <tr>
-
-                <td>${i+1}</td>
-
-                <td>
-                    ${escapeHtml(
-                        p.nik_pemohon || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        p.nama_pemohon || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        p.jenis_pengajuan || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${formatDate(
-                        p.created_at
-                    )}
-                </td>
-
-            </tr>
-
-        `).join("");
-
-
-    const win =
-        window.open("","_blank");
-
-
-    win.document.write(`
-
-        <html>
-
-        <head>
-
-            <title>
-                Laporan Pengajuan Desa Wawongkolono
-            </title>
-
-            <style>
-
-                body{
-                    font-family:Arial;
-                    padding:30px;
-                }
-
-                h2,h3,p{
-                    text-align:center;
-                }
-
-                table{
-                    width:100%;
-                    border-collapse:collapse;
-                    margin-top:25px;
-                }
-
-                th,td{
-                    border:1px solid #333;
-                    padding:8px;
-                    font-size:12px;
-                }
-
-                th{
-                    background:#eee;
-                }
-
-            </style>
-
-        </head>
-
-        <body>
-
-            <h2>
-                DESA WAWONGKOLONO
-            </h2>
-
-            <p>
-                Kecamatan Menui Kepulauan<br>
-                Kabupaten Morowali<br>
-                Provinsi Sulawesi Tengah
-            </p>
-
-            <h3>
-                LAPORAN PENGAJUAN SELESAI
-            </h3>
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>No</th>
-                        <th>NIK</th>
-                        <th>Nama</th>
-                        <th>Jenis Pengajuan</th>
-                        <th>Tanggal</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-                    ${rows}
-                </tbody>
-
-            </table>
-
-        </body>
-
-        </html>
-
-    `);
-
-    win.document.close();
-
-    win.print();
-
-}
-
-
-/* ============================================================
-KRITIK
-============================================================ */
-
-function openKritikModal(){
-
-    document.getElementById(
-        "kritikModal"
-    ).style.display = "flex";
-
-}
-
-
-function closeKritikModal(){
-
-    document.getElementById(
-        "kritikModal"
-    ).style.display = "none";
-
-}
-
-
-function submitKritik(){
-
-    const nama =
-        document.getElementById(
-            "kritikNama"
-        ).value.trim();
-
-    const isi =
-        document.getElementById(
-            "kritikIsi"
-        ).value.trim();
-
-
-    if(!isi){
-
-        showToast(
-            "Isi kritik atau saran wajib diisi."
-        );
-
-        return;
-    }
-
-
-    showToast(
-        "Kritik & saran siap disimpan ke Supabase pada tahap modul berikutnya."
-    );
-
-
-    document.getElementById(
-        "kritikNama"
-    ).value = "";
-
-    document.getElementById(
-        "kritikIsi"
-    ).value = "";
-
-    closeKritikModal();
-
-}
-
-
-/* ============================================================
-CETAK PENDUDUK
-============================================================ */
-
-function printPenduduk(){
-
-    const data =
-        pendudukData || [];
-
-
-    const rows =
-        data.map((p,i)=>`
-
-            <tr>
-
-                <td>${i+1}</td>
-
-                <td>
-                    ${escapeHtml(
-                        p.nik || ""
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        p.nama || ""
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        p.jenis_kelamin || ""
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        p.dusun || ""
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        p.rt || ""
-                    )}
-                    /
-                    ${escapeHtml(
-                        p.rw || ""
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        p.status_penduduk || ""
-                    )}
-                </td>
-
-            </tr>
-
-        `).join("");
-
-
-    const win =
-        window.open("","_blank");
-
-
-    win.document.write(`
-
-        <html>
-
-        <head>
-
-            <title>
-                Data Penduduk Desa Wawongkolono
-            </title>
-
-            <style>
-
-                body{
-                    font-family:Arial;
-                    padding:30px;
-                }
-
-                h2,p{
-                    text-align:center;
-                }
-
-                table{
-                    width:100%;
-                    border-collapse:collapse;
-                    margin-top:25px;
-                }
-
-                th,td{
-                    border:1px solid #333;
-                    padding:7px;
-                    font-size:12px;
-                }
-
-                th{
-                    background:#eee;
-                }
-
-            </style>
-
-        </head>
-
-        <body>
-
-            <h2>
-                DESA WAWONGKOLONO
-            </h2>
-
-            <p>
-                Kecamatan Menui Kepulauan<br>
-                Kabupaten Morowali<br>
-                Provinsi Sulawesi Tengah
-            </p>
-
-            <h3>
-                DATA PENDUDUK
-            </h3>
-
-            <table>
-
-                <thead>
-
-                    <tr>
-                        <th>No</th>
-                        <th>NIK</th>
-                        <th>Nama</th>
-                        <th>JK</th>
-                        <th>Dusun</th>
-                        <th>RT/RW</th>
-                        <th>Status</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-                    ${rows}
-                </tbody>
-
-            </table>
-
-        </body>
-
-        </html>
-
-    `);
-
-    win.document.close();
-
-    win.print();
-
-}
-
-
-/* ============================================================
-AI SEMENTARA
-============================================================ */
-
-function askAI(){
-
-    const question =
-        document.getElementById(
-            "aiQuestion"
-        ).value.trim();
-
-    const answer =
-        document.getElementById(
-            "aiAnswer"
-        );
-
-
-    if(!question){
-
-        answer.textContent =
-            "Silakan tuliskan pertanyaan.";
-
-        return;
-    }
-
-
-    answer.innerHTML = `
-
-        <strong>
-            🤖 Asisten Desa:
-        </strong>
-
-        <br><br>
-
-        Pertanyaan Anda sudah diterima.
-
-        Integrasi AI Desa dengan informasi
-        dan database Desa Wawongkolono
-        akan dipasang pada tahap berikutnya.
-
-    `;
-
-}
-
-
-/* ============================================================
-UTILITAS
+/* ============================================================ UTILITAS
 ============================================================ */
 
 function escapeHtml(value){
+if(value===null || value===undefined)return ""; return String(value)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
 
-    if(
-        value === null ||
-        value === undefined
-    ){
-        return "";
-    }
+}
 
-    return String(value)
+function formatDate(date){ if(!date)return "-";
+try{
 
-        .replace(/&/g,"&amp;")
+return new Date(date)
+.toLocaleDateString("id-ID",{ day:"2-digit",
+month:"2-digit", year:"numeric"
+});
 
-        .replace(/</g,"&lt;")
+}catch(e){
+ 
+return date;
 
-        .replace(/>/g,"&gt;")
+}
 
-        .replace(/"/g,"&quot;")
+}
+function showToast(message){ const toast =
+document.getElementById("toast"); toast.textContent=message; toast.style.display="block"; clearTimeout(window.toastTimer);
+window.toastTimer = setTimeout(()=>{
 
-        .replace(/'/g,"&#039;");
+toast.style.display="none";
+
+},3500);
 
 }
 
 
-function formatDate(date){
+/* ============================================================ CEK SESSION SAAT HALAMAN DIBUKA
+============================================================ */
+async function checkSession(){ const {data} =
+await supabaseClient.auth.getSession(); if(data && data.session){
+currentUser=data.session.user;
 
-    if(!date){
-        return "-";
-    }
+document.getElementById("homePage")
+.style.display="none";
 
-    try{
+document.getElementById("appPage")
+.style.display="block"; document.getElementById("displayUser")
+ 
+.textContent=currentUser.email;
 
-        return new Date(date)
-            .toLocaleDateString(
-                "id-ID",
-                {
-                    day:"2-digit",
-                    month:"2-digit",
-                    year:"numeric"
-                }
-            );
-
-    }catch(e){
-
-        return date;
-
-    }
+document.getElementById("displayRole")
+.textContent=selectedRole || "Pengguna"; await loadDashboard();
+}
 
 }
 
 
-function showToast(message){
-
-    const toast =
-        document.getElementById(
-            "toast"
-        );
-
-    toast.textContent = message;
-
-    toast.style.display = "block";
-
-    clearTimeout(
-        window.toastTimer
-    );
-
-    window.toastTimer =
-        setTimeout(()=>{
-
-            toast.style.display = "none";
-
-        },3500);
-
-}
-
-
-/* ============================================================
-CEK SESSION
+/* ============================================================ JALANKAN
 ============================================================ */
 
-async function checkSession(){
-
-    const {data} =
-        await supabaseClient
-        .auth
-        .getSession();
+document.addEventListener("DOMContentLoaded",()=>{ checkSession();
+});
 
 
-    if(
-        data &&
-        data.session
-    ){
+/* Tutup modal jika klik area luar */ window.addEventListener("click",(event)=>{
+const modals = document.querySelectorAll(".modal");
 
-        currentUser =
-            data.session.user;
-
-        selectedRole =
-            localStorage.getItem(
-                "DESA_ROLE"
-            ) || "Pengguna";
-
-
-        document.getElementById(
-            "homePage"
-        ).style.display = "none";
-
-
-        document.getElementById(
-            "appPage"
-        ).style.display = "block";
-
-
-        document.getElementById(
-            "displayUser"
-        ).textContent =
-            currentUser.email;
-
-
-        document.getElementById(
-            "displayRole"
-        ).textContent =
-            selectedRole;
-
-
-        await loadDashboard();
-
-    }
+modals.forEach(modal=>{ if(event.target===modal){
+modal.style.display="none";
 
 }
 
+});
 
-/* ============================================================
-INIT
-============================================================ */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    ()=>{
-        checkSession();
-    }
-);
-
-
-/* ============================================================
-TUTUP MODAL KLIK LUAR
-============================================================ */
-
-window.addEventListener(
-    "click",
-    (event)=>{
-
-        const modals =
-            document.querySelectorAll(
-                ".modal"
-            );
-
-        modals.forEach(modal=>{
-
-            if(
-                event.target === modal
-            ){
-
-                modal.style.display =
-                    "none";
-
-            }
-
-        });
-
-    }
-);
-
+});
 </script>
 
 </body>
