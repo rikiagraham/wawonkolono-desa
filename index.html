@@ -56,7 +56,7 @@ function ddPengaturan(){ddEnsurePanel('pengaturan','⚙ Pengaturan & Profil',`<d
 function ddSaveSettings(){ddSet('settings',[{nama:ddSNama.value,kecamatan:ddSKec.value,kabupaten:ddSKab.value,provinsi:ddSProv.value}]);ddLog('Menyimpan pengaturan','Pengaturan');showToast('Pengaturan berhasil disimpan.')}
 function ddAI(){const q=document.getElementById('aiQuestion');const a=document.getElementById('aiAnswer');if(!q||!a)return;const old=a.innerHTML;a.innerHTML=old.replace('Integrasi AI Desa dengan informasi dan database Desa Wawongkolono akan kita pasang pada tahap berikutnya.','');}
 function ddRoute(page){if(page==='dashboard')ddBuildDashboard();if(page==='surat')ddSurat();if(page==='absensi')ddAbsensi();if(page==='pemerintahan')ddPemerintahan();if(page==='bantuan')ddBantuan();if(page==='pembangunan')ddPembangunan();if(page==='dusun')ddDusun();if(page==='keuangan')ddKeuangan();if(page==='kritik')ddKritik();if(page==='informasi')ddInformasi();if(page==='arsip')ddArsip();if(page==='pengguna')ddPengguna();if(page==='log'){ddEnsurePanel('log','📝 Log Aktivitas',`<div class="panel"><div class="stats"><div class="stat-card"><h3 id="ddLogTotal">0</h3><p>Total Aktivitas</p></div><div class="stat-card"><h3 id="ddLogUsers">0</h3><p>Pengguna Aktif</p></div></div><button class="btn btn-secondary" onclick="ddClearLog()">Bersihkan Log</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Halaman</th></tr></thead><tbody id="ddLogBody"></tbody></table></div></div>`);ddRenderLog()}if(page==='pengaturan')ddPengaturan();ddLog('Membuka '+(pageNames[page]||page),pageNames[page]||page)}
-const ddOriginalShowPage=showPage;showPage=function(page,button){ddOriginalShowPage(page,button);setTimeout(()=>ddRoute(page),0)};
+const ddOriginalShowPage=showPage;showPage=function(page,button){ddOriginalShowPage(page,button);setTimeout(()=>{if(typeof window.ddRoute==='function')window.ddRoute(page);},0)};
 const ddOriginalDashboard=loadDashboard;loadDashboard=async function(){await ddOriginalDashboard();document.getElementById('statBantuan').textContent=ddGet('bantuan').length;document.getElementById('statProgram').textContent=ddGet('pembangunan').length};
 window.addEventListener('DOMContentLoaded',()=>{ddBuildDashboard()});
 
@@ -1887,775 +1887,7 @@ placeholder="Tuliskan kritik atau saran..."></textarea>
 <div id="toast" class="toast"></div>
 
 
-<script>
-/* ============================================================ SUPABASE
-============================================================ */
-
-const SUPABASE_URL = "https://upsmpuzktefbrulsvydv.supabase.co";
- 
-const SUPABASE_KEY = "sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ";
-
-const supabaseClient = window.supabase.createClient(
-SUPABASE_URL, SUPABASE_KEY
-);
-
-
-/* ============================================================ VARIABEL
-============================================================ */
-
-let selectedRole = ""; let currentUser = null; let pendudukData = []; let kkData = [];
-
-
-/* ============================================================ LOGIN
-============================================================ */
-
-function openLogin(){ document.getElementById("loginOverlay").style.display="flex"; document.getElementById("loginMessage").textContent="";
-}
-
-function closeLogin(){ document.getElementById("loginOverlay").style.display="none";
-}
-function selectRole(button,role){ document.querySelectorAll(".role-btn")
-.forEach(btn=>btn.classList.remove("active")); button.classList.add("active"); selectedRole=role;
- 
-}
-
-function togglePassword(){
-const input=document.getElementById("loginPassword"); input.type =
-input.type==="password"
-? "text"
-: "password";
-
-}
-async function login(){ const email =
-document.getElementById("loginEmail").value.trim();
-
-const password = document.getElementById("loginPassword").value;
-
-const message = document.getElementById("loginMessage");
-
-message.style.color="#dc2626"; if(!selectedRole){
-message.textContent="Silakan pilih ruang kerja."; return;
-}
-
-if(!email || !password){
-
-message.textContent="Email dan password wajib diisi."; return;
-}
-message.textContent="Sedang masuk..."; const {data,error} =
-await supabaseClient.auth.signInWithPassword({ email:email,
-password:password
- 
-});
-
-if(error){
-console.error(error); message.textContent =
-"Login gagal: "+error.message; return;
-}
-currentUser=data.user; document.getElementById("homePage").style.display="none"; document.getElementById("loginOverlay").style.display="none"; document.getElementById("appPage").style.display="block"; document.getElementById("displayUser").textContent =
-currentUser.email;
-
-document.getElementById("displayRole").textContent = selectedRole;
-
-showToast("Login berhasil."); await loadDashboard();
-}
-
-async function logout(){
-
-await supabaseClient.auth.signOut(); currentUser=null;
-document.getElementById("appPage").style.display="none"; document.getElementById("homePage").style.display="block"; selectedRole="";
-document.querySelectorAll(".role-btn")
-.forEach(btn=>btn.classList.remove("active"));
- 
-}
-
-
-/* ============================================================ NAVIGASI
-============================================================ */
-
-const pageNames={
-
-dashboard:"Dashboard", penduduk:"Data Penduduk", kk:"Data Kartu Keluarga", pelayanan:"Pelayanan Desa", surat:"Surat Desa", absensi:"Absensi", pemerintahan:"Pemerintahan Desa", bantuan:"Bantuan",
-pembangunan:"Pembangunan Desa", dusun:"Program Dusun", keuangan:"Keuangan Desa", kritik:"Kritik & Saran", informasi:"Informasi Desa", laporan:"Laporan",
-arsip:"Arsip Desa", pengguna:"Pengguna & Hak Akses", log:"Log Aktivitas", pengaturan:"Pengaturan",
-ai:"AI Desa"
-
-};
-function showPage(page,button){ document.querySelectorAll(".page")
-.forEach(p=>p.classList.remove("active"));
-
-const target = document.getElementById("page-"+page);
-
-if(target){ target.classList.add("active");
-document.getElementById("pageTitle").textContent = pageNames[page] || page;
-
-}
- 
-document.querySelectorAll(".menu-btn")
-.forEach(btn=>btn.classList.remove("active")); if(button){
-button.classList.add("active");
-
-}
-
-document.getElementById("sidebar")
-.classList.remove("open");
-
-
-if(page==="dashboard"){ loadDashboard();
-}
-
-if(page==="penduduk"){ loadPenduduk();
-}
-
-if(page==="kk"){ loadKK();
-}
-
-}
-function showPageByName(page){ const button =
-[...document.querySelectorAll(".menu-btn")]
-.find(btn => btn.getAttribute("onclick") && btn.getAttribute("onclick")
-.includes("'"+page+"'")
-);
-
-showPage(page,button);
-
-}
-
-function toggleSidebar(){
- 
-document.getElementById("sidebar")
-.classList.toggle("open");
-
-}
-
-
-/* ============================================================ DASHBOARD
-============================================================ */
-
-async function loadDashboard(){ try{
-const penduduk =
-await supabaseClient
-.from("penduduk")
-.select("*",{count:"exact",head:true});
-
-const kk =
-await supabaseClient
-.from("kartu_keluarga")
-.select("*",{count:"exact",head:true});
-
-document.getElementById("statPenduduk").textContent = penduduk.count || 0;
-
-document.getElementById("statKK").textContent = kk.count || 0;
-
-}catch(error){ console.error(error);
-}
-
-}
-
-
-/* ============================================================ PENDUDUK
-============================================================ */
-async function loadPenduduk(){ const tbody =
-document.getElementById("pendudukTableBody");
- 
-tbody.innerHTML=`
-<tr>
-<td colspan="9" class="empty">
-⏳ Memuat data penduduk...
-</td>
-</tr>
-`;
-
-const {data,error} = await supabaseClient
-.from("penduduk")
-.select("*")
-.order("nama",{ascending:true}); if(error){
-console.error(error);
-
-tbody.innerHTML=`
-<tr>
-<td colspan="9" class="empty">
-❌ Gagal mengambil data.<br>
-${escapeHtml(error.message)}
-</td>
-</tr>
-`; return;
-}
-pendudukData=data || []; renderPenduduk(pendudukData); document.getElementById("statPenduduk").textContent =
-pendudukData.length;
-
-}
-function renderPenduduk(data){ const tbody =
-document.getElementById("pendudukTableBody"); if(!data.length){
- 
-tbody.innerHTML=`
-<tr>
-<td colspan="9" class="empty"> Belum ada data penduduk.
-</td>
-</tr>
-`; return;
-}
-
-tbody.innerHTML = data.map((p,index)=>{
-
-const lahir =
-p.tempat_lahir || p.tanggal_lahir
-? `${escapeHtml(p.tempat_lahir || "-")} / ${formatDate(p.tanggal_lahir)}`
-: "-";
-
-return `
-<tr>
-
-<td>${index+1}</td>
-
-<td>${escapeHtml(p.nik || "-")}</td>
-
-<td>
-<strong>${escapeHtml(p.nama || "-")}</strong>
-</td>
-
-<td>${escapeHtml(p.jenis_kelamin || "-")}</td>
-
-<td>${lahir}</td>
-
-<td>${escapeHtml(p.dusun || "-")}</td>
-
-<td>
-${escapeHtml(p.rt || "-")}
-/
-${escapeHtml(p.rw || "-")}
-</td>
-
-<td>
-<span class="badge">
-${escapeHtml(p.status_penduduk || "Aktif")}
-</span>
-</td>
- 
-<td>
-
-<button
-class="btn btn-warning" onclick="editPenduduk(${p.id})">
-✏
-</button>
-
-<button
-class="btn btn-danger" onclick="deletePenduduk(${p.id})">
-🗑
-</button>
-
-</td>
-
-</tr>
-`;
-
-}).join("");
-
-}
-function filterPenduduk(){ const keyword =
-document.getElementById("searchPenduduk")
-.value
-.toLowerCase()
-.trim();
-
-const filtered = pendudukData.filter(p=>{
-
-return (
-(p.nik || "").toLowerCase().includes(keyword) || (p.nama || "").toLowerCase().includes(keyword) || (p.dusun || "").toLowerCase().includes(keyword)
-);
-
-});
-
-renderPenduduk(filtered);
-
-}
- 
-/* ============================================================ MODAL PENDUDUK
-============================================================ */
-function openPendudukModal(){ document.getElementById("pendudukModalTitle")
-.textContent="Tambah Penduduk"; document.getElementById("pendudukId").value=""; clearPendudukForm();
-document.getElementById("pendudukModal")
-.style.display="flex";
-
-}
-function closePendudukModal(){ document.getElementById("pendudukModal")
-.style.display="none";
-
-}
-
-function clearPendudukForm(){
-
-[
-"pNIK",
-"pNama", "pTempatLahir", "pTanggalLahir", "pRT",
-"pRW",
-"pPekerjaan", "pPendidikan", "pAlamat"
-].forEach(id=>{ document.getElementById(id).value="";
-});
-
-document.getElementById("pJK").value=""; document.getElementById("pDusun").value=""; document.getElementById("pAgama").value=""; document.getElementById("pStatusKawin").value=""; document.getElementById("pStatusPenduduk").value="Aktif";
-
-}
- 
-async function savePenduduk(){
-
-const id = document.getElementById("pendudukId").value;
-
-const nik = document.getElementById("pNIK").value.trim();
-
-const nama = document.getElementById("pNama").value.trim();
-
-if(!nik || !nama){
-
-showToast("NIK dan nama wajib diisi."); return;
-}
-
-if(!/^\d{16}$/.test(nik)){
-
-showToast("NIK harus terdiri dari 16 digit."); return;
-}
-const payload={ nik:nik, nama:nama, jenis_kelamin:
-document.getElementById("pJK").value || null,
-
-tempat_lahir: document.getElementById("pTempatLahir").value.trim() || null,
-
-tanggal_lahir: document.getElementById("pTanggalLahir").value || null,
-
-alamat:
-document.getElementById("pAlamat").value.trim() || null,
-
-dusun:
-document.getElementById("pDusun").value || null,
- 
-rt:
-document.getElementById("pRT").value.trim() || null,
-
-rw:
-document.getElementById("pRW").value.trim() || null,
-
-agama:
-document.getElementById("pAgama").value || null,
-
-status_perkawinan: document.getElementById("pStatusKawin").value || null,
-
-pekerjaan: document.getElementById("pPekerjaan").value.trim() || null,
-
-pendidikan: document.getElementById("pPendidikan").value.trim() || null,
-
-status_penduduk: document.getElementById("pStatusPenduduk").value || "Aktif",
-
-updated_at:new Date().toISOString()
-
-};
-
-let result; if(id){
-result =
-await supabaseClient
-.from("penduduk")
-.update(payload)
-.eq("id",id);
-
-}else{
-
-result =
-await supabaseClient
-.from("penduduk")
-.insert([payload]);
-
-}
-
-if(result.error){ console.error(result.error);
- 
-if(result.error.code==="23505"){ showToast("NIK tersebut sudah terdaftar.");
-}else{
-
-showToast(
-"Gagal menyimpan: "+ result.error.message
-);
-
-}
-
-return;
-
-}
-closePendudukModal(); showToast(
-id
-? "Data penduduk berhasil diperbarui."
-: "Data penduduk berhasil ditambahkan."
-);
-
-await loadPenduduk(); await loadDashboard();
-}
-function editPenduduk(id){ const p =
-pendudukData.find(item=>String(item.id)===String(id)); if(!p){
-showToast("Data tidak ditemukan."); return;
-}
-
-document.getElementById("pendudukModalTitle")
-.textContent="Edit Data Penduduk";
- 
-document.getElementById("pendudukId").value=p.id; document.getElementById("pNIK").value=p.nik || ""; document.getElementById("pNama").value=p.nama || ""; document.getElementById("pJK").value=p.jenis_kelamin || "";
-document.getElementById("pTempatLahir").value= p.tempat_lahir || "";
-
-document.getElementById("pTanggalLahir").value= p.tanggal_lahir || "";
-
-document.getElementById("pDusun").value= p.dusun || "";
-
-document.getElementById("pRT").value= p.rt || "";
-
-document.getElementById("pRW").value= p.rw || "";
-
-document.getElementById("pAgama").value= p.agama || "";
-
-document.getElementById("pStatusKawin").value= p.status_perkawinan || "";
-
-document.getElementById("pPekerjaan").value= p.pekerjaan || "";
-
-document.getElementById("pPendidikan").value= p.pendidikan || "";
-
-document.getElementById("pStatusPenduduk").value= p.status_penduduk || "Aktif";
-
-document.getElementById("pAlamat").value= p.alamat || "";
-
-document.getElementById("pendudukModal")
-.style.display="flex";
-
-}
-
-async function deletePenduduk(id){
- 
-const yakin = confirm(
-"Yakin ingin menghapus data penduduk ini?"
-);
-if(!yakin)return; const {error} =
-await supabaseClient
-.from("penduduk")
-.delete()
-.eq("id",id); if(error){
-console.error(error);
-
-showToast(
-"Gagal menghapus: "+ error.message
-);
-
-return;
-
-}
-
-showToast("Data penduduk berhasil dihapus."); await loadPenduduk();
-await loadDashboard();
-
-}
-
-
-/* ============================================================ KK
-============================================================ */
-async function loadKK(){ const tbody =
-document.getElementById("kkTableBody");
-
-tbody.innerHTML=`
-<tr>
-<td colspan="7" class="empty">
-⏳ Memuat data KK...
- 
-</td>
-</tr>
-`;
-
-const {data,error} = await supabaseClient
-.from("kartu_keluarga")
-.select("*")
-.order("nomor_kk",{ascending:true}); if(error){
-tbody.innerHTML=`
-<tr>
-<td colspan="7" class="empty">
-❌ ${escapeHtml(error.message)}
-</td>
-</tr>
-`; return;
-}
-
-kkData=data || []; renderKK(kkData);
-document.getElementById("statKK").textContent = kkData.length;
-
-}
-function renderKK(data){ const tbody =
-document.getElementById("kkTableBody"); if(!data.length){
-tbody.innerHTML=`
-<tr>
-<td colspan="7" class="empty"> Belum ada data KK.
-</td>
-</tr>
-`;
- 
-return;
-
-}
-
-tbody.innerHTML = data.map((k,index)=>{
-
-return `
-<tr>
-
-<td>${index+1}</td>
-
-<td>${escapeHtml(k.nomor_kk || "-")}</td>
-
-<td>${escapeHtml(k.kepala_keluarga || "-")}</td>
-
-<td>${escapeHtml(k.alamat || "-")}</td>
-
-<td>${escapeHtml(k.dusun || "-")}</td>
-
-<td>
-${escapeHtml(k.rt || "-")}
-/
-${escapeHtml(k.rw || "-")}
-</td>
-
-<td>
-<button
-class="btn btn-danger" onclick="deleteKK(${k.id})">
-🗑
-</button>
-</td>
-
-</tr>
-`;
-
-}).join("");
-
-}
-function filterKK(){ const keyword =
-document.getElementById("searchKK")
-.value
-.toLowerCase()
-.trim();
- 
-const filtered = kkData.filter(k=>
-(k.nomor_kk || "")
-.toLowerCase()
-.includes(keyword) ||
-
-(k.kepala_keluarga || "")
-.toLowerCase()
-.includes(keyword)
-);
-
-renderKK(filtered);
-
-}
-function openKKModal(){ document.getElementById("kkModal")
-.style.display="flex";
-
-}
-function closeKKModal(){ document.getElementById("kkModal")
-.style.display="none";
-
-}
-async function saveKK(){ const nomor =
-document.getElementById("kkNomor").value.trim(); if(!/^\d{16}$/.test(nomor)){
-showToast("Nomor KK harus terdiri dari 16 digit."); return;
-}
-
-const payload={ nomor_kk:nomor, kepala_keluarga:
- 
-document.getElementById("kkKepala").value.trim() || null,
-
-alamat:
-document.getElementById("kkAlamat").value.trim() || null,
-
-dusun:
-document.getElementById("kkDusun").value || null,
-
-rt:
-document.getElementById("kkRT").value.trim() || null,
-
-rw:
-document.getElementById("kkRW").value.trim() || null
-
-};
-
-const {error} =
-await supabaseClient
-.from("kartu_keluarga")
-.insert([payload]); if(error){
-console.error(error);
-
-showToast(
-"Gagal menyimpan KK: "+ error.message
-);
-
-return;
-
-}
-
-document.getElementById("kkNomor").value=""; document.getElementById("kkKepala").value=""; document.getElementById("kkAlamat").value=""; document.getElementById("kkDusun").value=""; document.getElementById("kkRT").value=""; document.getElementById("kkRW").value="";
-
-closeKKModal();
-
-showToast("Data KK berhasil ditambahkan."); await loadKK();
-await loadDashboard();
- 
-}
-
-async function deleteKK(id){
-if(!confirm("Yakin ingin menghapus KK ini?"))return; const {error} =
-await supabaseClient
-.from("kartu_keluarga")
-.delete()
-.eq("id",id); if(error){
-showToast(
-"Gagal menghapus KK: "+ error.message
-);
-
-return;
-
-}
-
-showToast("Data KK berhasil dihapus."); await loadKK();
-await loadDashboard();
-
-}
-
-
-/* ============================================================ SURAT
-============================================================ */
-function openSuratModal(){ document.getElementById("suratModal")
-.style.display="flex";
-
-}
-function closeSuratModal(){ document.getElementById("suratModal")
-.style.display="none";
- 
-}
-function submitSurat(){ showToast(
-"Form surat sudah siap. Tabel pengajuan surat akan kita sambungkan pada tahap berikutnya."
-);
-
-}
-
-
-/* ============================================================ KRITIK
-============================================================ */
-function openKritikModal(){ document.getElementById("kritikModal")
-.style.display="flex";
-
-}
-function closeKritikModal(){ document.getElementById("kritikModal")
-.style.display="none";
-
-}
-function submitKritik(){ const nama =
-document.getElementById("kritikNama").value.trim();
-
-const isi = document.getElementById("kritikIsi").value.trim();
-
-if(!isi){
-
-showToast("Isi kritik atau saran wajib diisi."); return;
-}
-
-showToast(
- 
-"Kritik & saran siap disimpan ke Supabase pada tahap modul berikutnya."
-);
-
-document.getElementById("kritikNama").value=""; document.getElementById("kritikIsi").value="";
-
-closeKritikModal();
-
-}
-
-
-/* ============================================================ CETAK PENDUDUK
-============================================================ */
-function printPenduduk(){ const data =
-pendudukData || [];
-
-const rows = data.map((p,i)=>`
-
-<tr>
-<td>${i+1}</td>
-<td>${escapeHtml(p.nik || "")}</td>
-<td>${escapeHtml(p.nama || "")}</td>
-<td>${escapeHtml(p.jenis_kelamin || "")}</td>
-<td>${escapeHtml(p.dusun || "")}</td>
-<td>${escapeHtml(p.rt || "")}/${escapeHtml(p.rw || "")}</td>
-<td>${escapeHtml(p.status_penduduk || "")}</td>
-</tr>
-`).join(""); const win =
-window.open("","_blank"); win.document.write(`
-<html>
-
-<head>
-
-<title>Data Penduduk Desa Wawongkolono</title>
-
-<style>
- 
-body{
-font-family:Arial; padding:30px;
-}
-
-h2{
-text-align:center;
-}
-
-p{
-text-align:center;
-}
-
-table{
-width:100%;
-border-collapse:collapse; margin-top:25px;
-}
-
-th,td{
-border:1px solid #333; padding:7px;
-font-size:12px;
-}
-
-th{
-background:#eee;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<h2>DESA WAWONGKOLONO</h2>
-
-<p>
-Kecamatan Menui Kepulauan<br> Kabupaten Morowali<br>
-Provinsi Sulawesi Tengah
-</p>
-
-<h3>DATA PENDUDUK</h3>
-
-<table>
-
-<thead>
- 
-<tr>
-<th>No</th>
-<th>NIK</th>
-<th>Nama</th>
-<th>JK</th>
-<th>Dusun</th>
-<th>RT/RW</th>
-<th>Status</th>
-</tr>
-
-</thead>
-
-<tbody>
-${rows}
-</tbody>
-
-</table>
-
+<script></script>
 </body>
 
 </html>
@@ -2848,5 +2080,124 @@ Desa Wawongkolono akan kita pasang pada tahap berikutnya.
 })();
 </script>
 
+
+<!-- =========================================================
+ FINAL SUPABASE MODULES - WAWONGKOLONO
+ Semua modul utama menggunakan Supabase. Tempel sebagai satu HTML.
+ ========================================================= -->
+<style>
+.sb-head{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
+.sb-title{font-size:24px;font-weight:800;color:#0f766e}.sb-sub{color:#64748b;margin-top:4px}
+.sb-actions{display:flex;gap:8px;flex-wrap:wrap}.sb-search{width:100%;padding:11px 13px;border:1px solid #cbd5e1;border-radius:10px;margin:10px 0 14px}
+.sb-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:15px}.sb-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:15px;box-shadow:0 3px 12px rgba(15,23,42,.06)}.sb-card b{font-size:21px;display:block;margin-top:6px}.sb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.sb-news{background:#fff;border:1px solid #e2e8f0;border-radius:15px;overflow:hidden;box-shadow:0 3px 12px rgba(15,23,42,.06)}.sb-news-body{padding:15px}.sb-badge{display:inline-block;padding:4px 9px;border-radius:999px;background:#dcfce7;color:#166534;font-size:12px;font-weight:700}.sb-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}.sb-tabs button{border:0;padding:9px 13px;border-radius:9px;background:#e2e8f0;cursor:pointer;font-weight:700}.sb-tabs button.active{background:#0f766e;color:white}.sb-print{background:#334155!important;color:white!important}.sb-danger{background:#dc2626!important;color:#fff!important}.sb-mini{font-size:12px;color:#64748b}.sb-camera{width:100%;max-width:420px;border-radius:14px;background:#0f172a;display:block}.sb-photo{width:100px;height:100px;object-fit:cover;border-radius:50%;border:4px solid #d1fae5}.sb-center{text-align:center}.sb-empty{text-align:center;padding:28px;color:#64748b}
+@media print{body>*{display:none!important}#printArea{display:block!important;padding:20px;font-family:Arial,sans-serif}.no-print{display:none!important}}
+</style>
+<script>
+(function(){
+ const S=window.supabaseClient;if(!S){console.error('Supabase client tidak tersedia');return;}
+ const $=id=>document.getElementById(id), esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+ const today=()=>new Date().toISOString().slice(0,10), money=v=>'Rp '+Number(v||0).toLocaleString('id-ID');
+ const actor=()=>window.currentUser?.email||window.currentUser?.nama||'Pengguna';
+ const toast=m=>typeof window.showToast==='function'?window.showToast(m):alert(m);
+ async function q(table,opts={}){let x=S.from(table).select(opts.select||'*');if(opts.order)x=x.order(opts.order,{ascending:opts.asc!==false});if(opts.limit)x=x.limit(opts.limit);const r=await x;if(r.error)throw r.error;return r.data||[]}
+ async function ins(table,row){const r=await S.from(table).insert(row).select().single();if(r.error)throw r.error;return r.data}
+ async function upd(table,id,row){const r=await S.from(table).update(row).eq('id',id).select().single();if(r.error)throw r.error;return r.data}
+ async function del(table,id){const r=await S.from(table).delete().eq('id',id);if(r.error)throw r.error}
+ function panel(page,title,body){const sec=$('page-'+page);if(sec)sec.innerHTML='<div class="sb-head"><div><div class="sb-title">'+title+'</div><div class="sb-sub">Data tersimpan dan dibaca langsung dari Supabase</div></div></div>'+body}
+ function btn(label,fn,cl='btn btn-primary'){return '<button class="'+cl+'" onclick="'+fn+'">'+label+'</button>'}
+ function printRows(title,headers,rows){const old=$('printArea');if(old)old.remove();const d=document.createElement('div');d.id='printArea';d.innerHTML='<h2>'+esc(title)+'</h2><p>Desa Wawongkolono • '+new Date().toLocaleString('id-ID')+'</p><table style="width:100%;border-collapse:collapse" border="1" cellpadding="7"><thead><tr>'+headers.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table>';document.body.appendChild(d);window.print();setTimeout(()=>d.remove(),1000)}
+ function errBox(e){return '<div class="sb-empty">⚠️ '+esc(e?.message||e)+'</div>'}
+ async function log(act,page,detail=null){try{await ins('log_aktivitas',{username:actor(),nama_pengguna:actor(),aktivitas:act,halaman:page,detail})}catch(e){console.warn('log',e.message)}}
+ async function personByNik(nik){if(!nik)return null;const a=await q('penduduk',{select:'id,nik,nama,dusun,alamat,no_telepon,jenis_kelamin',limit:1});return a.find(x=>x.nik===nik)||null}
+ window.sbDel=async(table,id,refresh,name)=>{if(!confirm('Hapus data ini?'))return;try{await del(table,id);await log('Menghapus '+name,name);await refresh();toast('Data berhasil dihapus dari Supabase.')}catch(e){toast('Gagal: '+e.message)}};
+
+ /* PELAYANAN */
+ window.ddPelayanan=async function(){panel('pelayanan','📋 Pelayanan Desa','<div class="sb-cards"><div class="sb-card">📋 Total Pelayanan<b id="pelTotal">0</b></div><div class="sb-card">⏳ Diajukan<b id="pelWait">0</b></div></div><div class="panel"><div class="sb-actions">'+btn('➕ Tambah Pelayanan','sbOpenPelayanan()')+btn('🖨️ Cetak','sbPrintPelayanan()','btn sb-print')+'</div></div><div class="panel"><input class="sb-search" id="pelSearch" placeholder="Cari pelayanan..." oninput="sbFilterPelayanan()"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nomor</th><th>Penduduk</th><th>Keperluan</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody id="sbPelBody"></tbody></table></div></div>');try{window._pel=await q('pelayanan',{order:'tanggal_pengajuan',asc:false});renderPel()}catch(e){$('sbPelBody').innerHTML='<tr><td colspan="7">'+esc(e.message)+'</td></tr>'}}
+ function renderPel(){const a=window._pel||[],term=($('pelSearch')?.value||'').toLowerCase(),z=a.filter(x=>JSON.stringify(x).toLowerCase().includes(term));$('pelTotal').textContent=a.length;$('pelWait').textContent=a.filter(x=>x.status==='Diajukan').length;$('sbPelBody').innerHTML=z.length?z.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.nomor_pengajuan||'-')+'</td><td>'+esc(x.penduduk_id||'-')+'</td><td>'+esc(x.keperluan||'-')+'</td><td><span class="sb-badge">'+esc(x.status||'Diajukan')+'</span></td><td>'+esc(x.tanggal_pengajuan||'-')+'</td><td>'+btn('🗑','sbDel("pelayanan","'+x.id+'",ddPelayanan,"pelayanan")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="7" class="sb-empty">Belum ada data.</td></tr>'}
+ window.sbFilterPelayanan=renderPel;
+ window.sbOpenPelayanan=function(){ddModal('sbPelModal','📋 Tambah Pelayanan','<div class="form-grid"><div class="form-group"><label>Nomor Pengajuan</label><input id="sbPelNomor" value="PL-'+Date.now()+'"></div><div class="form-group"><label>ID Penduduk</label><input id="sbPelPenduduk" type="number"></div><div class="form-group"><label>Jenis Pelayanan ID</label><input id="sbPelJenis" type="number"></div><div class="form-group full"><label>Keperluan *</label><textarea id="sbPelKeperluan" rows="4"></textarea></div><div class="form-group"><label>Status</label><select id="sbPelStatus"><option>Diajukan</option><option>Diverifikasi</option><option>Disetujui</option><option>Selesai</option><option>Ditolak</option></select></div></div>',async()=>{try{const row={nomor_pengajuan:$('sbPelNomor').value.trim()||null,penduduk_id:Number($('sbPelPenduduk').value)||null,jenis_pelayanan_id:Number($('sbPelJenis').value)||null,keperluan:$('sbPelKeperluan').value.trim(),status:$('sbPelStatus').value};if(!row.keperluan)throw new Error('Keperluan wajib diisi.');await ins('pelayanan',row);await log('Menambah pelayanan','Pelayanan Desa',row.keperluan);$('sbPelModal').style.display='none';toast('Pelayanan tersimpan ke Supabase.');ddPelayanan()}catch(e){toast('Gagal: '+e.message)}})};
+ window.sbPrintPelayanan=async()=>{const a=await q('pelayanan',{order:'tanggal_pengajuan',asc:false});printRows('Laporan Pelayanan Desa',['No','Nomor','Penduduk','Keperluan','Status','Tanggal'],a.map((x,i)=>[i+1,x.nomor_pengajuan||'',x.penduduk_id||'',x.keperluan||'',x.status||'',x.tanggal_pengajuan||'']))};
+
+ /* SURAT */
+ window.ddSurat=async function(){panel('surat','📨 Surat Desa','<div class="sb-cards"><div class="sb-card">📨 Total Pengajuan<b id="surTotal">0</b></div><div class="sb-card">⏳ Menunggu<b id="surWait">0</b></div><div class="sb-card">✅ Selesai<b id="surDone">0</b></div></div><div class="panel"><div class="sb-actions">'+btn('➕ Ajukan Surat','sbOpenSurat()')+btn('🖨️ Cetak','sbPrintSurat()','btn sb-print')+'</div></div><div class="panel"><input class="sb-search" placeholder="Cari NIK, nama atau jenis surat..." id="surSearch" oninput="sbFilterSurat()"><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Nama</th><th>Jenis Surat</th><th>Keperluan</th><th>Status</th><th>Tanggal</th><th>Aksi</th></tr></thead><tbody id="sbSuratBody"></tbody></table></div></div>');try{window._sur=await q('pengajuan_surat',{order:'created_at',asc:false});renderSur()}catch(e){$('sbSuratBody').innerHTML='<tr><td colspan="8">'+esc(e.message)+'</td></tr>'}}
+ function renderSur(){const a=window._sur||[],t=($('surSearch')?.value||'').toLowerCase(),z=a.filter(x=>JSON.stringify(x).toLowerCase().includes(t));$('surTotal').textContent=a.length;$('surWait').textContent=a.filter(x=>x.status==='Menunggu').length;$('surDone').textContent=a.filter(x=>x.status==='Selesai').length;$('sbSuratBody').innerHTML=z.length?z.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.nik)+'</td><td>'+esc(x.nama||'-')+'</td><td>'+esc(x.jenis_surat)+'</td><td>'+esc(x.keperluan)+'</td><td><span class="sb-badge">'+esc(x.status)+'</span></td><td>'+esc(x.tanggal_pengajuan||'-')+'</td><td>'+btn('🗑','sbDel("pengajuan_surat","'+x.id+'",ddSurat,"pengajuan surat")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="8" class="sb-empty">Belum ada pengajuan.</td></tr>'}
+ window.sbFilterSurat=renderSur;
+ window.sbOpenSurat=function(){ddModal('sbSuratModal','📨 Pengajuan Surat','<div class="form-grid"><div class="form-group"><label>NIK *</label><input id="sbSNik" onblur="sbAutoSurat()"></div><div class="form-group"><label>Nama</label><input id="sbSNama"></div><div class="form-group"><label>Dusun</label><select id="sbSDusun"><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>No. HP</label><input id="sbSHP"></div><div class="form-group full"><label>Jenis Surat *</label><select id="sbSJenis"><option value="">Pilih</option><option>Surat Keterangan Domisili</option><option>Surat Keterangan Usaha</option><option>Surat Keterangan Tidak Mampu</option><option>Surat Keterangan Penghasilan</option><option>Surat Keterangan Kelahiran</option><option>Surat Keterangan Kematian</option><option>Surat Keterangan Belum Menikah</option><option>Surat Keterangan Menikah</option><option>Surat Keterangan Pindah</option><option>Surat Keterangan Umum</option></select></div><div class="form-group full"><label>Keperluan *</label><textarea id="sbSKeperluan" rows="4"></textarea></div></div>',async()=>{try{const nik=$('sbSNik').value.trim(),jenis=$('sbSJenis').value,keperluan=$('sbSKeperluan').value.trim();if(!nik||!jenis||!keperluan)throw new Error('NIK, jenis surat dan keperluan wajib diisi.');const p=await personByNik(nik);if(!p)throw new Error('NIK tidak ditemukan di tabel penduduk.');const row={nik,nama:p.nama,dusun:p.dusun||$('sbSDusun').value,no_hp:p.no_telepon||$('sbSHP').value.trim()||null,jenis_surat:jenis,keperluan,status:'Menunggu'};await ins('pengajuan_surat',row);await log('Mengajukan '+jenis,'Pengajuan Surat',nik);$('sbSuratModal').style.display='none';toast('Pengajuan surat tersimpan ke Supabase.');ddSurat()}catch(e){toast('Gagal: '+e.message)}})};
+ window.sbAutoSurat=async()=>{try{const p=await personByNik($('sbSNik').value.trim());if(p){$('sbSNama').value=p.nama||'';$('sbSDusun').value=p.dusun||'Dusun 1';$('sbSHP').value=p.no_telepon||''}}catch(e){console.warn(e.message)}};
+ window.sbPrintSurat=async()=>{const a=await q('pengajuan_surat',{order:'created_at',asc:false});printRows('Laporan Pengajuan Surat',['No','NIK','Nama','Jenis Surat','Keperluan','Status','Tanggal'],a.map((x,i)=>[i+1,x.nik,x.nama,x.jenis_surat,x.keperluan,x.status,x.tanggal_pengajuan]))};
+
+ /* ABSENSI + CAMERA */
+ let cameraStream=null,capturedPhoto='';
+ window.ddAbsensi=async function(){panel('absensi','📷 Absensi Desa','<div class="sb-cards"><div class="sb-card">🟢 Hadir<b id="abHadir">0</b></div><div class="sb-card">🤒 Sakit<b id="abSakit">0</b></div><div class="sb-card">📝 Izin<b id="abIzin">0</b></div><div class="sb-card">❌ Alpa<b id="abAlpa">0</b></div></div><div class="panel"><div class="sb-actions">'+btn('📷 Ajukan Absensi','sbOpenAbsensi()')+btn('🖨️ Cetak','sbPrintAbsensi()','btn sb-print')+'</div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Nama</th><th>Dusun</th><th>Tanggal</th><th>Masuk</th><th>Keluar</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="sbAbsBody"></tbody></table></div></div>');try{window._abs=await q('absensi',{order:'tanggal',asc:false});renderAbs()}catch(e){$('sbAbsBody').innerHTML='<tr><td colspan="9">'+esc(e.message)+'</td></tr>'}}
+ function renderAbs(){const a=window._abs||[];['Hadir','Sakit','Izin','Alpa'].forEach((s,i)=>{const el=$(['abHadir','abSakit','abIzin','abAlpa'][i]);if(el)el.textContent=a.filter(x=>x.status===s).length});$('sbAbsBody').innerHTML=a.length?a.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.nik||'-')+'</td><td>'+esc(x.nama||'-')+'</td><td>'+esc(x.dusun||'-')+'</td><td>'+esc(x.tanggal||'-')+'</td><td>'+esc(x.jam_masuk||'-')+'</td><td>'+esc(x.jam_keluar||'-')+'</td><td><span class="sb-badge">'+esc(x.status||'Hadir')+'</span></td><td>'+btn('🗑','sbDel("absensi","'+x.id+'",ddAbsensi,"absensi")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="9" class="sb-empty">Belum ada absensi.</td></tr>'}
+ window.sbOpenAbsensi=function(){capturedPhoto='';ddModal('sbAbsModal','📷 Ajukan Absensi','<div class="form-grid"><div class="form-group"><label>NIK</label><input id="sbANik" onblur="sbAutoAbs()"></div><div class="form-group"><label>Nama *</label><input id="sbANama"></div><div class="form-group"><label>Dusun</label><select id="sbADusun"><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>Tanggal</label><input type="date" id="sbATanggal" value="'+today()+'"></div><div class="form-group"><label>Jam Masuk</label><input type="time" id="sbAMasuk"></div><div class="form-group"><label>Jam Keluar</label><input type="time" id="sbAKeluar"></div><div class="form-group"><label>Status</label><select id="sbAStatus"><option>Hadir</option><option>Sakit</option><option>Izin</option><option>Alpa</option></select></div><div class="form-group full"><label>Keterangan</label><textarea id="sbAKet"></textarea></div></div><hr><div class="sb-center"><video id="sbCamera" class="sb-camera" autoplay playsinline></video><br><button type="button" class="btn btn-secondary" onclick="sbStartCamera()">📷 Buka Kamera</button> <button type="button" class="btn btn-primary" onclick="sbCaptureCamera()">📸 Ambil Foto</button><canvas id="sbCanvas" style="display:none"></canvas><div id="sbPhotoMsg" class="sb-mini">Foto kamera untuk verifikasi/cetak. Kolom foto belum ada pada tabel absensi.</div></div>',async()=>{try{const row={nik:$('sbANik').value.trim()||null,nama:$('sbANama').value.trim(),dusun:$('sbADusun').value,tanggal:$('sbATanggal').value,jam_masuk:$('sbAMasuk').value||null,jam_keluar:$('sbAKeluar').value||null,status:$('sbAStatus').value,keterangan:$('sbAKet').value.trim()||null};if(!row.nama)throw new Error('Nama wajib diisi.');await ins('absensi',row);await log('Menambah absensi '+row.nama,'Absensi',row.status);if(cameraStream)cameraStream.getTracks().forEach(t=>t.stop());$('sbAbsModal').style.display='none';toast('Absensi tersimpan ke Supabase.');ddAbsensi()}catch(e){toast('Gagal: '+e.message)}})};
+ window.sbStartCamera=async()=>{try{cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});$('sbCamera').srcObject=cameraStream}catch(e){toast('Kamera tidak dapat dibuka: '+e.message)}};
+ window.sbCaptureCamera=()=>{const v=$('sbCamera'),c=$('sbCanvas');if(!v||!v.videoWidth){toast('Buka kamera terlebih dahulu.');return}c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);capturedPhoto=c.toDataURL('image/jpeg',.75);$('sbPhotoMsg').innerHTML='<img class="sb-photo" src="'+capturedPhoto+'"><br>Foto berhasil diambil.'};
+ window.sbAutoAbs=async()=>{try{const p=await personByNik($('sbANik').value.trim());if(p){$('sbANama').value=p.nama||'';$('sbADusun').value=p.dusun||'Dusun 1'}}catch(e){}}
+ window.sbPrintAbsensi=async()=>{const a=await q('absensi',{order:'tanggal',asc:false});printRows('Rekap Absensi Desa',['No','NIK','Nama','Dusun','Tanggal','Masuk','Keluar','Status'],a.map((x,i)=>[i+1,x.nik||'',x.nama||'',x.dusun||'',x.tanggal||'',x.jam_masuk||'',x.jam_keluar||'',x.status||'']))};
+
+ /* BANTUAN */
+ window.ddBantuan=async function(){panel('bantuan','🎁 Bantuan Desa','<div class="panel"><div class="sb-actions">'+btn('➕ Tambah Bantuan','sbOpenBantuan()')+btn('🖨️ Cetak','sbPrintBantuan()','btn sb-print')+'</div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Nama</th><th>Dusun</th><th>Jenis</th><th>Nilai</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="sbBanBody"></tbody></table></div></div>');try{const a=await q('bantuan',{order:'tanggal',asc:false});$('sbBanBody').innerHTML=a.length?a.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.nik||'-')+'</td><td>'+esc(x.nama||'-')+'</td><td>'+esc(x.dusun||'-')+'</td><td>'+esc(x.jenis_bantuan||'-')+'</td><td>'+money(x.nilai)+'</td><td><span class="sb-badge">'+esc(x.status||'-')+'</span></td><td>'+btn('🗑','sbDel("bantuan","'+x.id+'",ddBantuan,"bantuan")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="8" class="sb-empty">Belum ada bantuan.</td></tr>'}catch(e){$('sbBanBody').innerHTML='<tr><td colspan="8">'+esc(e.message)+'</td></tr>'}}
+ window.sbOpenBantuan=function(){ddModal('sbBanModal','🎁 Tambah Bantuan','<div class="form-grid"><div class="form-group"><label>NIK</label><input id="sbBNik" onblur="sbAutoBan()"></div><div class="form-group"><label>Nama *</label><input id="sbBNama"></div><div class="form-group"><label>Dusun</label><select id="sbBDusun"><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>Jenis Bantuan *</label><input id="sbBJenis"></div><div class="form-group"><label>Nilai</label><input type="number" id="sbBNilai" value="0"></div><div class="form-group"><label>Status</label><select id="sbBStatus"><option>Diajukan</option><option>Diterima</option><option>Ditolak</option></select></div><div class="form-group full"><label>Keterangan</label><textarea id="sbBKet"></textarea></div></div>',async()=>{try{const row={nik:$('sbBNik').value.trim()||null,nama:$('sbBNama').value.trim(),dusun:$('sbBDusun').value,jenis_bantuan:$('sbBJenis').value.trim(),nilai:Number($('sbBNilai').value||0),status:$('sbBStatus').value,keterangan:$('sbBKet').value.trim()||null};if(!row.nama||!row.jenis_bantuan)throw new Error('Nama dan jenis bantuan wajib diisi.');await ins('bantuan',row);await log('Menambah bantuan','Bantuan',row.jenis_bantuan);$('sbBanModal').style.display='none';toast('Bantuan tersimpan ke Supabase.');ddBantuan()}catch(e){toast('Gagal: '+e.message)}})};
+ window.sbAutoBan=async()=>{try{const p=await personByNik($('sbBNik').value.trim());if(p){$('sbBNama').value=p.nama||'';$('sbBDusun').value=p.dusun||'Dusun 1'}}catch(e){}};window.sbPrintBantuan=async()=>{const a=await q('bantuan',{order:'tanggal',asc:false});printRows('Laporan Bantuan Desa',['No','NIK','Nama','Dusun','Jenis','Nilai','Status'],a.map((x,i)=>[i+1,x.nik||'',x.nama||'',x.dusun||'',x.jenis_bantuan||'',money(x.nilai),x.status||'']))};
+
+ /* PEMBANGUNAN */
+ window.ddPembangunan=async function(){panel('pembangunan','🏗️ Pembangunan Desa','<div class="panel"><div class="sb-actions">'+btn('➕ Tambah Program','sbOpenPembangunan()')+btn('🖨️ Cetak','sbPrintPembangunan()','btn sb-print')+'</div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Program</th><th>Lokasi</th><th>Anggaran</th><th>Progress</th><th>Status</th><th>Tahun</th><th>Aksi</th></tr></thead><tbody id="sbPembangunanBody"></tbody></table></div></div>');try{const a=await q('pembangunan',{order:'tahun',asc:false});$('sbPembangunanBody').innerHTML=a.length?a.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.nama_program)+'</td><td>'+esc(x.lokasi||'-')+'</td><td>'+money(x.anggaran)+'</td><td>'+esc(x.progress||0)+'%</td><td>'+esc(x.status||'-')+'</td><td>'+esc(x.tahun||'-')+'</td><td>'+btn('🗑','sbDel("pembangunan","'+x.id+'",ddPembangunan,"pembangunan")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="8" class="sb-empty">Belum ada program pembangunan.</td></tr>'}catch(e){$('sbPembangunanBody').innerHTML='<tr><td colspan="8">'+esc(e.message)+'</td></tr>'}}
+ window.sbOpenPembangunan=function(){ddModal('sbPbModal','🏗️ Tambah Program Pembangunan','<div class="form-grid"><div class="form-group"><label>Nama Program *</label><input id="sbPbNama"></div><div class="form-group"><label>Lokasi</label><input id="sbPbLokasi"></div><div class="form-group"><label>Anggaran</label><input type="number" id="sbPbAnggaran" value="0"></div><div class="form-group"><label>Progress %</label><input type="number" id="sbPbProgress" min="0" max="100" value="0"></div><div class="form-group"><label>Status</label><select id="sbPbStatus"><option>Perencanaan</option><option>Berjalan</option><option>Selesai</option></select></div><div class="form-group"><label>Sumber Dana</label><input id="sbPbDana"></div><div class="form-group"><label>Tahun</label><input type="number" id="sbPbTahun" value="'+new Date().getFullYear()+'"></div><div class="form-group full"><label>Keterangan</label><textarea id="sbPbKet"></textarea></div></div>',async()=>{try{const progress=Math.max(0,Math.min(100,Number($('sbPbProgress').value||0))),row={nama_program:$('sbPbNama').value.trim(),lokasi:$('sbPbLokasi').value.trim()||null,anggaran:Number($('sbPbAnggaran').value||0),progress,status:$('sbPbStatus').value,sumber_dana:$('sbPbDana').value.trim()||null,tahun:Number($('sbPbTahun').value),keterangan:$('sbPbKet').value.trim()||null};if(!row.nama_program)throw new Error('Nama program wajib diisi.');await ins('pembangunan',row);await log('Menambah program pembangunan','Pembangunan Desa',row.nama_program);$('sbPbModal').style.display='none';toast('Program pembangunan tersimpan ke Supabase.');ddPembangunan()}catch(e){toast('Gagal: '+e.message)}})};
+ window.sbPrintPembangunan=async()=>{const a=await q('pembangunan',{order:'tahun',asc:false});printRows('Laporan Pembangunan Desa',['No','Program','Lokasi','Anggaran','Progress','Status','Tahun'],a.map((x,i)=>[i+1,x.nama_program||'',x.lokasi||'',money(x.anggaran),(x.progress||0)+'%',x.status||'',x.tahun||'']))};
+
+ /* PROGRAM DUSUN 1-5 */
+ window.ddDusun=async function(){panel('dusun','🏘️ Program Dusun','<div class="sb-tabs">'+[1,2,3,4,5].map(n=>'<button id="tabDusun'+n+'" onclick="sbLoadDusun('+n+')">Dusun '+n+'</button>').join('')+'</div><div class="panel"><div class="sb-actions">'+btn('➕ Tambah Program Dusun','sbOpenDusun()')+btn('🖨️ Cetak','sbPrintDusun()','btn sb-print')+'</div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Dusun</th><th>Program</th><th>Lokasi</th><th>Anggaran</th><th>Progress</th><th>Status</th><th>Tahun</th><th>Aksi</th></tr></thead><tbody id="sbDusunBody"></tbody></table></div></div>');sbLoadDusun(1)};
+ window.sbLoadDusun=async n=>{window._dusunSelected=n;[1,2,3,4,5].forEach(i=>{const b=$('tabDusun'+i);if(b)b.classList.toggle('active',i===n)});try{const a=await q('program_dusun',{order:'tahun',asc:false});const z=a.filter(x=>String(x.dusun||'').toLowerCase()===('dusun '+n));$('sbDusunBody').innerHTML=z.length?z.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.dusun)+'</td><td>'+esc(x.nama_program)+'</td><td>'+esc(x.lokasi||'-')+'</td><td>'+money(x.anggaran)+'</td><td>'+esc(x.progress||0)+'%</td><td>'+esc(x.status||'-')+'</td><td>'+esc(x.tahun||'-')+'</td><td>'+btn('🗑','sbDel("program_dusun","'+x.id+'",()=>sbLoadDusun('+n+'),"program dusun")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="9" class="sb-empty">Belum ada program untuk Dusun '+n+'.</td></tr>'}catch(e){$('sbDusunBody').innerHTML='<tr><td colspan="9">'+esc(e.message)+'</td></tr>'}};
+ window.sbOpenDusun=function(){const n=window._dusunSelected||1;ddModal('sbDusModal','🏘️ Tambah Program Dusun','<div class="form-grid"><div class="form-group"><label>Dusun</label><select id="sbDuDusun">'+[1,2,3,4,5].map(i=>'<option '+(i===n?'selected':'')+'>Dusun '+i+'</option>').join('')+'</select></div><div class="form-group"><label>Nama Program *</label><input id="sbDuNama"></div><div class="form-group"><label>Lokasi</label><input id="sbDuLokasi"></div><div class="form-group"><label>Anggaran</label><input type="number" id="sbDuAnggaran" value="0"></div><div class="form-group"><label>Progress %</label><input type="number" id="sbDuProgress" min="0" max="100" value="0"></div><div class="form-group"><label>Status</label><select id="sbDuStatus"><option>Rencana</option><option>Berjalan</option><option>Selesai</option></select></div><div class="form-group"><label>Tahun</label><input type="number" id="sbDuTahun" value="'+new Date().getFullYear()+'"></div><div class="form-group full"><label>Keterangan</label><textarea id="sbDuKet"></textarea></div></div>',async()=>{try{const row={dusun:$('sbDuDusun').value,nama_program:$('sbDuNama').value.trim(),lokasi:$('sbDuLokasi').value.trim()||null,anggaran:Number($('sbDuAnggaran').value||0),progress:Math.max(0,Math.min(100,Number($('sbDuProgress').value||0))),status:$('sbDuStatus').value,tahun:Number($('sbDuTahun').value),keterangan:$('sbDuKet').value.trim()||null};if(!row.nama_program)throw new Error('Nama program wajib diisi.');await ins('program_dusun',row);await log('Menambah program '+row.nama_program,'Program Dusun',row.dusun);$('sbDusModal').style.display='none';toast('Program dusun tersimpan ke Supabase.');sbLoadDusun(Number(row.dusun.replace(/\D/g,'')))}catch(e){toast('Gagal: '+e.message)}})};
+ window.sbPrintDusun=async()=>{const a=await q('program_dusun',{order:'tahun',asc:false}),z=window._dusunSelected?a.filter(x=>x.dusun==='Dusun '+window._dusunSelected):a;printRows('Laporan Program Dusun',['No','Dusun','Program','Lokasi','Anggaran','Progress','Status','Tahun'],z.map((x,i)=>[i+1,x.dusun,x.nama_program,x.lokasi||'',money(x.anggaran),(x.progress||0)+'%',x.status||'',x.tahun||'']))};
+
+ /* KEUANGAN */
+ window.ddKeuangan=async function(){panel('keuangan','💰 Keuangan Desa','<div class="sb-cards"><div class="sb-card">📥 Pemasukan<b id="kIn">Rp 0</b></div><div class="sb-card">📤 Pengeluaran<b id="kOut">Rp 0</b></div><div class="sb-card">💵 Saldo<b id="kSaldo">Rp 0</b></div></div><div class="panel"><div class="sb-actions">'+btn('➕ Transaksi','sbOpenKeuangan()')+btn('🖨️ Cetak','sbPrintKeuangan()','btn sb-print')+'</div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Uraian</th><th>Jumlah</th><th>Sumber Dana</th><th>Aksi</th></tr></thead><tbody id="sbKeuBody"></tbody></table></div></div>');try{const a=await q('keuangan',{order:'tanggal',asc:false});let i=0,o=0;a.forEach(x=>x.jenis==='Pemasukan'?i+=Number(x.jumlah||0):o+=Number(x.jumlah||0));$('kIn').textContent=money(i);$('kOut').textContent=money(o);$('kSaldo').textContent=money(i-o);$('sbKeuBody').innerHTML=a.length?a.map((x,n)=>'<tr><td>'+(n+1)+'</td><td>'+esc(x.tanggal)+'</td><td>'+esc(x.jenis)+'</td><td>'+esc(x.kategori||'-')+'</td><td>'+esc(x.uraian||'-')+'</td><td>'+money(x.jumlah)+'</td><td>'+esc(x.sumber_dana||'-')+'</td><td>'+btn('🗑','sbDel("keuangan","'+x.id+'",ddKeuangan,"transaksi keuangan")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="8" class="sb-empty">Belum ada transaksi.</td></tr>'}catch(e){$('sbKeuBody').innerHTML='<tr><td colspan="8">'+esc(e.message)+'</td></tr>'}}
+ window.sbOpenKeuangan=function(){ddModal('sbKeuModal','💰 Transaksi Keuangan','<div class="form-grid"><div class="form-group"><label>Tanggal</label><input type="date" id="sbKeuTanggal" value="'+today()+'"></div><div class="form-group"><label>Jenis</label><select id="sbKeuJenis"><option>Pemasukan</option><option>Pengeluaran</option></select></div><div class="form-group"><label>Kategori</label><input id="sbKeuKategori"></div><div class="form-group"><label>Jumlah</label><input type="number" id="sbKeuJumlah" value="0"></div><div class="form-group full"><label>Uraian</label><input id="sbKeuUraian"></div><div class="form-group"><label>Sumber Dana</label><input id="sbKeuDana"></div><div class="form-group"><label>Nomor Bukti</label><input id="sbKeuBukti"></div><div class="form-group"><label>Tahun</label><input type="number" id="sbKeuTahun" value="'+new Date().getFullYear()+'"></div><div class="form-group full"><label>Keterangan</label><textarea id="sbKeuKet"></textarea></div></div>',async()=>{try{const row={tanggal:$('sbKeuTanggal').value,jenis:$('sbKeuJenis').value,kategori:$('sbKeuKategori').value.trim()||null,uraian:$('sbKeuUraian').value.trim()||null,jumlah:Number($('sbKeuJumlah').value||0),sumber_dana:$('sbKeuDana').value.trim()||null,nomor_bukti:$('sbKeuBukti').value.trim()||null,tahun:Number($('sbKeuTahun').value),keterangan:$('sbKeuKet').value.trim()||null};await ins('keuangan',row);await log('Menambah transaksi '+row.jenis,'Keuangan Desa',row.uraian);$('sbKeuModal').style.display='none';toast('Transaksi tersimpan ke Supabase.');ddKeuangan()}catch(e){toast('Gagal: '+e.message)}})};
+ window.sbPrintKeuangan=async()=>{const a=await q('keuangan',{order:'tanggal',asc:false});printRows('Laporan Keuangan Desa',['No','Tanggal','Jenis','Kategori','Uraian','Jumlah','Sumber Dana'],a.map((x,i)=>[i+1,x.tanggal||'',x.jenis||'',x.kategori||'',x.uraian||'',money(x.jumlah),x.sumber_dana||'']))};
+
+ /* KRITIK SARAN */
+ window.ddKritik=async function(){panel('kritik','💬 Kritik & Saran','<div class="panel"><div class="sb-actions">'+btn('✉️ Kirim Kritik / Saran','sbOpenKritik()')+'</div></div><div class="panel"><div id="sbKritikList"></div></div>');try{const a=await q('kritik_saran',{order:'created_at',asc:false});$('sbKritikList').innerHTML=a.length?a.map(x=>'<div class="sb-news" style="margin-bottom:10px"><div class="sb-news-body"><b>💬 '+esc(x.subjek||'Kritik & Saran')+'</b><p style="margin:8px 0">'+esc(x.pesan||'')+'</p><div class="sb-mini">'+esc(x.nama||'Anonim')+' • '+esc(x.tanggal||'')+' • '+esc(x.status||'Baru')+'</div></div></div>').join(''):'<div class="sb-empty">Belum ada kritik dan saran.</div>'}catch(e){$('sbKritikList').innerHTML=errBox(e)}}
+ window.sbOpenKritik=function(){ddModal('sbKritikModal','💬 Kirim Kritik & Saran','<div class="form-group"><label>Nama</label><input id="sbKNama"></div><div class="form-group"><label>Kontak</label><input id="sbKKontak"></div><div class="form-group"><label>Subjek</label><input id="sbKSubjek"></div><div class="form-group"><label>Pesan *</label><textarea id="sbKPesan" rows="6"></textarea></div>',async()=>{try{const row={nama:$('sbKNama').value.trim()||null,kontak:$('sbKKontak').value.trim()||null,subjek:$('sbKSubjek').value.trim()||null,pesan:$('sbKPesan').value.trim(),status:'Baru',dibaca:false};if(!row.pesan)throw new Error('Pesan wajib diisi.');await ins('kritik_saran',row);await log('Mengirim kritik/saran','Kritik & Saran');$('sbKritikModal').style.display='none';toast('Kritik dan saran berhasil dikirim serta masuk rekap Supabase.');ddKritik()}catch(e){toast('Gagal: '+e.message)}})};
+
+ /* INFORMASI */
+ window.ddInformasi=async function(){panel('informasi','📰 Informasi Desa','<div class="sb-cards"><div class="sb-card">📰 Informasi Terbit<b id="infoCount">0</b></div></div><div class="panel"><div class="sb-actions">'+btn('➕ Tambah Informasi','sbOpenInfo()')+'</div></div><div class="panel"><input class="sb-search" id="infoSearch" placeholder="Cari informasi..." oninput="sbFilterInfo()"><div class="sb-grid" id="sbInfoList"></div></div>');try{window._info=await q('informasi_desa',{order:'tanggal',asc:false});renderInfo()}catch(e){$('sbInfoList').innerHTML=errBox(e)}}
+ function renderInfo(){const t=($('infoSearch')?.value||'').toLowerCase(),a=(window._info||[]).filter(x=>JSON.stringify(x).toLowerCase().includes(t));$('infoCount').textContent=(window._info||[]).length;$('sbInfoList').innerHTML=a.length?a.map(x=>'<article class="sb-news"><div class="sb-news-body"><span class="sb-badge">'+esc(x.kategori||'Umum')+'</span><h3 style="margin:9px 0">'+esc(x.judul)+'</h3><p style="line-height:1.7">'+esc(x.isi)+'</p><div class="sb-mini">'+esc(x.tanggal||'')+' • '+esc(x.penulis||'')+'</div><div style="margin-top:10px">'+btn('🗑','sbDel("informasi_desa","'+x.id+'",ddInformasi,"informasi desa")','btn sb-danger')+'</div></div></article>').join(''):'<div class="sb-empty">Belum ada informasi.</div>'}
+ window.sbFilterInfo=renderInfo;window.sbOpenInfo=function(){ddModal('sbInfoModal','📰 Tambah Informasi Desa','<div class="form-group"><label>Judul *</label><input id="sbIJudul"></div><div class="form-group"><label>Kategori</label><input id="sbIKategori"></div><div class="form-group"><label>Isi *</label><textarea id="sbIIsi" rows="8"></textarea></div><div class="form-group"><label>Penulis</label><input id="sbIPenulis" value="'+esc(actor())+'"></div>',async()=>{try{const row={judul:$('sbIJudul').value.trim(),kategori:$('sbIKategori').value.trim()||'Umum',isi:$('sbIIsi').value.trim(),penulis:$('sbIPenulis').value.trim()||null,status:'Terbit'};if(!row.judul||!row.isi)throw new Error('Judul dan isi wajib diisi.');await ins('informasi_desa',row);await log('Menambah informasi','Informasi Desa',row.judul);$('sbInfoModal').style.display='none';toast('Informasi tersimpan ke Supabase.');ddInformasi()}catch(e){toast('Gagal: '+e.message)}})};
+
+ /* ARSIP */
+ window.ddArsip=async function(){panel('arsip','🗂️ Arsip Desa','<div class="sb-cards"><div class="sb-card">📁 Total Dokumen<b id="arsipCount">0</b></div></div><div class="panel"><div class="sb-actions">'+btn('➕ Tambah Arsip','sbOpenArsip()')+btn('🖨️ Cetak','sbPrintArsip()','btn sb-print')+'</div></div><div class="panel"><input class="sb-search" id="arsipSearch" placeholder="Cari dokumen..." oninput="sbFilterArsip()"><div class="table-wrap"><table><thead><tr><th>No</th><th>Dokumen</th><th>Kategori</th><th>Nomor</th><th>Tanggal</th><th>Tahun</th><th>File/URL</th><th>Aksi</th></tr></thead><tbody id="sbArsipBody"></tbody></table></div></div>');try{window._ars=await q('arsip_desa',{order:'created_at',asc:false});renderArsip()}catch(e){$('sbArsipBody').innerHTML='<tr><td colspan="8">'+esc(e.message)+'</td></tr>'}}
+ function renderArsip(){const t=($('arsipSearch')?.value||'').toLowerCase(),a=(window._ars||[]).filter(x=>JSON.stringify(x).toLowerCase().includes(t));$('arsipCount').textContent=(window._ars||[]).length;$('sbArsipBody').innerHTML=a.length?a.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.nama_dokumen)+'</td><td>'+esc(x.kategori||'-')+'</td><td>'+esc(x.nomor_dokumen||'-')+'</td><td>'+esc(x.tanggal_dokumen||'-')+'</td><td>'+esc(x.tahun||'-')+'</td><td>'+(x.file_url?'<a href="'+esc(x.file_url)+'" target="_blank">📎 Buka</a>':'-')+'</td><td>'+btn('🗑','sbDel("arsip_desa","'+x.id+'",ddArsip,"arsip")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="8" class="sb-empty">Belum ada arsip.</td></tr>'}
+ window.sbFilterArsip=renderArsip;window.sbOpenArsip=function(){ddModal('sbArsipModal','🗂️ Tambah Arsip Desa','<div class="form-grid"><div class="form-group"><label>Nama Dokumen *</label><input id="sbArNama"></div><div class="form-group"><label>Kategori</label><input id="sbArKategori"></div><div class="form-group"><label>Nomor Dokumen</label><input id="sbArNomor"></div><div class="form-group"><label>Tanggal</label><input type="date" id="sbArTanggal" value="'+today()+'"></div><div class="form-group"><label>Tahun</label><input type="number" id="sbArTahun" value="'+new Date().getFullYear()+'"></div><div class="form-group full"><label>URL File</label><input id="sbArFile" placeholder="https://..."></div><div class="form-group full"><label>Keterangan</label><textarea id="sbArKet"></textarea></div></div>',async()=>{try{const row={nama_dokumen:$('sbArNama').value.trim(),kategori:$('sbArKategori').value.trim()||null,nomor_dokumen:$('sbArNomor').value.trim()||null,tanggal_dokumen:$('sbArTanggal').value||null,tahun:Number($('sbArTahun').value),file_url:$('sbArFile').value.trim()||null,keterangan:$('sbArKet').value.trim()||null,dibuat_oleh:actor()};if(!row.nama_dokumen)throw new Error('Nama dokumen wajib diisi.');await ins('arsip_desa',row);await log('Menambah arsip','Arsip Desa',row.nama_dokumen);$('sbArsipModal').style.display='none';toast('Arsip tersimpan ke Supabase.');ddArsip()}catch(e){toast('Gagal: '+e.message)}})};window.sbPrintArsip=async()=>{const a=await q('arsip_desa',{order:'tahun',asc:false});printRows('Daftar Arsip Desa',['No','Dokumen','Kategori','Nomor','Tanggal','Tahun'],a.map((x,i)=>[i+1,x.nama_dokumen||'',x.kategori||'',x.nomor_dokumen||'',x.tanggal_dokumen||'',x.tahun||'']))};
+
+ /* PEMERINTAHAN MENARIK */
+ window.ddPemerintahan=async function(){panel('pemerintahan','🏛️ Pemerintahan Desa Wawongkolono','<div class="panel"><div class="sb-actions">'+btn('➕ Tambah Perangkat','sbOpenPemerintahan()')+btn('🖨️ Cetak Struktur','sbPrintPemerintahan()','btn sb-print')+'</div></div><div class="panel"><input class="sb-search" id="pemSearch" placeholder="Cari nama atau jabatan..." oninput="sbFilterPem()"><div class="sb-grid" id="sbPemGrid"></div></div>');try{window._pem=await q('pemerintahan_desa',{order:'nama',asc:true});renderPem()}catch(e){$('sbPemGrid').innerHTML=errBox(e)}}
+ function renderPem(){const t=($('pemSearch')?.value||'').toLowerCase(),a=(window._pem||[]).filter(x=>JSON.stringify(x).toLowerCase().includes(t));$('sbPemGrid').innerHTML=a.length?a.map(x=>'<article class="sb-news"><div class="sb-news-body sb-center">'+(x.foto_url?'<img class="sb-photo" src="'+esc(x.foto_url)+'">':'<div style="font-size:60px">👤</div>')+'<h3>'+esc(x.nama||'-')+'</h3><p><b>'+esc(x.jabatan||'-')+'</b></p><p class="sb-mini">NIK/NIP: '+esc(x.nik||x.nip||'-')+'<br>Dusun: '+esc(x.dusun||'-')+'<br>📞 '+esc(x.no_hp||'-')+'</p><div style="margin-top:10px">'+btn('🗑','sbDel("pemerintahan_desa","'+x.id+'",ddPemerintahan,"perangkat desa")','btn sb-danger')+'</div></div></article>').join(''):'<div class="sb-empty">Belum ada perangkat desa.</div>'}
+ window.sbFilterPem=renderPem;window.sbOpenPemerintahan=function(){ddModal('sbPemModal','🏛️ Tambah Perangkat Desa','<div class="form-grid"><div class="form-group"><label>Nama *</label><input id="sbPemNama"></div><div class="form-group"><label>Jabatan *</label><input id="sbPemJabatan"></div><div class="form-group"><label>NIK</label><input id="sbPemNik"></div><div class="form-group"><label>NIP</label><input id="sbPemNip"></div><div class="form-group"><label>Dusun</label><select id="sbPemDusun"><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>No HP</label><input id="sbPemHP"></div><div class="form-group full"><label>Alamat</label><textarea id="sbPemAlamat"></textarea></div><div class="form-group full"><label>URL Foto</label><input id="sbPemFoto"></div></div>',async()=>{try{const row={nama:$('sbPemNama').value.trim(),jabatan:$('sbPemJabatan').value.trim(),nik:$('sbPemNik').value.trim()||null,nip:$('sbPemNip').value.trim()||null,dusun:$('sbPemDusun').value,no_hp:$('sbPemHP').value.trim()||null,alamat:$('sbPemAlamat').value.trim()||null,status:'Aktif',foto_url:$('sbPemFoto').value.trim()||null};if(!row.nama||!row.jabatan)throw new Error('Nama dan jabatan wajib diisi.');await ins('pemerintahan_desa',row);await log('Menambah perangkat','Pemerintahan Desa',row.nama);$('sbPemModal').style.display='none';toast('Perangkat tersimpan ke Supabase.');ddPemerintahan()}catch(e){toast('Gagal: '+e.message)}})};window.sbPrintPemerintahan=async()=>{const a=await q('pemerintahan_desa',{order:'nama',asc:true});printRows('Struktur Pemerintahan Desa',['No','Nama','Jabatan','NIK','NIP','Dusun','No HP'],a.map((x,i)=>[i+1,x.nama||'',x.jabatan||'',x.nik||'',x.nip||'',x.dusun||'',x.no_hp||'']))};
+
+ /* PENGGUNA & AKSES */
+ window.ddPengguna=async function(){panel('pengguna','🔐 Pengguna & Hak Akses','<div class="sb-cards"><div class="sb-card">👤 Total Pengguna<b id="usrTotal">0</b></div><div class="sb-card">🟢 Aktif<b id="usrActive">0</b></div></div><div class="panel"><div class="sb-actions">'+btn('➕ Tambah Pengguna','sbOpenPengguna()')+'</div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Username</th><th>Nama</th><th>Role</th><th>Dusun</th><th>Status</th><th>Email</th><th>Aksi</th></tr></thead><tbody id="sbUserBody"></tbody></table></div></div>');try{const a=await q('pengguna_desa',{order:'created_at',asc:false});$('usrTotal').textContent=a.length;$('usrActive').textContent=a.filter(x=>x.status==='Aktif').length;$('sbUserBody').innerHTML=a.length?a.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.username)+'</td><td>'+esc(x.nama)+'</td><td>'+esc(x.role)+'</td><td>'+esc(x.dusun)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.email||'-')+'</td><td>'+btn('🗑','sbDel("pengguna_desa","'+x.id+'",ddPengguna,"pengguna")','btn sb-danger')+'</td></tr>').join(''):'<tr><td colspan="8" class="sb-empty">Belum ada pengguna.</td></tr>'}catch(e){$('sbUserBody').innerHTML='<tr><td colspan="8">'+esc(e.message)+'</td></tr>'}}
+ window.sbOpenPengguna=function(){ddModal('sbUserModal','🔐 Tambah Pengguna & Hak Akses','<div class="form-grid"><div class="form-group"><label>Username *</label><input id="sbUUsername"></div><div class="form-group"><label>Nama *</label><input id="sbUNama"></div><div class="form-group"><label>Email</label><input id="sbUEmail" type="email"></div><div class="form-group"><label>Role</label><select id="sbURole"><option>Admin</option><option>Operator</option><option>Kepala Desa</option><option>Sekretaris Desa</option><option>Bendahara Desa</option><option>BPD</option><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option><option>Masyarakat</option></select></div><div class="form-group"><label>Dusun</label><select id="sbUDusun"><option>ALL</option><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>Status</label><select id="sbUStatus"><option>Aktif</option><option>Nonaktif</option></select></div></div>',async()=>{try{const row={username:$('sbUUsername').value.trim(),nama:$('sbUNama').value.trim(),email:$('sbUEmail').value.trim()||null,role:$('sbURole').value,dusun:$('sbUDusun').value,status:$('sbUStatus').value};if(!row.username||!row.nama)throw new Error('Username dan nama wajib diisi.');await ins('pengguna_desa',row);await log('Menambah pengguna','Pengguna & Hak Akses',row.username);$('sbUserModal').style.display='none';toast('Pengguna tersimpan ke Supabase.');ddPengguna()}catch(e){toast('Gagal: '+e.message)}})};
+
+ /* LOG */
+ window.ddLog=async function(){panel('log','📝 Log Aktivitas','<div class="panel"><div class="sb-actions">'+btn('🔄 Refresh','ddLog()')+btn('🖨️ Cetak','sbPrintLog()','btn sb-print')+btn('🧹 Bersihkan','sbClearLog()','btn sb-danger')+'</div></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Halaman</th><th>Detail</th></tr></thead><tbody id="sbLogBody"></tbody></table></div></div>');try{const a=await q('log_aktivitas',{order:'waktu',asc:false});$('sbLogBody').innerHTML=a.length?a.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.waktu)+'</td><td>'+esc(x.username||x.nama_pengguna||'-')+'</td><td>'+esc(x.aktivitas||'-')+'</td><td>'+esc(x.halaman||'-')+'</td><td>'+esc(x.detail||'-')+'</td></tr>').join(''):'<tr><td colspan="6" class="sb-empty">Belum ada aktivitas.</td></tr>'}catch(e){$('sbLogBody').innerHTML='<tr><td colspan="6">'+esc(e.message)+'</td></tr>'}}
+ window.sbClearLog=async()=>{if(!confirm('Hapus semua log?'))return;try{const r=await S.from('log_aktivitas').delete().neq('id','00000000-0000-0000-0000-000000000000');if(r.error)throw r.error;toast('Log dihapus dari Supabase.');ddLog()}catch(e){toast('Gagal: '+e.message)}};window.sbPrintLog=async()=>{const a=await q('log_aktivitas',{order:'waktu',asc:false});printRows('Log Aktivitas',['No','Waktu','Pengguna','Aktivitas','Halaman','Detail'],a.map((x,i)=>[i+1,x.waktu||'',x.username||'',x.aktivitas||'',x.halaman||'',x.detail||'']))};
+
+ /* LAPORAN */
+ window.ddLaporan=async function(){panel('laporan','📊 Laporan Desa','<div class="sb-cards"><div class="sb-card">👥 Penduduk<b id="rP">0</b></div><div class="sb-card">🏠 KK<b id="rK">0</b></div><div class="sb-card">🎁 Bantuan<b id="rB">0</b></div><div class="sb-card">📨 Surat<b id="rS">0</b></div><div class="sb-card">📷 Absensi<b id="rA">0</b></div><div class="sb-card">🏗️ Pembangunan<b id="rPb">0</b></div></div><div class="panel"><div class="sb-actions">'+btn('🔄 Refresh','ddLaporan()')+btn('🖨️ Cetak Ringkasan','sbPrintLaporan()','btn sb-print')+'</div><p style="margin-top:12px;color:#64748b">Seluruh angka diambil langsung dari Supabase.</p></div>');try{const [p,k,b,s,a,pb]=await Promise.all([q('penduduk',{select:'id'}),q('kartu_keluarga',{select:'id'}),q('bantuan',{select:'id'}),q('pengajuan_surat',{select:'id'}),q('absensi',{select:'id'}),q('pembangunan',{select:'id'})]);$('rP').textContent=p.length;$('rK').textContent=k.length;$('rB').textContent=b.length;$('rS').textContent=s.length;$('rA').textContent=a.length;$('rPb').textContent=pb.length}catch(e){toast('Gagal laporan: '+e.message)}};
+ window.sbPrintLaporan=async()=>{const [p,k,b,s,a,pb]=await Promise.all([q('penduduk',{select:'id'}),q('kartu_keluarga',{select:'id'}),q('bantuan',{select:'id'}),q('pengajuan_surat',{select:'id'}),q('absensi',{select:'id'}),q('pembangunan',{select:'id'})]);printRows('Ringkasan Laporan Desa',['Indikator','Jumlah'],[['Penduduk',p.length],['Kartu Keluarga',k.length],['Bantuan',b.length],['Pengajuan Surat',s.length],['Absensi',a.length],['Pembangunan',pb.length]])};
+
+ /* PENGATURAN */
+ window.ddPengaturan=async function(){panel('pengaturan','⚙️ Pengaturan Desa','<div class="panel"><div class="form-grid"><div class="form-group"><label>Nama Desa</label><input id="setNama"></div><div class="form-group"><label>Kecamatan</label><input id="setKec"></div><div class="form-group"><label>Kabupaten</label><input id="setKab"></div><div class="form-group"><label>Provinsi</label><input id="setProv"></div><div class="form-group"><label>Kode Desa</label><input id="setKode"></div><div class="form-group"><label>Telepon</label><input id="setTelp"></div><div class="form-group full"><label>Alamat</label><textarea id="setAlamat"></textarea></div><div class="form-group"><label>Email</label><input id="setEmail"></div><div class="form-group"><label>Website</label><input id="setWeb"></div><div class="form-group"><label>Kepala Desa</label><input id="setKades"></div></div><button class="btn btn-primary" onclick="sbSaveSetting()">💾 Simpan Pengaturan</button></div>');try{const a=await q('pengaturan_desa',{limit:1});const x=a[0]||{};const m={setNama:x.nama_desa||'Desa Wawongkolono',setKec:x.kecamatan||'Menui Kepulauan',setKab:x.kabupaten||'Morowali',setProv:x.provinsi||'Sulawesi Tengah',setKode:x.kode_desa||'',setTelp:x.telepon||'',setAlamat:x.alamat||'',setEmail:x.email||'',setWeb:x.website||'',setKades:x.kepala_desa||''};Object.entries(m).forEach(([i,v])=>$(i).value=v);window._settingId=x.id||null}catch(e){toast('Gagal membaca pengaturan: '+e.message)}};
+ window.sbSaveSetting=async()=>{try{const row={nama_desa:$('setNama').value.trim(),kecamatan:$('setKec').value.trim(),kabupaten:$('setKab').value.trim(),provinsi:$('setProv').value.trim(),kode_desa:$('setKode').value.trim()||null,telepon:$('setTelp').value.trim()||null,alamat:$('setAlamat').value.trim()||null,email:$('setEmail').value.trim()||null,website:$('setWeb').value.trim()||null,kepala_desa:$('setKades').value.trim()||null,updated_by:actor(),updated_at:new Date().toISOString()};if(window._settingId)await upd('pengaturan_desa',window._settingId,row);else await ins('pengaturan_desa',row);await log('Mengubah pengaturan','Pengaturan Desa');toast('Pengaturan tersimpan ke Supabase.');ddPengaturan()}catch(e){toast('Gagal: '+e.message)}};
+
+ /* ROUTE FINAL */
+ const old=window.ddRoute;window.ddRoute=async function(page){
+   if(page==='pelayanan')return ddPelayanan(); if(page==='surat')return ddSurat(); if(page==='absensi')return ddAbsensi(); if(page==='bantuan')return ddBantuan(); if(page==='pembangunan')return ddPembangunan(); if(page==='dusun')return ddDusun(); if(page==='keuangan')return ddKeuangan(); if(page==='kritik')return ddKritik(); if(page==='informasi')return ddInformasi(); if(page==='arsip')return ddArsip(); if(page==='pemerintahan')return ddPemerintahan(); if(page==='pengguna')return ddPengguna(); if(page==='log')return ddLog(); if(page==='laporan')return ddLaporan(); if(page==='pengaturan')return ddPengaturan(); if(typeof old==='function')return old(page);
+ };
+ const originalShow=window.showPage;window.showPage=function(page,button){if(typeof originalShow==='function')originalShow(page,button);setTimeout(()=>{if(window.ddRoute)window.ddRoute(page)},50)};
+})();
+</script>
 </body>
 </html>
