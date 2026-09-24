@@ -6,6 +6,18 @@
 <title>Sistem Informasi Desa Wawongkolono</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+/* ============================================================
+   SUPABASE INITIALIZATION - DESA WAWONGKOLONO
+   ============================================================ */
+const SUPABASE_URL = "https://upsmpuzktefbrulsvydv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ";
+window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+var currentUser = null;
+var selectedRole = "";
+var pageNames = {dashboard:"Dashboard",penduduk:"Data Penduduk",kk:"Data KK",pelayanan:"Pelayanan Desa",surat:"Surat Desa",absensi:"Absensi",pemerintahan:"Pemerintahan Desa",bantuan:"Bantuan",pembangunan:"Pembangunan Desa",dusun:"Program Dusun",keuangan:"Keuangan Desa",kritik:"Kritik & Saran",informasi:"Informasi Desa",laporan:"Laporan",arsip:"Arsip Desa",pengguna:"Pengguna & Hak Akses",log:"Log Aktivitas",pengaturan:"Pengaturan",ai:"AI Desa"};
+</script>
 <script>
 
 /* ===== MODUL FUNGSIONAL TANPA MENGUBAH MODUL LAMA ===== */
@@ -1888,6 +1900,118 @@ placeholder="Tuliskan kritik atau saran..."></textarea>
 
 
 <script></script>
+
+<script>
+/* ============================================================
+   CORE FIX - LOGIN, NAVIGASI, PENDUDUK & KK
+   Tidak menghapus menu yang sudah ada.
+   ============================================================ */
+(function(){
+  const S=window.supabaseClient;
+  const $=id=>document.getElementById(id);
+  const esc=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  const dusunId=v=>{const m=String(v??'').match(/\d+/);return m?Number(m[0]):null};
+  const dusunLabel=v=>{const n=dusunId(v);return n?'Dusun '+n:(v??'-')};
+  const errorText=e=>e?.message||e?.details||e?.hint||'Terjadi kesalahan.';
+
+  window.openLogin=function(){if($('loginOverlay'))$('loginOverlay').style.display='flex';};
+  window.closeLogin=function(){if($('loginOverlay'))$('loginOverlay').style.display='none';};
+  window.selectRole=function(btn,role){selectedRole=role;document.querySelectorAll('.role-btn').forEach(x=>x.classList.remove('selected','active'));if(btn)btn.classList.add('selected','active');};
+  window.togglePassword=function(){const x=$('loginPassword');if(!x)return;x.type=x.type==='password'?'text':'password';};
+
+  window.login=async function(){
+    const email=($('loginEmail')?.value||'').trim();
+    const password=$('loginPassword')?.value||'';
+    const msg=$('loginMessage');
+    if(msg){msg.textContent='';msg.style.color='#dc2626';}
+    if(!email||!password){if(msg)msg.textContent='Email dan password wajib diisi.';return;}
+    try{
+      const {data,error}=await S.auth.signInWithPassword({email,password});
+      if(error)throw error;
+      currentUser=data.user;
+      /* Ambil hak akses dari tabel pengguna_desa jika tersedia. */
+      try{
+        const r=await S.from('pengguna_desa').select('nama,role,dusun,status,email,username').eq('email',email).limit(1);
+        if(!r.error&&r.data?.[0]){
+          const u=r.data[0];
+          if(u.status&&u.status!=='Aktif')throw new Error('Akun tidak aktif.');
+          if(u.role)selectedRole=u.role;
+          currentUser={...currentUser,...u};
+        }
+      }catch(profileErr){
+        console.warn('Profil pengguna_desa:',profileErr.message);
+      }
+      if($('homePage'))$('homePage').style.display='none';
+      if($('appPage'))$('appPage').style.display='block';
+      if($('loginOverlay'))$('loginOverlay').style.display='none';
+      if($('displayUser'))$('displayUser').textContent=currentUser.nama||currentUser.email;
+      if($('displayRole'))$('displayRole').textContent=selectedRole||'Pengguna';
+      await window.loadDashboard();
+      if(typeof window.showPage==='function')window.showPage('dashboard',document.querySelector('.menu-btn'));
+    }catch(e){
+      console.error('Login:',e);
+      if(msg)msg.textContent=e.message?.includes('Invalid login credentials')?'Email atau password salah.':errorText(e);
+    }
+  };
+
+  window.logout=async function(){try{await S.auth.signOut();}catch(e){console.warn(e)}currentUser=null;selectedRole='';if($('appPage'))$('appPage').style.display='none';if($('homePage'))$('homePage').style.display='block';if($('loginOverlay'))$('loginOverlay').style.display='none';};
+
+  window.showPage=async function(page,button){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const sec=$('page-'+page);if(sec)sec.classList.add('active');
+    document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('active'));if(button)button.classList.add('active');
+    if(window.innerWidth<900)$('sidebar')?.classList.remove('open');
+    if(page==='penduduk')return window.loadPenduduk();
+    if(page==='kk')return window.loadKK();
+    if(window.ddRoute)return window.ddRoute(page);
+  };
+  window.showPageByName=function(page){const b=[...document.querySelectorAll('.menu-btn')].find(x=>x.getAttribute('onclick')?.includes("'"+page+"'"));return window.showPage(page,b);};
+
+  async function query(table,select='*'){const r=await S.from(table).select(select);if(r.error)throw r.error;return r.data||[];}
+
+  window.loadDashboard=async function(){
+    try{
+      const [p,k,b,pr]=await Promise.all([query('penduduk','id'),query('kartu_keluarga','id'),query('bantuan','id'),query('pembangunan','id')]);
+      if($('statPenduduk'))$('statPenduduk').textContent=p.length;
+      if($('statKK'))$('statKK').textContent=k.length;
+      if($('statBantuan'))$('statBantuan').textContent=b.length;
+      if($('statProgram'))$('statProgram').textContent=pr.length;
+    }catch(e){console.warn('Dashboard Supabase:',e.message);}
+  };
+
+  function pendudukRows(data){
+    const body=$('pendudukTableBody');if(!body)return;
+    body.innerHTML=data.length?data.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.nik||'-')}</td><td>${esc(x.nama||'-')}</td><td>${esc(x.jenis_kelamin||x.jk||'-')}</td><td>${esc([x.tempat_lahir,x.tanggal_lahir].filter(Boolean).join(', ')||'-')}</td><td>${esc(dusunLabel(x.dusun))}</td><td>${esc(x.rt_rw||[x.rt,x.rw].filter(Boolean).join('/')||'-')}</td><td><span class="badge">${esc(x.status||'Aktif')}</span></td><td>${x.id?`<button class="btn btn-danger" onclick="deletePenduduk('${String(x.id).replace(/'/g,"\'")}')">🗑</button>`:''}</td></tr>`).join(''):'<tr><td colspan="9" class="empty">Belum ada data penduduk.</td></tr>';
+  }
+  window._pendudukData=[];
+  window.loadPenduduk=async function(){try{const r=await S.from('penduduk').select('*').order('nama',{ascending:true});if(r.error)throw r.error;window._pendudukData=r.data||[];pendudukRows(window._pendudukData);if($('statPenduduk'))$('statPenduduk').textContent=window._pendudukData.length;}catch(e){console.error(e);const b=$('pendudukTableBody');if(b)b.innerHTML=`<tr><td colspan="9" class="empty">Gagal memuat Supabase: ${esc(errorText(e))}</td></tr>`;}};
+  window.filterPenduduk=function(){const q=($('searchPenduduk')?.value||'').toLowerCase();pendudukRows(window._pendudukData.filter(x=>JSON.stringify(x).toLowerCase().includes(q)));};
+  window.openPendudukModal=function(){
+    ddModal('pendudukModal','👥 Tambah Penduduk',`<div class="form-grid"><div class="form-group"><label>NIK *</label><input id="pNIK" maxlength="16"></div><div class="form-group"><label>No. KK</label><input id="pKK" maxlength="16"></div><div class="form-group"><label>Nama Lengkap *</label><input id="pNama"></div><div class="form-group"><label>Jenis Kelamin</label><select id="pJK"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div><div class="form-group"><label>Tempat Lahir</label><input id="pTempat"></div><div class="form-group"><label>Tanggal Lahir</label><input type="date" id="pTanggal"></div><div class="form-group"><label>Status</label><select id="pStatus"><option>Aktif</option><option>Masuk</option><option>Pindah</option><option>Meninggal</option></select></div><div class="form-group"><label>Dusun</label><select id="pDusun"><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>RT/RW</label><input id="pRTRW" placeholder="001/001"></div><div class="form-group full"><label>Alamat</label><textarea id="pAlamat"></textarea></div><div class="form-group full"><label>Keterangan</label><textarea id="pKet"></textarea></div></div>`,async()=>{
+      const row={nik:$('pNIK').value.trim(),no_kk:$('pKK').value.trim()||null,nama:$('pNama').value.trim(),jenis_kelamin:$('pJK').value,tempat_lahir:$('pTempat').value.trim()||null,tanggal_lahir:$('pTanggal').value||null,status:$('pStatus').value,dusun:dusunId($('pDusun').value),rt_rw:$('pRTRW').value.trim()||null,alamat:$('pAlamat').value.trim()||null,keterangan:$('pKet').value.trim()||null};
+      if(!row.nik||!row.nama){showToast('NIK dan nama wajib diisi.');return;}
+      try{let r=await S.from('penduduk').insert(row);if(r.error)throw r.error;document.getElementById('pendudukModal').style.display='none';showToast('Penduduk berhasil disimpan ke Supabase.');await loadPenduduk();await loadDashboard();}catch(e){showToast('Gagal menyimpan penduduk: '+errorText(e));console.error(e);}});
+  };
+  window.deletePenduduk=async function(id){if(!confirm('Hapus data penduduk ini?'))return;try{const r=await S.from('penduduk').delete().eq('id',id);if(r.error)throw r.error;showToast('Data penduduk dihapus.');await loadPenduduk();await loadDashboard();}catch(e){showToast('Gagal: '+errorText(e));}};
+  window.printPenduduk=function(){const w=window.open('','_blank');if(!w)return;w.document.write('<html><head><title>Data Penduduk Desa Wawongkolono</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #999;padding:7px}th{background:#eee}</style></head><body><h2>Data Penduduk Desa Wawongkolono</h2><table><tr><th>No</th><th>NIK</th><th>Nama</th><th>JK</th><th>Dusun</th><th>Status</th></tr>'+window._pendudukData.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.nik)}</td><td>${esc(x.nama)}</td><td>${esc(x.jenis_kelamin||x.jk)}</td><td>${esc(dusunLabel(x.dusun))}</td><td>${esc(x.status)}</td></tr>`).join('')+'</table></body></html>');w.document.close();w.print();};
+
+  window._kkData=[];
+  function kkRows(data){const body=$('kkTableBody');if(!body)return;body.innerHTML=data.length?data.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.nomor_kk||x.no_kk||'-')}</td><td>${esc(x.kepala_keluarga||'-')}</td><td>${esc(x.alamat||'-')}</td><td>${esc(dusunLabel(x.dusun))}</td><td>${esc(x.rt_rw||[x.rt,x.rw].filter(Boolean).join('/')||'-')}</td><td>${x.id?`<button class="btn btn-danger" onclick="deleteKK('${String(x.id).replace(/'/g,"\'")}')">🗑</button>`:''}</td></tr>`).join(''):'<tr><td colspan="7" class="empty">Belum ada data KK.</td></tr>';};
+  window.loadKK=async function(){try{const r=await S.from('kartu_keluarga').select('*').order('nomor_kk',{ascending:true});if(r.error)throw r.error;window._kkData=r.data||[];kkRows(window._kkData);if($('statKK'))$('statKK').textContent=window._kkData.length;}catch(e){const b=$('kkTableBody');if(b)b.innerHTML=`<tr><td colspan="7" class="empty">Gagal memuat Supabase: ${esc(errorText(e))}</td></tr>`;}};
+  window.filterKK=function(){const q=($('searchKK')?.value||'').toLowerCase();kkRows(window._kkData.filter(x=>JSON.stringify(x).toLowerCase().includes(q)));};
+  window.openKKModal=function(){ddModal('kkModal','🏠 Tambah Kartu Keluarga',`<div class="form-grid"><div class="form-group"><label>Nomor KK *</label><input id="kNomor" maxlength="16"></div><div class="form-group"><label>Kepala Keluarga *</label><input id="kKepala"></div><div class="form-group full"><label>Alamat</label><textarea id="kAlamat"></textarea></div><div class="form-group"><label>Dusun</label><select id="kDusun"><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>RT/RW</label><input id="kRTRW" placeholder="001/001"></div></div>`,async()=>{const row={nomor_kk:$('kNomor').value.trim(),kepala_keluarga:$('kKepala').value.trim(),alamat:$('kAlamat').value.trim()||null,dusun:dusunId($('kDusun').value),rt_rw:$('kRTRW').value.trim()||null};if(!row.nomor_kk||!row.kepala_keluarga){showToast('Nomor KK dan kepala keluarga wajib diisi.');return;}try{const r=await S.from('kartu_keluarga').insert(row);if(r.error)throw r.error;document.getElementById('kkModal').style.display='none';showToast('KK berhasil disimpan ke Supabase.');await loadKK();await loadDashboard();}catch(e){showToast('Gagal menyimpan KK: '+errorText(e));}});};
+  window.deleteKK=async function(id){if(!confirm('Hapus data KK ini?'))return;try{const r=await S.from('kartu_keluarga').delete().eq('id',id);if(r.error)throw r.error;showToast('Data KK dihapus.');await loadKK();await loadDashboard();}catch(e){showToast('Gagal: '+errorText(e));}};
+
+  /* Jangan tampilkan akun contoh/username/password di halaman login. */
+  document.addEventListener('DOMContentLoaded',()=>{
+    const pw=$('loginPassword');if(pw)pw.autocomplete='current-password';
+    const em=$('loginEmail');if(em)em.autocomplete='username';
+    if($('appPage'))$('appPage').style.display='none';
+    if($('loginOverlay'))$('loginOverlay').style.display='none';
+    S.auth.getSession().then(async({data})=>{if(data?.session){currentUser=data.session.user;if($('homePage'))$('homePage').style.display='none';if($('appPage'))$('appPage').style.display='block';if($('displayUser'))$('displayUser').textContent=currentUser.email;await loadDashboard();}}).catch(e=>console.warn('Session:',e.message));
+  });
+})();
+</script>
 </body>
 
 </html>
