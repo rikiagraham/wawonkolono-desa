@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi Desa (SID) Wawongkolono</title>
+    <title>Sistem Informasi & Smart Village Terpadu</title>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <!-- Leaflet.js CSS (GIS Peta Desa) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         :root {
             --primary: #1b5e20;
@@ -17,29 +21,16 @@
             --accent: #f57f17;
             --bg-light: #f4f6f9;
             --text-dark: #2c3e50;
-            --text-muted: #6c757d;
             --white: #ffffff;
             --border: #e0e0e0;
             --danger: #d32f2f;
-            --sidebar-width: 260px;
+            --sidebar-width: 270px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); display: flex; min-height: 100vh; }
 
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* --- SIDEBAR NAVIGATION --- */
+        /* --- SIDEBAR NAVIGASI --- */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--primary-dark);
@@ -47,591 +38,328 @@
             display: flex;
             flex-direction: column;
             position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
+            top: 0; bottom: 0; left: 0;
             z-index: 100;
             transition: all 0.3s ease;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
-
         .sidebar-header {
             padding: 20px 15px;
             background-color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-
-        .sidebar-header i {
-            font-size: 2rem;
-            color: var(--accent);
-        }
-
-        .sidebar-header h2 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .sidebar-header span {
-            font-size: 0.75rem;
-            color: #a5d6a7;
-            font-weight: 400;
-        }
-
-        .sidebar-menu {
-            list-style: none;
-            padding: 15px 0;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
+        .sidebar-header i { font-size: 2rem; color: var(--accent); }
+        .sidebar-header h2 { font-size: 1rem; font-weight: 700; line-height: 1.2; }
+        .sidebar-menu { list-style: none; padding: 10px 0; flex-grow: 1; overflow-y: auto; }
         .menu-title {
-            padding: 10px 20px 5px;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #81c784;
-            font-weight: 600;
+            padding: 10px 20px 4px; font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: 1px; color: #81c784; font-weight: 700;
         }
-
         .menu-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #e8f5e9;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            font-size: 0.9rem;
+            padding: 10px 20px; display: flex; align-items: center; gap: 12px;
+            color: #e8f5e9; cursor: pointer; transition: all 0.2s ease;
+            text-decoration: none; font-size: 0.85rem;
         }
-
         .menu-item:hover, .menu-item.active {
-            background-color: var(--primary-light);
-            color: var(--white);
+            background-color: var(--primary-light); color: var(--white);
             border-left: 4px solid var(--accent);
         }
+        .menu-item i { font-size: 1rem; width: 20px; text-align: center; }
 
-        .menu-item i {
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* --- MAIN CONTENT LAYOUT --- */
+        /* --- MAIN WRAPPER --- */
         .main-wrapper {
             margin-left: var(--sidebar-width);
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            transition: all 0.3s ease;
+            flex-grow: 1; display: flex; flex-direction: column; min-width: 0;
         }
-
         .topbar {
-            background-color: var(--white);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            background-color: var(--white); padding: 15px 30px; display: flex;
+            justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
-
-        .topbar-toggle {
-            display: none;
-            font-size: 1.4rem;
-            cursor: pointer;
-            color: var(--primary);
-        }
-
-        .user-panel {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #e8f5e9;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: var(--primary-dark);
-        }
-
-        .role-tag {
-            font-size: 0.7rem;
-            background: var(--primary);
-            color: var(--white);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .content-area {
-            padding: 25px 30px;
-            flex-grow: 1;
-        }
-
-        .app-section {
-            display: none;
-        }
-
-        .app-section.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- CARDS & STATS --- */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card {
-            background: var(--white);
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            background: #e8f5e9;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .stat-info h3 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
-        .stat-info p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
+        .topbar-toggle { display: none; font-size: 1.4rem; cursor: pointer; color: var(--primary); }
+        .content-area { padding: 25px 30px; flex-grow: 1; }
+        .app-section { display: none; }
+        .app-section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- PANELS & TABLES --- */
         .panel {
-            background: var(--white);
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            background: var(--white); border-radius: 8px; border: 1px solid var(--border);
+            padding: 20px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-
         .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
         }
-
-        .panel-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 0.88rem;
-        }
-
-        th, td {
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            background-color: #f8f9fa;
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        tr:hover {
-            background-color: #f1f8e9;
-        }
+        .panel-title { font-size: 1.1rem; font-weight: 600; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; }
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid var(--border); }
+        th { background-color: #f8f9fa; color: var(--text-dark); font-weight: 600; }
+        tr:hover { background-color: #f1f8e9; }
 
         /* --- BUTTONS & INPUTS --- */
         .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: none;
-            background-color: var(--primary);
-            color: var(--white);
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            transition: background 0.2s;
+            padding: 8px 16px; border-radius: 6px; border: none; background-color: var(--primary);
+            color: var(--white); font-weight: 500; cursor: pointer; display: inline-flex;
+            align-items: center; gap: 8px; font-size: 0.85rem; transition: background 0.2s;
         }
-
-        .btn:hover {
-            background-color: var(--primary-light);
-        }
-
-        .btn-sm {
-            padding: 4px 10px;
-            font-size: 0.78rem;
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-        }
-
-        .btn-danger:hover {
-            background-color: #b71c1c;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dark);
-        }
-
-        .btn-outline:hover {
-            background: #f5f5f5;
-        }
-
+        .btn:hover { background-color: var(--primary-light); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-dark); }
         .form-control {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 0.88rem;
-            outline: none;
-            transition: border 0.2s;
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 0.88rem; outline: none; margin-bottom: 12px;
         }
-
-        .form-control:focus {
-            border-color: var(--primary);
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.82rem;
-            font-weight: 500;
-        }
-
+        
         /* --- MODAL --- */
         .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 15px;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 15px;
         }
-
         .modal-box {
-            background: var(--white);
-            width: 100%;
-            max-width: 500px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            animation: modalSlide 0.2s ease;
+            background: var(--white); width: 100%; max-width: 500px; border-radius: 8px;
+            overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
+        .modal-header { padding: 15px 20px; background: var(--primary); color: var(--white); display: flex; justify-content: space-between; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 15px 20px; background: #f8f9fa; display: flex; justify-content: flex-end; gap: 10px; }
 
-        @keyframes modalSlide {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-header {
-            padding: 15px 20px;
-            background: var(--primary);
-            color: var(--white);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--white);
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .modal-footer {
-            padding: 15px 20px;
-            background: #f8f9fa;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            border-top: 1px solid var(--border);
-        }
-
-        /* --- RESPONSIVE MOBILE --- */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 99;
-        }
+        #map { height: 400px; border-radius: 8px; width: 100%; }
 
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            .sidebar.active {
-                transform: translateX(0);
-            }
-            .sidebar-overlay.active {
-                display: block;
-            }
-            .main-wrapper {
-                margin-left: 0;
-            }
-            .topbar-toggle {
-                display: block;
-            }
-            .content-area {
-                padding: 15px;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
+            .topbar-toggle { display: block; }
         }
     </style>
 </head>
 <body>
 
-    <!-- OVERLAY UNTUK MOBILE SIDEBAR -->
-    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-    <!-- SIDEBAR NAVIGASI -->
+    <!-- SIDEBAR NAVIGASI 12 MENU -->
     <aside class="sidebar" id="sidebarNav">
         <div class="sidebar-header">
-            <i class="fas fa-landmark"></i>
+            <i class="fas fa-microchip"></i>
             <div>
-                <h2>SID Wawongkolono</h2>
-                <span>Kab. Konawe</span>
+                <h2>SMART VILLAGE</h2>
+                <span style="font-size:0.75rem; color:#a5d6a7;">Integrasi Supabase Engine</span>
             </div>
         </div>
 
         <ul class="sidebar-menu">
-            <div class="menu-title">Layanan Publik</div>
-            <a class="menu-item active" onclick="switchSection('section-beranda')">
-                <i class="fas fa-home"></i> <span>Beranda Utama</span>
-            </a>
-            <a class="menu-item" onclick="switchSection('section-surat')">
-                <i class="fas fa-envelope-open-text"></i> <span>Layanan Surat Digital</span>
-            </a>
+            <div class="menu-title">Administrasi & Publik</div>
+            <a class="menu-item active" onclick="switchSection('sec-profil')"><i class="fas fa-university"></i> Profil Desa</a>
+            <a class="menu-item" onclick="switchSection('sec-kependudukan')"><i class="fas fa-users"></i> Kependudukan</a>
+            <a class="menu-item" onclick="switchSection('sec-surat')"><i class="fas fa-envelope-open-text"></i> Layanan Surat</a>
+            <a class="menu-item" onclick="switchSection('sec-informasi')"><i class="fas fa-bullhorn"></i> Informasi Publik</a>
+            <a class="menu-item" onclick="switchSection('sec-mandiri')"><i class="fas fa-user-shield"></i> Layanan Mandiri</a>
 
-            <div class="menu-title" id="titleInternal" style="display: none;">Internal Aparat</div>
-            <a class="menu-item" id="menuAbsen" style="display: none;" onclick="switchSection('section-absen')">
-                <i class="fas fa-user-check"></i> <span>Presensi Aparat</span>
-            </a>
-            <a class="menu-item" id="menuLog" style="display: none;" onclick="switchSection('section-log')">
-                <i class="fas fa-shield-alt"></i> <span>Pemantauan Log (Akses Khusus)</span>
-            </a>
+            <div class="menu-title">Keuangan & Regulasi</div>
+            <a class="menu-item" onclick="switchSection('sec-keuangan')"><i class="fas fa-chart-pie"></i> Statistik Keuangan</a>
+            <a class="menu-item" onclick="switchSection('sec-regulasi')"><i class="fas fa-balance-scale"></i> Pemerintahan & Regulasi</a>
+            <a class="menu-item" onclick="switchSection('sec-bumdes')"><i class="fas fa-store"></i> BUMDES</a>
+
+            <div class="menu-title">Infrastruktur & Smart System</div>
+            <a class="menu-item" onclick="switchSection('sec-geografis')"><i class="fas fa-map-marked-alt"></i> Penataan Geografis</a>
+            <a class="menu-item" onclick="switchSection('sec-internal')"><i class="fas fa-user-tie"></i> Manajemen Internal</a>
+            <a class="menu-item" onclick="switchSection('sec-smart')"><i class="fas fa-wifi"></i> Integritas Smart Village</a>
+            <a class="menu-item" onclick="switchSection('sec-bencana')"><i class="fas fa-house-damage"></i> Manajemen Bencana</a>
         </ul>
     </aside>
 
-    <!-- MAIN CONTENT WRAPPER -->
+    <!-- MAIN CONTENT -->
     <div class="main-wrapper">
-        <!-- TOPBAR BARIS ATAS -->
         <header class="topbar">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <i class="fas fa-bars topbar-toggle" onclick="toggleSidebar()"></i>
-                <h3 style="font-size: 1rem; color: var(--primary-dark);">Sistem Informasi Desa Digital</h3>
-            </div>
-
-            <div class="user-panel" id="userPanel">
-                <!-- Diisi secara dinamis oleh JavaScript -->
-            </div>
+            <i class="fas fa-bars topbar-toggle" onclick="toggleSidebar()"></i>
+            <h3>Portal Sistem Informasi Desa & Smart Village Hub</h3>
+            <span style="font-size:0.85rem; background:#e8f5e9; color:var(--primary); padding:5px 12px; border-radius:20px; font-weight:600;">
+                <i class="fas fa-database"></i> Supabase Live DB
+            </span>
         </header>
 
-        <!-- AREA KONTEN UTAMA -->
         <main class="content-area">
 
-            <!-- SECTION 1: BERANDA UTAMA (PUBLIK) -->
-            <section id="section-beranda" class="app-section active">
-                <div class="panel" style="background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; padding: 30px;">
-                    <h1 style="font-size: 1.8rem; margin-bottom: 10px;">Selamat Datang di Portal Desa Wawongkolono</h1>
-                    <p style="font-weight: 300; max-width: 600px; line-height: 1.5; font-size: 0.95rem;">
-                        Pusat Pelayanan Administrasi Surat Digital dan Pemantauan Kinerja Aparat Desa secara Terpadu, Transparan, dan Real-Time.
-                    </p>
-                    <button class="btn" style="background: var(--accent); color: #000; margin-top: 20px; font-weight: 600;" onclick="switchSection('section-surat')">
-                        <i class="fas fa-paper-plane"></i> Ajukan Surat Sekarang
-                    </button>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
-                        <div class="stat-info">
-                            <h3 id="statTotal">0</h3>
-                            <p>Total Permohonan Surat</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="color: #f57f17; background: #fffde7;"><i class="fas fa-spinner"></i></div>
-                        <div class="stat-info">
-                            <h3 id="statProses">0</h3>
-                            <p>Dalam Proses Verifikasi</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon" style="color: #2e7d32; background: #e8f5e9;"><i class="fas fa-check-circle"></i></div>
-                        <div class="stat-info">
-                            <h3 id="statSelesai">0</h3>
-                            <p>Surat Selesai Diterbitkan</p>
-                        </div>
-                    </div>
-                </div>
-
+            <!-- 1. PROFIL DESA -->
+            <section id="sec-profil" class="app-section active">
                 <div class="panel">
                     <div class="panel-header">
-                        <div class="panel-title"><i class="fas fa-bullhorn"></i> Pengumuman & Informasi Desa</div>
+                        <div class="panel-title"><i class="fas fa-university"></i> Profil Utama Desa</div>
+                        <button class="btn" onclick="openModal('modalProfil')"><i class="fas fa-plus"></i> Tambah / Edit Profil</button>
                     </div>
-                    <p style="font-size: 0.9rem; color: #555; line-height: 1.6;">
-                        Masyarakat Desa Wawongkolono kini dapat mengajukan permohonan surat administrasi (SKTM, Surat Keterangan Usaha, Domisili, dll) secara mandiri secara digital. Pantau status permohonan secara real-time pada tabel layanan surat.
-                    </p>
+                    <div id="data-profil">Memuat data dari Supabase...</div>
                 </div>
             </section>
 
-            <!-- SECTION 2: LAYANAN SURAT (PUBLIK & ADMIN) -->
-            <section id="section-surat" class="app-section">
+            <!-- 2. KEPENDUDUKAN -->
+            <section id="sec-kependudukan" class="app-section">
                 <div class="panel">
                     <div class="panel-header">
-                        <div class="panel-title"><i class="fas fa-envelope-open-text"></i> Daftar Permohonan Surat Digital</div>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="searchSurat" class="form-control" placeholder="Cari NIK / Nama..." onkeyup="filterSurat()" style="width: 200px;">
-                            <button class="btn" onclick="openModal('modalSurat')"><i class="fas fa-plus"></i> Buat Permohonan</button>
-                        </div>
+                        <div class="panel-title"><i class="fas fa-users"></i> Data Penduduk Desa</div>
+                        <button class="btn" onclick="openModal('modalPenduduk')"><i class="fas fa-user-plus"></i> Tambah Penduduk</button>
                     </div>
-
                     <div class="table-responsive">
                         <table>
                             <thead>
-                                <tr>
-                                    <th>Pemohon / NIK</th>
-                                    <th>Jenis Surat</th>
-                                    <th>Keterangan / Keperluan</th>
-                                    <th>Status</th>
-                                    <th>Aksi / Opsi</th>
-                                </tr>
+                                <tr><th>NIK</th><th>Nama Lengkap</th><th>JK</th><th>Tgl Lahir</th><th>Alamat</th><th>Pekerjaan</th></tr>
                             </thead>
-                            <tbody id="tableSuratBody">
-                                <tr><td colspan="5" style="text-align: center; color: #888;">Memuat data surat...</td></tr>
-                            </tbody>
+                            <tbody id="tb-kependudukan"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 3: PRESENSI APARAT (APARAT & ADMIN) -->
-            <section id="section-absen" class="app-section">
+            <!-- 3. LAYANAN SURAT -->
+            <section id="sec-surat" class="app-section">
                 <div class="panel">
                     <div class="panel-header">
-                        <div class="panel-title"><i class="fas fa-user-check"></i> Rekap Presensi Aparat Desa</div>
-                        <button class="btn" onclick="openModal('modalAbsen')"><i class="fas fa-fingerprint"></i> Isi Presensi Hari Ini</button>
+                        <div class="panel-title"><i class="fas fa-envelope-open-text"></i> Permohonan Layanan Surat</div>
+                        <button class="btn" onclick="openModal('modalSurat')"><i class="fas fa-plus"></i> Permohonan Baru</button>
                     </div>
-
                     <div class="table-responsive">
                         <table>
                             <thead>
-                                <tr>
-                                    <th>Waktu Terdaftar</th>
-                                    <th>Nama Aparat</th>
-                                    <th>Jabatan</th>
-                                    <th>Status Kehadiran</th>
-                                    <th>Keterangan</th>
-                                </tr>
+                                <tr><th>No. Surat</th><th>Jenis Surat</th><th>Status</th><th>Keterangan</th><th>Tanggal</th></tr>
                             </thead>
-                            <tbody id="tableAbsenBody">
-                                <tr><td colspan="5" style="text-align: center; color: #888;">Memuat data presensi...</td></tr>
-                            </tbody>
+                            <tbody id="tb-surat"></tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION 4: PEMANTAUAN LOGS (KHUSUS ADMIN & KADES) -->
-            <section id="section-log" class="app-section">
-                <div class="panel" style="border-top: 3px solid var(--danger);">
+            <!-- 4. STATISTIK KEUANGAN -->
+            <section id="sec-keuangan" class="app-section">
+                <div class="panel">
                     <div class="panel-header">
-                        <div class="panel-title" style="color: var(--danger);"><i class="fas fa-user-shield"></i> Audit Log & Monitoring Seluruh Aktivitas (Akses Terbatas: Admin & Kepala Desa)</div>
+                        <div class="panel-title"><i class="fas fa-chart-pie"></i> Laporan Transparansi Keuangan (APBDes)</div>
                     </div>
-                    <p style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">
-                        Tabel ini memantau seluruh aktivitas pengguna secara langsung untuk menjamin keamanan operasional SID.
-                    </p>
-
                     <div class="table-responsive">
                         <table>
                             <thead>
-                                <tr>
-                                    <th>Waktu Kejadian</th>
-                                    <th>Pengguna / User</th>
-                                    <th>Peran (Role)</th>
-                                    <th>Tindakan / Aktivitas</th>
-                                </tr>
+                                <tr><th>Tahun</th><th>Kategori</th><th>Sumber Dana</th><th>Jumlah (Rp)</th></tr>
                             </thead>
-                            <tbody id="tableLogBody">
-                                <tr><td colspan="4" style="text-align: center; color: #888;">Memuat log aktivitas...</td></tr>
-                            </tbody>
+                            <tbody id="tb-keuangan"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. INFORMASI PUBLIK -->
+            <section id="sec-informasi" class="app-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-bullhorn"></i> Pengumuman & Berita Desa</div>
+                    </div>
+                    <div id="data-informasi"></div>
+                </div>
+            </section>
+
+            <!-- 6. LAYANAN MANDIRI -->
+            <section id="sec-mandiri" class="app-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-user-shield"></i> Akun Layanan Mandiri Warga</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Email User</th><th>No. HP</th><th>Status Akun</th></tr>
+                            </thead>
+                            <tbody id="tb-mandiri"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. PENATAAN GEOGRAFIS (GIS) -->
+            <section id="sec-geografis" class="app-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-map-marked-alt"></i> Peta Penataan Geografis Desa</div>
+                    </div>
+                    <div id="map"></div>
+                </div>
+            </section>
+
+            <!-- 8. PEMERINTAHAN REGULASI -->
+            <section id="sec-regulasi" class="app-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-balance-scale"></i> Produk Hukum & Regulasi Desa</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Nomor</th><th>Jenis Regulasi</th><th>Tahun</th><th>Judul Hukum</th></tr>
+                            </thead>
+                            <tbody id="tb-regulasi"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. MANAJEMEN INTERNAL -->
+            <section id="sec-internal" class="app-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-user-tie"></i> Aparat & Kepegawaian Desa</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Jabatan</th><th>NIP / NIAP</th><th>Status Kepegawaian</th></tr>
+                            </thead>
+                            <tbody id="tb-internal"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. INTEGRITAS SMART VILLAGE (IOT) -->
+            <section id="sec-smart" class="app-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-wifi"></i> Telemetri Sensor & IoT Smart Village</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Nama Perangkat</th><th>Tipe Sensor</th><th>Lokasi</th><th>Status</th><th>Last Ping</th></tr>
+                            </thead>
+                            <tbody id="tb-smart"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. BUMDES -->
+            <section id="sec-bumdes" class="app-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-store"></i> Pengelolaan BUMDES</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Unit Usaha</th><th>Bidang Usaha</th><th>Penanggung Jawab</th><th>Modal Awal</th></tr>
+                            </thead>
+                            <tbody id="tb-bumdes"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 12. MANAJEMEN BENCANA -->
+            <section id="sec-bencana" class="app-section">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fas fa-house-damage"></i> Pemantauan & Tanggap Bencana</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th>Jenis Bencana</th><th>Lokasi Terdampak</th><th>Tingkat Dampak</th><th>Status Penanganan</th></tr>
+                            </thead>
+                            <tbody id="tb-bencana"></tbody>
                         </table>
                     </div>
                 </div>
@@ -640,418 +368,228 @@
         </main>
     </div>
 
-    <!-- MODAL 1: LOGIN USER / PETUGAS -->
-    <div class="modal-backdrop" id="modalLogin">
+    <!-- MODAL POPUPS FOR INPUT DATA -->
+    <div class="modal-backdrop" id="modalPenduduk">
         <div class="modal-box">
             <div class="modal-header">
-                <h3><i class="fas fa-lock"></i> Autentikasi Pengguna SID</h3>
-                <button class="modal-close" onclick="closeModal('modalLogin')">&times;</button>
+                <h3>Tambah Data Kependudukan</h3>
+                <span onclick="closeModal('modalPenduduk')" style="cursor:pointer;">&times;</span>
             </div>
-            <form onsubmit="handleLogin(event)">
+            <form onsubmit="handleTambahPenduduk(event)">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Username (Gunakan: admin / kades / sekdes / petugas)</label>
-                        <input type="text" id="loginUsername" class="form-control" placeholder="Masukkan username" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Kata Sandi</label>
-                        <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required>
-                    </div>
+                    <input type="text" id="p_nik" class="form-control" placeholder="NIK (16 Digit)" required>
+                    <input type="text" id="p_nama" class="form-control" placeholder="Nama Lengkap" required>
+                    <select id="p_jk" class="form-control" required>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
+                    <input type="text" id="p_alamat" class="form-control" placeholder="Alamat RT/RW" required>
+                    <input type="text" id="p_pekerjaan" class="form-control" placeholder="Pekerjaan">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalLogin')">Batal</button>
-                    <button type="submit" class="btn">Masuk Sistem</button>
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalPenduduk')">Batal</button>
+                    <button type="submit" class="btn">Simpan ke Supabase</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL 2: TAMBAH SURAT -->
-    <div class="modal-backdrop" id="modalSurat">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3><i class="fas fa-file-signature"></i> Formulir Permohonan Surat</h3>
-                <button class="modal-close" onclick="closeModal('modalSurat')">&times;</button>
-            </div>
-            <form onsubmit="handleTambahSurat(event)">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>NIK Pemohon</label>
-                        <input type="number" id="addNik" class="form-control" placeholder="740201..." required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nama Lengkap</label>
-                        <input type="text" id="addNama" class="form-control" placeholder="Sesuai KTP" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nomor WhatsApp (Aktif)</label>
-                        <input type="text" id="addWa" class="form-control" placeholder="08..." required>
-                    </div>
-                    <div class="form-group">
-                        <label>Jenis Surat Administrasi</label>
-                        <select id="addJenis" class="form-control" required>
-                            <option value="Surat Keterangan Usaha (SKU)">Surat Keterangan Usaha (SKU)</option>
-                            <option value="Surat Keterangan Tidak Mampu (SKTM)">Surat Keterangan Tidak Mampu (SKTM)</option>
-                            <option value="Surat Keterangan Domisili">Surat Keterangan Domisili</option>
-                            <option value="Surat Pengantar SKCK">Surat Pengantar SKCK</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Keterangan Tambahan / Keperluan</label>
-                        <textarea id="addKet" class="form-control" rows="3" placeholder="Contoh: Keperluan pengajuan KUR Bank"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalSurat')">Batal</button>
-                    <button type="submit" class="btn">Kirim Permohonan</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- LEAFLET JS FOR MAPS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- MODAL 3: ISI PRESENSI -->
-    <div class="modal-backdrop" id="modalAbsen">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3><i class="fas fa-user-check"></i> Form Presensi Aparat Desa</h3>
-                <button class="modal-close" onclick="closeModal('modalAbsen')">&times;</button>
-            </div>
-            <form onsubmit="handleTambahAbsen(event)">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Status Kehadiran Hari Ini</label>
-                        <select id="absenStatus" class="form-control" required>
-                            <option value="Hadir (Kantor)">Hadir (Di Kantor Desa)</option>
-                            <option value="Hadir (Dinas Luar)">Hadir (Dinas Luar / Lapangan)</option>
-                            <option value="Izin">Izin (Kepentingan Urgen)</option>
-                            <option value="Sakit">Sakit</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Catatan / Keterangan Tugas</label>
-                        <textarea id="absenKet" class="form-control" rows="3" placeholder="Contoh: Peninjauan proyek posyandu dusun II"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalAbsen')">Batal</button>
-                    <button type="submit" class="btn">Simpan Presensi</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT LOGIC DENGAN KONEKSI SUPABASE REST API -->
+    <!-- MAIN ENGINE SUPABASE JS INTEGRATION -->
     <script>
+        // === KONFIGURASI ENGINE SUPABASE ===
         const SUPABASE_URL = 'https://upsmpuzktefbrulsvydv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // State Pengguna Aktif (Default: Guest / Tamu)
-        let currentUser = JSON.parse(sessionStorage.getItem('user')) || { role: 'guest', nama: 'Masyarakat / Tamu' };
-        let cachedSurat = [];
-        let cachedAbsen = [];
-
-        // --- NAVIGASI & UI INTERAKSI ---
+        // UI & NAVIGATION TOGGLES
         function toggleSidebar() {
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebarNav').classList.toggle('active');
-                document.getElementById('sidebarOverlay').classList.toggle('active');
-            }
+            document.getElementById('sidebarNav').classList.toggle('active');
         }
 
         function switchSection(sectionId) {
-            // Pengamanan Akses Berbasis Peran (RBAC Strict)
-            if ((sectionId === 'section-log' || sectionId === 'section-monitoring') && !['admin', 'kades'].includes(currentUser.role)) {
-                alert('Akses Ditolak: Modul Pemantauan Aktivitas hanya dapat diakses oleh Administrator Utama dan Kepala Desa.');
-                return;
-            }
-
-            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) targetSection.classList.add('active');
-
-            if (window.innerWidth <= 768) toggleSidebar();
-        }
-
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.style.display = 'flex';
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) modal.style.display = 'none';
-        }
-
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-backdrop')) {
-                event.target.style.display = 'none';
-            }
-        };
-
-        // --- SUPABASE ENGINE INTERACTION ---
-        async function supabaseRequest(endpoint, method = 'GET', body = null) {
-            try {
-                const options = {
-                    method: method,
-                    headers: {
-                        'apikey': SUPABASE_KEY,
-                        'Authorization': 'Bearer ' + SUPABASE_KEY,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    }
-                };
-                if (body) options.body = JSON.stringify(body);
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    console.error('Supabase Error:', err);
-                    return null;
-                }
-                return await res.json();
-            } catch (err) {
-                console.error('Fetch Exception:', err);
-                return null;
+            document.querySelectorAll('.app-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Re-render GIS Map saat menu geografis dibuka
+            if(sectionId === 'sec-geografis') {
+                setTimeout(initMap, 200);
             }
         }
 
-        async function catatLog(aksi) {
-            await supabaseRequest('audit_logs', 'POST', {
-                user_nama: currentUser.nama,
-                role: currentUser.role,
-                aksi: aksi
-            });
-            if (['admin', 'kades'].includes(currentUser.role)) {
-                loadLogs();
-            }
-        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // --- CONTROL ROLE & PANEL AKSES ---
-        function renderUserPanel() {
-            const panel = document.getElementById('userPanel');
-            const menuLog = document.getElementById('menuLog');
-            const menuAbsen = document.getElementById('menuAbsen');
-            const titleInternal = document.getElementById('titleInternal');
-
-            if (currentUser.role === 'guest') {
-                panel.innerHTML = `<button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas / Kades</button>`;
-                if (menuLog) menuLog.style.display = 'none';
-                if (menuAbsen) menuAbsen.style.display = 'none';
-                if (titleInternal) titleInternal.style.display = 'none';
-            } else {
-                panel.innerHTML = `
-                    <div class="user-badge">
-                        <i class="fas fa-user-circle"></i>
-                        <strong>${currentUser.nama}</strong>
-                        <span class="role-tag">${currentUser.role.toUpperCase()}</span>
-                    </div>
-                    <button class="btn btn-danger btn-sm" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+        // === OTOMATISASI DATA SUPABASE UNTUK 12 MENU ===
+        async function fetchAllSupabaseModules() {
+            // 1. Profil Desa
+            const { data: profil } = await supabaseClient.from('profil_desa').select('*');
+            if(profil && profil.length > 0) {
+                document.getElementById('data-profil').innerHTML = `
+                    <h3>${profil[0].nama_desa}</h3>
+                    <p><strong>Visi:</strong> ${profil[0].visi || '-'}</p>
+                    <p><strong>Misi:</strong> ${profil[0].misi || '-'}</p>
                 `;
+            } else {
+                document.getElementById('data-profil').innerHTML = `<p>Data profil belum dikonfigurasi.</p>`;
+            }
 
-                if (menuAbsen) menuAbsen.style.display = 'block';
-                if (titleInternal) titleInternal.style.display = 'block';
+            // 2. Kependudukan
+            const { data: penduduk } = await supabaseClient.from('kependudukan').select('*');
+            if(penduduk) {
+                document.getElementById('tb-kependudukan').innerHTML = penduduk.map(p => `
+                    <tr>
+                        <td>${p.nik}</td>
+                        <td><strong>${p.nama_lengkap}</strong></td>
+                        <td>${p.jenis_kelamin}</td>
+                        <td>${p.tanggal_lahir || '-'}</td>
+                        <td>${p.alamat || '-'}</td>
+                        <td>${p.pekerjaan || '-'}</td>
+                    </tr>
+                `).join('');
+            }
 
-                // Hanya Admin & Kades yang dapat melihat menu audit log
-                if (['admin', 'kades'].includes(currentUser.role)) {
-                    if (menuLog) menuLog.style.display = 'block';
-                    loadLogs();
-                } else {
-                    if (menuLog) menuLog.style.display = 'none';
-                }
-                loadAbsen();
+            // 3. Layanan Surat
+            const { data: surat } = await supabaseClient.from('layanan_surat').select('*');
+            if(surat) {
+                document.getElementById('tb-surat').innerHTML = surat.map(s => `
+                    <tr>
+                        <td>${s.nomor_surat || 'Pending'}</td>
+                        <td>${s.jenis_surat}</td>
+                        <td><span style="color:green; font-weight:bold;">${s.status}</span></td>
+                        <td>${s.keterangan || '-'}</td>
+                        <td>${new Date(s.tanggal_pengajuan).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // 4. Keuangan APBDes
+            const { data: keuangan } = await supabaseClient.from('statistik_keuangan').select('*');
+            if(keuangan) {
+                document.getElementById('tb-keuangan').innerHTML = keuangan.map(k => `
+                    <tr>
+                        <td>${k.tahun}</td>
+                        <td>${k.kategori}</td>
+                        <td>${k.sumber_dana}</td>
+                        <td>Rp ${Number(k.jumlah).toLocaleString('id-ID')}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // 5. Informasi Publik
+            const { data: info } = await supabaseClient.from('informasi_publik').select('*');
+            if(info) {
+                document.getElementById('data-informasi').innerHTML = info.map(i => `
+                    <div style="border-bottom: 1px solid #eee; padding: 10px 0;">
+                        <h4 style="color:var(--primary);">${i.judul}</h4>
+                        <p style="font-size:0.85rem; color:#555;">${i.konten}</p>
+                    </div>
+                `).join('');
+            }
+
+            // 6. Layanan Mandiri
+            const { data: mandiri } = await supabaseClient.from('layanan_mandiri').select('*');
+            if(mandiri) {
+                document.getElementById('tb-mandiri').innerHTML = mandiri.map(m => `
+                    <tr><td>${m.email}</td><td>${m.no_hp}</td><td>${m.is_active ? 'Aktif' : 'Non-Aktif'}</td></tr>
+                `).join('');
+            }
+
+            // 8. Regulasi Hukum
+            const { data: regulasi } = await supabaseClient.from('pemerintahan_regulasi').select('*');
+            if(regulasi) {
+                document.getElementById('tb-regulasi').innerHTML = regulasi.map(r => `
+                    <tr><td>${r.nomor}</td><td>${r.jenis_regulasi}</td><td>${r.tahun}</td><td>${r.judul}</td></tr>
+                `).join('');
+            }
+
+            // 9. Manajemen Internal
+            const { data: internal } = await supabaseClient.from('manajemen_internal').select('*');
+            if(internal) {
+                document.getElementById('tb-internal').innerHTML = internal.map(i => `
+                    <tr><td>${i.jabatan}</td><td>${i.nip_niap || '-'}</td><td>${i.status_kepegawaian}</td></tr>
+                `).join('');
+            }
+
+            // 10. Smart Village IoT
+            const { data: smart } = await supabaseClient.from('integritas_smart_village').select('*');
+            if(smart) {
+                document.getElementById('tb-smart').innerHTML = smart.map(st => `
+                    <tr>
+                        <td><strong>${st.nama_perangkat}</strong></td>
+                        <td>${st.tipe_sensor}</td>
+                        <td>${st.lokasi}</td>
+                        <td><span style="color:blue;">${st.status_koneksi}</span></td>
+                        <td>${new Date(st.last_ping).toLocaleTimeString()}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // 11. BUMDES
+            const { data: bumdes } = await supabaseClient.from('bumdes').select('*');
+            if(bumdes) {
+                document.getElementById('tb-bumdes').innerHTML = bumdes.map(b => `
+                    <tr>
+                        <td>${b.nama_unit_usaha}</td>
+                        <td>${b.bidang_usaha}</td>
+                        <td>${b.penanggung_jawab}</td>
+                        <td>Rp ${Number(b.modal_awal).toLocaleString('id-ID')}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // 12. Bencana
+            const { data: bencana } = await supabaseClient.from('manajemen_bencana').select('*');
+            if(bencana) {
+                document.getElementById('tb-bencana').innerHTML = bencana.map(bc => `
+                    <tr>
+                        <td>${bc.jenis_bencana}</td>
+                        <td>${bc.lokasi_terdampak}</td>
+                        <td><strong style="color:red;">${bc.tingkat_dampak}</strong></td>
+                        <td>${bc.status_penanganan}</td>
+                    </tr>
+                `).join('');
             }
         }
 
-        // --- AUTHENTICATION HANDLERS ---
-        async function handleLogin(e) {
+        // CREATING NEW DATA ENTRY TO SUPABASE
+        async function handleTambahPenduduk(e) {
             e.preventDefault();
-            const u = document.getElementById('loginUsername').value.trim().toLowerCase();
-            const p = document.getElementById('loginPassword').value;
-
-            let role = 'petugas';
-            let nama = u.charAt(0).toUpperCase() + u.slice(1);
-
-            // Mapping Peran Berdasarkan Login Demo
-            if (u === 'admin') {
-                role = 'admin';
-                nama = 'Administrator Utama';
-            } else if (u === 'kades') {
-                role = 'kades';
-                nama = 'Kepala Desa Wawongkolono';
-            } else if (u === 'sekdes') {
-                role = 'sekdes';
-                nama = 'Sekretaris Desa';
-            }
-
-            currentUser = { role: role, nama: nama, username: u };
-            sessionStorage.setItem('user', JSON.stringify(currentUser));
-
-            closeModal('modalLogin');
-            document.getElementById('loginUsername').value = '';
-            document.getElementById('loginPassword').value = '';
-
-            renderUserPanel();
-            await catatLog(`Login Berhasil sebagai ${currentUser.role.toUpperCase()}`);
-            alert(`Selamat datang kembali, ${currentUser.nama}!`);
-        }
-
-        async function handleLogout() {
-            if (confirm('Apakah Anda yakin ingin keluar dari sesi sistem?')) {
-                await catatLog(`User melakukan Logout`);
-                currentUser = { role: 'guest', nama: 'Masyarakat / Tamu' };
-                sessionStorage.removeItem('user');
-                renderUserPanel();
-                switchSection('section-beranda');
-            }
-        }
-
-        // --- LOADERS & CRUD OPERATIONS ---
-        async function loadSurat() {
-            const data = await supabaseRequest('surat?select=*&order=created_at.desc');
-            cachedSurat = data || [];
-
-            // Update Statistik Dashboard
-            document.getElementById('statTotal').innerText = cachedSurat.length;
-            document.getElementById('statProses').innerText = cachedSurat.filter(s => s.status !== 'Selesai & Diterbitkan').length;
-            document.getElementById('statSelesai').innerText = cachedSurat.filter(s => s.status === 'Selesai & Diterbitkan').length;
-
-            renderSuratTable(cachedSurat);
-        }
-
-        function renderSuratTable(items) {
-            const tbody = document.getElementById('tableSuratBody');
-            if (!tbody) return;
-
-            if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #888;">Belum ada data permohonan surat.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = items.map(s => `
-                <tr>
-                    <td><strong>${s.nama_pemohon}</strong><br><small style="color:#666;">NIK: ${s.nik_pemohon}</small></td>
-                    <td>${s.jenis_surat}</td>
-                    <td>${s.keterangan || '-'}</td>
-                    <td><span style="padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #e3f2fd; color: #0d47a1;">${s.status || 'Diproses'}</span></td>
-                    <td>
-                        ${['admin', 'kades', 'sekdes'].includes(currentUser.role) ? 
-                            `<button class="btn btn-sm" onclick="cetakSurat('${s.nama_pemohon}', '${s.jenis_surat}')"><i class="fas fa-print"></i> Cetak Dokumen</button>` : 
-                            '<span style="color:#aaa; font-size:0.8rem;">Publik</span>'}
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function filterSurat() {
-            const query = document.getElementById('searchSurat').value.toLowerCase();
-            const filtered = cachedSurat.filter(s => 
-                s.nama_pemohon.toLowerCase().includes(query) || 
-                s.nik_pemohon.toLowerCase().includes(query)
-            );
-            renderSuratTable(filtered);
-        }
-
-        async function loadAbsen() {
-            const data = await supabaseRequest('presensi?select=*&order=created_at.desc');
-            cachedAbsen = data || [];
-            const tbody = document.getElementById('tableAbsenBody');
-            if (!tbody) return;
-
-            if (cachedAbsen.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #888;">Belum ada catatan presensi.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = cachedAbsen.map(a => `
-                <tr>
-                    <td>${new Date(a.created_at).toLocaleString('id-ID')}</td>
-                    <td><strong>${a.nama_aparat}</strong></td>
-                    <td>${a.jabatan || 'Aparat Desa'}</td>
-                    <td><span style="color: #2e7d32; font-weight: bold;">${a.status_kehadiran}</span></td>
-                    <td>${a.keterangan || '-'}</td>
-                </tr>
-            `).join('');
-        }
-
-        async function loadLogs() {
-            if (!['admin', 'kades'].includes(currentUser.role)) return;
-            const logs = await supabaseRequest('audit_logs?select=*&order=created_at.desc&limit=15');
-            const tbody = document.getElementById('tableLogBody');
-            if (!tbody) return;
-
-            if (!logs || logs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #888;">Belum ada log aktivitas tercatat.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = logs.map(l => `
-                <tr style="background: ${l.role === 'kades' ? '#fffde7' : 'transparent'}">
-                    <td><small>${new Date(l.created_at).toLocaleString('id-ID')}</small></td>
-                    <td><strong>${l.user_nama}</strong></td>
-                    <td><span class="role-tag" style="background: ${l.role === 'kades' ? '#f57f17' : '#1b5e20'}">${l.role.toUpperCase()}</span></td>
-                    <td>${l.aksi}</td>
-                </tr>
-            `).join('');
-        }
-
-        async function handleTambahSurat(e) {
-            e.preventDefault();
-            const body = {
-                nik_pemohon: document.getElementById('addNik').value.trim(),
-                nama_pemohon: document.getElementById('addNama').value.trim(),
-                no_wa: document.getElementById('addWa').value.trim(),
-                jenis_surat: document.getElementById('addJenis').value,
-                keterangan: document.getElementById('addKet').value.trim(),
-                status: 'Diproses'
+            const payload = {
+                nik: document.getElementById('p_nik').value,
+                nama_lengkap: document.getElementById('p_nama').value,
+                jenis_kelamin: document.getElementById('p_jk').value,
+                alamat: document.getElementById('p_alamat').value,
+                pekerjaan: document.getElementById('p_pekerjaan').value
             };
 
-            const res = await supabaseRequest('surat', 'POST', body);
-            if (res) {
-                alert('Permohonan surat berhasil dikirim!');
-                closeModal('modalSurat');
-                e.target.reset();
-                await catatLog(`Mengirimkan permohonan surat ${body.jenis_surat} atas nama ${body.nama_pemohon}`);
-                loadSurat();
+            const { data, error } = await supabaseClient.from('kependudukan').insert([payload]);
+            if(error) {
+                alert('Gagal menyimpan data: ' + error.message);
             } else {
-                alert('Gagal mengirim permohonan. Periksa jaringan atau skema tabel Supabase.');
+                alert('Data Penduduk berhasil ditambahkan ke Supabase!');
+                closeModal('modalPenduduk');
+                fetchAllSupabaseModules();
             }
         }
 
-        async function handleTambahAbsen(e) {
-            e.preventDefault();
-            if (currentUser.role === 'guest') {
-                alert('Silakan login sebagai petugas/aparat terlebih dahulu.');
-                return;
-            }
-
-            const body = {
-                nama_aparat: currentUser.nama,
-                jabatan: currentUser.role.toUpperCase(),
-                status_kehadiran: document.getElementById('absenStatus').value,
-                keterangan: document.getElementById('absenKet').value.trim()
-            };
-
-            const res = await supabaseRequest('presensi', 'POST', body);
-            if (res) {
-                alert('Presensi berhasil dicatat!');
-                closeModal('modalAbsen');
-                e.target.reset();
-                await catatLog(`Mengisi presensi harian status: ${body.status_kehadiran}`);
-                loadAbsen();
-            } else {
-                alert('Gagal mencatat presensi.');
-            }
+        // PETA GEOGRAFIS (GIS INTEGRATION)
+        let mapInstance = null;
+        function initMap() {
+            if(mapInstance) return;
+            mapInstance = L.map('map').setView([-3.9881, 122.5132], 13); // Default Titik Koordinat
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Smart Village GIS System'
+            }).addTo(mapInstance);
         }
 
-        function cetakSurat(nama, jenis) {
-            alert(`Sistem Cetak Dokumen SID:\n\nMencetak ${jenis}\nPemohon: ${nama}\nStatus: Siap Cetak.`);
-        }
-
-        // INITIALIZATION WHEN DOM READY
+        // INITIALIZATION
         document.addEventListener('DOMContentLoaded', () => {
-            renderUserPanel();
-            loadSurat();
+            fetchAllSupabaseModules();
         });
     </script>
 </body>
