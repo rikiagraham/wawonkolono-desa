@@ -24,84 +24,176 @@
         body { background: var(--bg-light); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
 
         /* HEADER & NAVBAR */
-        .navbar { background: var(--primary-color); color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .navbar-brand h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px; }
-        .navbar-brand p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
-        .user-panel { display: flex; align-items: center; gap: 15px; }
-        .user-badge { background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; }
+        .navbar { 
+            background: var(--primary-color); 
+            color: #fff; 
+            padding: 12px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+        .navbar-left { display: flex; align-items: center; gap: 12px; }
+        .mobile-menu-btn { 
+            display: none; 
+            background: transparent; 
+            border: none; 
+            color: #fff; 
+            font-size: 1.4rem; 
+            cursor: pointer; 
+            padding: 4px;
+        }
+        .navbar-brand h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; line-height: 1.2; }
+        .navbar-brand p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+        .user-panel { display: flex; align-items: center; gap: 10px; }
+        .user-badge { background: rgba(255,255,255,0.18); padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; }
 
         /* BUTTONS */
-        .btn { background: var(--secondary-color); color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn { background: var(--secondary-color); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: 600; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
         .btn:hover { background: var(--accent-color); }
         .btn-danger { background: var(--danger-color); }
-        .btn-danger:hover { background: #800f2f; }
-        .btn-warning { background: var(--warning-color); }
-        .btn-warning:hover { background: #f4a261; }
+        .btn-warning { background: var(--warning-color); color: #fff; }
         .btn-success { background: var(--success-color); }
-        .btn-success:hover { background: #218380; }
         .btn-wa { background: #25D366; }
-        .btn-wa:hover { background: #128C7E; }
 
         /* LAYOUT MAIN */
-        .main-wrapper { display: flex; flex: 1; }
-        .sidebar { width: 260px; background: #fff; border-right: 1px solid #e0e0e0; padding: 20px; }
+        .main-wrapper { display: flex; flex: 1; position: relative; }
+        
+        .sidebar { 
+            width: 250px; 
+            background: #fff; 
+            border-right: 1px solid #e0e0e0; 
+            padding: 20px 15px; 
+            transition: all 0.3s ease;
+        }
         .sidebar-title { font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
         .menu-list { list-style: none; }
         .menu-item { margin-bottom: 5px; }
-        .menu-item a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: var(--text-dark); text-decoration: none; border-radius: 6px; font-size: 0.9rem; font-weight: 500; transition: background 0.2s; }
+        .menu-item a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: var(--text-dark); text-decoration: none; border-radius: 6px; font-size: 0.88rem; font-weight: 500; }
         .menu-item a:hover, .menu-item.active a { background: #e8f5e9; color: var(--primary-color); font-weight: 700; }
 
-        .content { flex: 1; padding: 25px; overflow-y: auto; }
-        .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2f5; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .card-title { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; }
+        .content { flex: 1; padding: 20px; overflow-y: auto; }
+        .card { background: #fff; border-radius: 10px; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); margin-bottom: 20px; border: 1px solid #eef2f5; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+        .card-title { font-size: 1rem; color: var(--primary-color); font-weight: 700; display: flex; align-items: center; gap: 8px; }
 
         /* STATS GRID */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: #fff; padding: 18px; border-radius: 8px; border-left: 4px solid var(--primary-color); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .stat-card h3 { font-size: 1.6rem; color: var(--primary-color); }
-        .stat-card p { font-size: 0.85rem; color: #666; margin-top: 4px; }
-
-        /* TABLE */
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
-        th { background: #f8f9fa; color: #444; padding: 12px; font-weight: 600; border-bottom: 2px solid #dee2e6; }
-        td { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        tr:hover { background: #fdfdfd; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stat-card { background: #fff; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary-color); box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+        .stat-card h3 { font-size: 1.5rem; color: var(--primary-color); }
+        .stat-card p { font-size: 0.8rem; color: #666; margin-top: 2px; }
 
         /* MODAL POPUP */
-        .modal-backdrop { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; padding: 20px; }
-        .modal-box { background: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 480px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative; margin: auto; }
-        .modal-close { position: absolute; right: 20px; top: 20px; font-size: 1.2rem; cursor: pointer; color: #888; }
+        .modal-backdrop { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; padding: 15px; overflow-y: auto; }
+        .modal-box { background: #fff; padding: 20px; border-radius: 10px; width: 100%; max-width: 480px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); position: relative; margin: auto; }
+        .modal-close { position: absolute; right: 15px; top: 15px; font-size: 1.2rem; cursor: pointer; color: #888; }
         
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; }
-        .form-control { width: 100%; padding: 9px 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.9rem; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.82rem; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.88rem; }
         .form-control:focus { border-color: var(--primary-color); outline: none; }
+
+        /* OVERLAY BACKDROP UNTUK MOBILE SIDEBAR */
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 800; }
+
+        /* DESKTOP TABLE STYLES */
+        .table-responsive { width: 100%; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+        th { background: #f8f9fa; color: #444; padding: 10px 12px; font-weight: 600; border-bottom: 2px solid #dee2e6; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+
+        /* RESPONSIVE DESIGN (HP & TABLET) */
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .navbar-brand h1 { font-size: 0.95rem; }
+            .navbar-brand p { font-size: 0.68rem; }
+            
+            .sidebar { 
+                position: fixed; 
+                top: 0; 
+                left: -260px; 
+                height: 100%; 
+                z-index: 850; 
+                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+                padding-top: 60px;
+            }
+            .sidebar.active { left: 0; }
+            .sidebar-overlay.active { display: block; }
+
+            .content { padding: 12px; }
+            .card { padding: 14px; margin-bottom: 15px; }
+            
+            /* CONVERT TABLE TO CARD IN MOBILE */
+            .table-responsive table, .table-responsive thead, .table-responsive tbody, .table-responsive th, .table-responsive td, .table-responsive tr { 
+                display: block; 
+            }
+            .table-responsive thead { display: none; }
+            .table-responsive tr { 
+                background: #fff; 
+                border: 1px solid #e2e8f0; 
+                border-radius: 8px; 
+                margin-bottom: 12px; 
+                padding: 12px; 
+                box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            }
+            .table-responsive td { 
+                border: none; 
+                padding: 6px 0; 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                text-align: right; 
+                font-size: 0.82rem;
+            }
+            .table-responsive td::before { 
+                content: attr(data-label); 
+                font-weight: 700; 
+                color: #555; 
+                text-align: left; 
+                padding-right: 10px;
+            }
+            .table-responsive td:last-child { 
+                border-top: 1px dashed #eee; 
+                margin-top: 8px; 
+                padding-top: 10px; 
+                justify-content: flex-end; 
+                gap: 5px;
+                flex-wrap: wrap;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- NAVBAR HEADER -->
     <header class="navbar">
-        <div class="navbar-brand">
-            <h1>PEMERINTAH DESA WAWONGKOLONO</h1>
-            <p>Kecamatan Menui Kepulauan, Kabupaten Morowali</p>
+        <div class="navbar-left">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            <div class="navbar-brand">
+                <h1>DESA WAWONGKOLONO</h1>
+                <p>Kec. Menui Kepulauan, Kab. Morowali</p>
+            </div>
         </div>
         <div class="user-panel" id="userPanel">
-            <button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas</button>
+            <button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login</button>
         </div>
     </header>
 
+    <!-- SIDEBAR OVERLAY FOR MOBILE -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
     <div class="main-wrapper">
         <!-- SIDEBAR NAVIGASI -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebarNav">
             <div class="sidebar-title">Menu Utama</div>
             <ul class="menu-list">
-                <li class="menu-item active"><a href="#"><i class="fas fa-home"></i> Dashboard Utama</a></li>
-                <li class="menu-item"><a href="#" onclick="openModal('modalSurat')"><i class="fas fa-paper-plane"></i> Ajukan Surat</a></li>
-                <li class="menu-item"><a href="#section-surat"><i class="fas fa-file-signature"></i> Daftar Surat</a></li>
-                <li class="menu-item" id="menuLog" style="display:none;"><a href="#section-log"><i class="fas fa-history"></i> Audit Log System</a></li>
+                <li class="menu-item active"><a href="#" onclick="toggleSidebar()"><i class="fas fa-home"></i> Dashboard Utama</a></li>
+                <li class="menu-item"><a href="#" onclick="openModal('modalSurat'); toggleSidebar();"><i class="fas fa-paper-plane"></i> Ajukan Surat</a></li>
+                <li class="menu-item"><a href="#section-surat" onclick="toggleSidebar()"><i class="fas fa-file-signature"></i> Daftar Surat</a></li>
+                <li class="menu-item" id="menuLog" style="display:none;"><a href="#section-log" onclick="toggleSidebar()"><i class="fas fa-history"></i> Audit Log System</a></li>
             </ul>
         </aside>
 
@@ -112,23 +204,23 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3 id="statTotal">0</h3>
-                    <p>Total Permohonan Surat</p>
+                    <p>Total Permohonan</p>
                 </div>
                 <div class="stat-card" style="border-color: var(--warning-color);">
                     <h3 id="statProses">0</h3>
-                    <p>Surat Dalam Proses</p>
+                    <p>Dalam Proses</p>
                 </div>
                 <div class="stat-card" style="border-color: var(--success-color);">
                     <h3 id="statSelesai">0</h3>
-                    <p>Surat Selesai (QR Valid)</p>
+                    <p>Selesai (QR Valid)</p>
                 </div>
             </div>
 
             <!-- TABEL LAYANAN SURAT DIGITAL -->
             <div class="card" id="section-surat">
                 <div class="card-header">
-                    <span class="card-title"><i class="fas fa-file-alt"></i> Layanan Surat Digital Wawongkolono</span>
-                    <button class="btn" onclick="openModal('modalSurat')"><i class="fas fa-plus"></i> Buat Surat Baru</button>
+                    <span class="card-title"><i class="fas fa-file-alt"></i> Layanan Surat Digital</span>
+                    <button class="btn" onclick="openModal('modalSurat')"><i class="fas fa-plus"></i> Buat Surat</button>
                 </div>
                 <div class="table-responsive">
                     <table>
@@ -136,13 +228,13 @@
                             <tr>
                                 <th>NIK & Pemohon</th>
                                 <th>Jenis Surat</th>
-                                <th>Keterangan / Keperluan</th>
-                                <th>Status Verification</th>
+                                <th>Keperluan</th>
+                                <th>Status</th>
                                 <th>Aksi Transaksi</th>
                             </tr>
                         </thead>
                         <tbody id="tableSuratBody">
-                            <tr><td colspan="5" style="text-align:center; color:#888;">Memuat data dari Supabase...</td></tr>
+                            <tr><td colspan="5" style="text-align:center; color:#888;">Memuat data...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -151,16 +243,16 @@
             <!-- TABEL AUDIT LOG SYSTEM -->
             <div class="card" id="section-log" style="display:none;">
                 <div class="card-header">
-                    <span class="card-title"><i class="fas fa-history"></i> Audit Log Aktivitas Terakhir</span>
+                    <span class="card-title"><i class="fas fa-history"></i> Audit Log System</span>
                 </div>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Waktu Log</th>
-                                <th>Nama Pengguna</th>
-                                <th>Peran (Role)</th>
-                                <th>Aktivitas Sistem</th>
+                                <th>Waktu</th>
+                                <th>Pengguna</th>
+                                <th>Role</th>
+                                <th>Aktivitas</th>
                             </tr>
                         </thead>
                         <tbody id="tableLogBody">
@@ -177,7 +269,7 @@
     <div id="modalLogin" class="modal-backdrop">
         <div class="modal-box">
             <span class="modal-close" onclick="closeModal('modalLogin')">&times;</span>
-            <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-lock"></i> Login Akses Perangkat</h3>
+            <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-lock"></i> Login Petugas</h3>
             <form onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>Username / NIK</label>
@@ -187,7 +279,7 @@
                     <label>Password</label>
                     <input type="password" id="loginPassword" class="form-control" placeholder="Password" required>
                 </div>
-                <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 10px;">Masuk ke Sistem</button>
+                <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 10px;">Masuk Ke Sistem</button>
             </form>
         </div>
     </div>
@@ -221,9 +313,9 @@
                 </div>
                 <div class="form-group">
                     <label>Keperluan / Keterangan</label>
-                    <textarea id="addKet" class="form-control" rows="3" required placeholder="Contoh: Persyaratan pengajuan kredit KUR Bank"></textarea>
+                    <textarea id="addKet" class="form-control" rows="3" required placeholder="Contoh: Pengajuan kredit KUR"></textarea>
                 </div>
-                <button type="submit" class="btn" style="width: 100%; justify-content: center;">Kirim Permohonan Surat</button>
+                <button type="submit" class="btn" style="width: 100%; justify-content: center;">Kirim Permohonan</button>
             </form>
         </div>
     </div>
@@ -232,7 +324,7 @@
     <div id="modalEditSurat" class="modal-backdrop">
         <div class="modal-box">
             <span class="modal-close" onclick="closeModal('modalEditSurat')">&times;</span>
-            <h3 style="margin-bottom: 15px; color: var(--warning-color);"><i class="fas fa-edit"></i> Edit Data Permohonan Surat</h3>
+            <h3 style="margin-bottom: 15px; color: var(--warning-color);"><i class="fas fa-edit"></i> Edit Data Surat</h3>
             <form onsubmit="handleEditSurat(event)">
                 <input type="hidden" id="editId">
                 <div class="form-group">
@@ -255,7 +347,7 @@
                     <label>Keperluan / Keterangan</label>
                     <textarea id="editKet" class="form-control" rows="3" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-warning" style="width: 100%; justify-content: center;">Simpan Perubahan Data</button>
+                <button type="submit" class="btn btn-warning" style="width: 100%; justify-content: center;">Simpan Perubahan</button>
             </form>
         </div>
     </div>
@@ -265,10 +357,16 @@
         const SUPABASE_URL = 'https://upsmpuzktefbrulsvydv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ';
 
-        let currentUser = JSON.parse(sessionStorage.getItem('user')) || { role: 'guest', nama: 'Masyarakat / Tamu' };
+        let currentUser = JSON.parse(sessionStorage.getItem('user')) || { role: 'guest', nama: 'Tamu' };
         let cachedSurat = [];
 
-        // Helper API Supabase REST (Fetch API)
+        function toggleSidebar() {
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebarNav').classList.toggle('active');
+                document.getElementById('sidebarOverlay').classList.toggle('active');
+            }
+        }
+
         async function supabaseRequest(endpoint, method = 'GET', body = null) {
             const options = {
                 method: method,
@@ -305,13 +403,13 @@
             const sectionLog = document.getElementById('section-log');
 
             if (currentUser.role === 'guest') {
-                panel.innerHTML = `<button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas</button>`;
+                panel.innerHTML = `<button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login</button>`;
                 menuLog.style.display = 'none';
                 sectionLog.style.display = 'none';
             } else {
                 panel.innerHTML = `
-                    <div class="user-badge"><i class="fas fa-user-circle"></i> <strong>${currentUser.nama}</strong> (${currentUser.role.toUpperCase()})</div>
-                    <button class="btn btn-danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+                    <div class="user-badge"><i class="fas fa-user-circle"></i> <strong>${currentUser.nama}</strong></div>
+                    <button class="btn btn-danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></button>
                 `;
                 if (['admin', 'sekdes'].includes(currentUser.role)) {
                     menuLog.style.display = 'block';
@@ -339,11 +437,11 @@
                 let btnAction = '';
 
                 if (['admin', 'sekdes', 'operator'].includes(currentUser.role)) {
-                    btnAction += `<button onclick="openEditModal(${s.id})" class="btn btn-warning" style="font-size:0.75rem; margin-right:4px;"><i class="fas fa-edit"></i> Edit</button>`;
+                    btnAction += `<button onclick="openEditModal(${s.id})" class="btn btn-warning" style="font-size:0.75rem;"><i class="fas fa-edit"></i></button>`;
                 }
 
                 if (s.status === 'Menunggu Verifikasi Sekdes' && ['admin', 'sekdes'].includes(currentUser.role)) {
-                    btnAction += `<button onclick="updateStatus(${s.id}, 'Menunggu TTD Kades')" class="btn btn-success" style="font-size:0.75rem;"><i class="fas fa-check"></i> Verifikasi Sekdes</button>`;
+                    btnAction += `<button onclick="updateStatus(${s.id}, 'Menunggu TTD Kades')" class="btn btn-success" style="font-size:0.75rem;"><i class="fas fa-check"></i> Sekdes</button>`;
                 }
 
                 if (s.status === 'Menunggu TTD Kades' && ['admin', 'kades'].includes(currentUser.role)) {
@@ -351,20 +449,20 @@
                 }
 
                 if (s.status === 'Selesai & Diterbitkan') {
-                    btnAction += `<button onclick="cetakDokumen('${s.nama_pemohon}', '${s.nik_pemohon}', '${s.jenis_surat}', '${s.keterangan}', '${s.qr_token}')" class="btn" style="font-size:0.75rem; margin-right:4px;"><i class="fas fa-print"></i> Cetak</button>`;
+                    btnAction += `<button onclick="cetakDokumen('${s.nama_pemohon}', '${s.nik_pemohon}', '${s.jenis_surat}', '${s.keterangan}', '${s.qr_token}')" class="btn" style="font-size:0.75rem;"><i class="fas fa-print"></i> Cetak</button>`;
                     if (s.no_wa) {
-                        const waLink = `https://wa.me/${formatWa(s.no_wa)}?text=${encodeURIComponent(`Halo Bpk/Ibu ${s.nama_pemohon}, Surat${s.jenis_surat} Anda di Desa Wawongkolono telah selesai disetujui.`)}`;
+                        const waLink = `https://wa.me/${formatWa(s.no_wa)}?text=${encodeURIComponent(`Halo ${s.nama_pemohon}, Surat${s.jenis_surat} Anda telah diterbitkan.`)}`;
                         btnAction += `<a href="${waLink}" target="_blank" class="btn btn-wa" style="font-size:0.75rem;"><i class="fab fa-whatsapp"></i> WA</a>`;
                     }
                 }
 
                 return `
                     <tr>
-                        <td><strong>${s.nama_pemohon}</strong><br><small style="color:#666;">${s.nik_pemohon}</small></td>
-                        <td>${s.jenis_surat}</td>
-                        <td>${s.keterangan}</td>
-                        <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #e3f2fd; color: #0d47a1;">${s.status}</span></td>
-                        <td>${btnAction}</td>
+                        <td data-label="Pemohon"><strong>${s.nama_pemohon}</strong><br><small style="color:#666;">${s.nik_pemohon}</small></td>
+                        <td data-label="Jenis Surat">${s.jenis_surat}</td>
+                        <td data-label="Keperluan">${s.keterangan}</td>
+                        <td data-label="Status"><span style="padding: 3px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: bold; background: #e3f2fd; color: #0d47a1;">${s.status}</span></td>
+                        <td data-label="Aksi">${btnAction}</td>
                     </tr>
                 `;
             }).join('');
@@ -379,10 +477,10 @@
             }
             tbody.innerHTML = logs.map(l => `
                 <tr>
-                    <td>${new Date(l.created_at).toLocaleString('id-ID')}</td>
-                    <td><strong>${l.user_nama}</strong></td>
-                    <td><span style="font-size:0.75rem; font-weight:bold;">${l.role.toUpperCase()}</span></td>
-                    <td>${l.aksi}</td>
+                    <td data-label="Waktu">${new Date(l.created_at).toLocaleString('id-ID')}</td>
+                    <td data-label="Pengguna"><strong>${l.user_nama}</strong></td>
+                    <td data-label="Role"><span style="font-size:0.75rem; font-weight:bold;">${l.role.toUpperCase()}</span></td>
+                    <td data-label="Aktivitas">${l.aksi}</td>
                 </tr>
             `).join('');
         }
@@ -396,7 +494,7 @@
             if (res && res.length > 0) {
                 currentUser = { role: res[0].role, nama: res[0].nama, id: res[0].id };
                 sessionStorage.setItem('user', JSON.stringify(currentUser));
-                await catatLog("Login ke dalam sistem");
+                await catatLog("Login ke sistem");
                 closeModal('modalLogin');
                 renderUserPanel();
                 loadSurat();
@@ -409,7 +507,7 @@
         async function handleLogout() {
             await catatLog("Logout dari sistem");
             sessionStorage.removeItem('user');
-            currentUser = { role: 'guest', nama: 'Masyarakat / Tamu' };
+            currentUser = { role: 'guest', nama: 'Tamu' };
             renderUserPanel();
             loadSurat();
         }
@@ -475,31 +573,31 @@
         function cetakDokumen(nama, nik, jenis, ket, token) {
             const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=" + encodeURIComponent(window.location.href + "?verify=" + token);
             const htmlPrint = `
-                <div style="font-family:'Times New Roman', serif; padding: 40px; background:#fff; color:#000;">
+                <div style="font-family:'Times New Roman', serif; padding: 30px; background:#fff; color:#000;">
                     <div style="text-align:center; border-bottom:3px double #000; padding-bottom:10px; margin-bottom:20px;">
-                        <h3 style="font-size:16pt; margin:0;">PEMERINTAH KABUPATEN MOROWALI</h3>
-                        <h3 style="font-size:15pt; margin:0;">KECAMATAN MENUI KEPULAUAN</h3>
-                        <h2 style="font-size:18pt; margin:5px 0 0 0;">PEMERINTAH DESA WAWONGKOLONO</h2>
+                        <h3 style="font-size:14pt; margin:0;">PEMERINTAH KABUPATEN MOROWALI</h3>
+                        <h3 style="font-size:13pt; margin:0;">KECAMATAN MENUI KEPULAUAN</h3>
+                        <h2 style="font-size:16pt; margin:5px 0 0 0;">PEMERINTAH DESA WAWONGKOLONO</h2>
                     </div>
-                    <div style="text-align:center; margin-bottom: 25px;">
-                        <h3 style="text-decoration:underline; font-size:14pt; margin:0;">${jenis.toUpperCase()}</h3>
+                    <div style="text-align:center; margin-bottom: 20px;">
+                        <h3 style="text-decoration:underline; font-size:13pt; margin:0;">${jenis.toUpperCase()}</h3>
                         <span>Nomor: 140 / DW / ${new Date().getFullYear()}</span>
                     </div>
-                    <p style="font-size:12pt; line-height:1.6;">Yang bertanda tangan di bawah ini Kepala Desa Wawongkolono menerangkan bahwa:</p>
-                    <table style="margin: 20px 0 20px 30px; font-size:12pt; width:90%;">
-                        <tr><td width="160" style="padding:4px 0;">Nama Lengkap</td><td>: <strong>${nama}</strong></td></tr>
+                    <p style="font-size:11pt; line-height:1.6;">Yang bertanda tangan di bawah ini Kepala Desa Wawongkolono menerangkan bahwa:</p>
+                    <table style="margin: 15px 0 15px 20px; font-size:11pt; width:90%;">
+                        <tr><td width="150" style="padding:4px 0;">Nama Lengkap</td><td>: <strong>${nama}</strong></td></tr>
                         <tr><td style="padding:4px 0;">NIK Pemohon</td><td>: ${nik}</td></tr>
                         <tr><td style="padding:4px 0;">Keperluan / Keterangan</td><td>: ${ket}</td></tr>
                     </table>
-                    <p style="font-size:12pt; line-height:1.6;">Demikian surat keterangan ini diterbitkan secara resmi untuk dipergunakan sebagaimana mestinya.</p>
-                    <div style="float:right; width:280px; text-align:center; margin-top:40px;">
+                    <p style="font-size:11pt; line-height:1.6;">Demikian surat keterangan ini diterbitkan secara resmi untuk dipergunakan sebagaimana mestinya.</p>
+                    <div style="float:right; width:250px; text-align:center; margin-top:30px;">
                         <p style="margin:0;">Wawongkolono, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
                         <p style="margin:5px 0 15px 0;">Kepala Desa Wawongkolono</p>
-                        <div style="border:1px dashed #aaa; display:inline-block; padding:6px; margin-bottom:10px;">
-                            <img src="${qrUrl}" width="100" height="100" alt="QR Signature">
+                        <div style="border:1px dashed #aaa; display:inline-block; padding:5px; margin-bottom:8px;">
+                            <img src="${qrUrl}" width="90" height="90" alt="QR Signature">
                         </div>
-                        <p style="margin:0; font-weight:bold;">PEMERINTAH DESA WAWONGKOLONO</p>
-                        <small style="font-size:8pt; color:#555;">Validasi Tanda Tangan Digital Terverifikasi</small>
+                        <p style="margin:0; font-weight:bold; font-size:10pt;">PEMERINTAH DESA WAWONGKOLONO</p>
+                        <small style="font-size:7pt; color:#555;">Validasi Tanda Tangan Digital Terverifikasi</small>
                     </div>
                 </div>
             `;
