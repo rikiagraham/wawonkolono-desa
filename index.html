@@ -57,22 +57,21 @@
         .btn-danger { background: var(--danger-color); }
         .btn-warning { background: var(--warning-color); color: #fff; }
         .btn-success { background: var(--success-color); }
-        .btn-wa { background: #25D366; }
 
         /* LAYOUT MAIN */
         .main-wrapper { display: flex; flex: 1; position: relative; }
         
         .sidebar { 
-            width: 250px; 
+            width: 260px; 
             background: #fff; 
             border-right: 1px solid #e0e0e0; 
-            padding: 20px 15px; 
+            padding: 15px; 
             transition: all 0.3s ease;
         }
-        .sidebar-title { font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+        .sidebar-title { font-size: 0.72rem; font-weight: 700; color: #888; text-transform: uppercase; margin: 15px 0 6px 5px; letter-spacing: 1px; }
         .menu-list { list-style: none; }
-        .menu-item { margin-bottom: 5px; }
-        .menu-item a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: var(--text-dark); text-decoration: none; border-radius: 6px; font-size: 0.88rem; font-weight: 500; }
+        .menu-item { margin-bottom: 3px; }
+        .menu-item a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; color: var(--text-dark); text-decoration: none; border-radius: 6px; font-size: 0.86rem; font-weight: 500; cursor: pointer; }
         .menu-item a:hover, .menu-item.active a { background: #e8f5e9; color: var(--primary-color); font-weight: 700; }
 
         .content { flex: 1; padding: 20px; overflow-y: auto; }
@@ -80,89 +79,44 @@
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; gap: 10px; }
         .card-title { font-size: 1rem; color: var(--primary-color); font-weight: 700; display: flex; align-items: center; gap: 8px; }
 
+        /* SECTION VISIBILITY CONTROL */
+        .app-section { display: none; }
+        .app-section.active { display: block; }
+
+        /* HERO & BERANDA */
+        .hero-banner { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 25px 20px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+        .hero-banner h2 { font-size: 1.6rem; margin-bottom: 8px; }
+        .hero-banner p { font-size: 0.9rem; opacity: 0.9; max-width: 600px; margin: 0 auto 15px; }
+
         /* STATS GRID */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-card { background: #fff; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary-color); box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
-        .stat-card h3 { font-size: 1.5rem; color: var(--primary-color); }
-        .stat-card p { font-size: 0.8rem; color: #666; margin-top: 2px; }
+        .stat-card h3 { font-size: 1.4rem; color: var(--primary-color); }
+        .stat-card p { font-size: 0.78rem; color: #666; margin-top: 2px; }
 
         /* MODAL POPUP */
-        .modal-backdrop { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; padding: 15px; overflow-y: auto; }
-        .modal-box { background: #fff; padding: 20px; border-radius: 10px; width: 100%; max-width: 480px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); position: relative; margin: auto; }
+        .modal-backdrop { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; padding: 15px; }
+        .modal-box { background: #fff; padding: 20px; border-radius: 10px; width: 100%; max-width: 480px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); position: relative; }
         .modal-close { position: absolute; right: 15px; top: 15px; font-size: 1.2rem; cursor: pointer; color: #888; }
         
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.82rem; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.88rem; }
-        .form-control:focus { border-color: var(--primary-color); outline: none; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.88rem; }
 
-        /* OVERLAY BACKDROP UNTUK MOBILE SIDEBAR */
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 800; }
 
-        /* DESKTOP TABLE STYLES */
-        .table-responsive { width: 100%; }
+        /* TABLES RESPONSIVE */
+        .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
         th { background: #f8f9fa; color: #444; padding: 10px 12px; font-weight: 600; border-bottom: 2px solid #dee2e6; }
         td { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
 
-        /* RESPONSIVE DESIGN (HP & TABLET) */
         @media (max-width: 768px) {
             .mobile-menu-btn { display: block; }
-            .navbar-brand h1 { font-size: 0.95rem; }
-            .navbar-brand p { font-size: 0.68rem; }
-            
-            .sidebar { 
-                position: fixed; 
-                top: 0; 
-                left: -260px; 
-                height: 100%; 
-                z-index: 850; 
-                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
-                padding-top: 60px;
-            }
+            .sidebar { position: fixed; top: 0; left: -270px; height: 100%; z-index: 850; box-shadow: 2px 0 10px rgba(0,0,0,0.2); padding-top: 60px; }
             .sidebar.active { left: 0; }
             .sidebar-overlay.active { display: block; }
-
             .content { padding: 12px; }
-            .card { padding: 14px; margin-bottom: 15px; }
-            
-            /* CONVERT TABLE TO CARD IN MOBILE */
-            .table-responsive table, .table-responsive thead, .table-responsive tbody, .table-responsive th, .table-responsive td, .table-responsive tr { 
-                display: block; 
-            }
-            .table-responsive thead { display: none; }
-            .table-responsive tr { 
-                background: #fff; 
-                border: 1px solid #e2e8f0; 
-                border-radius: 8px; 
-                margin-bottom: 12px; 
-                padding: 12px; 
-                box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-            }
-            .table-responsive td { 
-                border: none; 
-                padding: 6px 0; 
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-                text-align: right; 
-                font-size: 0.82rem;
-            }
-            .table-responsive td::before { 
-                content: attr(data-label); 
-                font-weight: 700; 
-                color: #555; 
-                text-align: left; 
-                padding-right: 10px;
-            }
-            .table-responsive td:last-child { 
-                border-top: 1px dashed #eee; 
-                margin-top: 8px; 
-                padding-top: 10px; 
-                justify-content: flex-end; 
-                gap: 5px;
-                flex-wrap: wrap;
-            }
         }
     </style>
 </head>
@@ -178,89 +132,260 @@
             </div>
         </div>
         <div class="user-panel" id="userPanel">
-            <button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas</button>
         </div>
     </header>
 
-    <!-- SIDEBAR OVERLAY FOR MOBILE -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <div class="main-wrapper">
-        <!-- SIDEBAR NAVIGASI -->
+        <!-- SIDEBAR NAVIGASI LENGKAP -->
         <aside class="sidebar" id="sidebarNav">
             <div class="sidebar-title">Menu Utama</div>
             <ul class="menu-list">
-                <li class="menu-item active"><a href="#" onclick="toggleSidebar()"><i class="fas fa-home"></i> Dashboard Utama</a></li>
-                <li class="menu-item"><a href="#" onclick="openModal('modalSurat'); toggleSidebar();"><i class="fas fa-paper-plane"></i> Ajukan Surat</a></li>
-                <li class="menu-item"><a href="#section-surat" onclick="toggleSidebar()"><i class="fas fa-file-signature"></i> Daftar Surat</a></li>
-                <li class="menu-item" id="menuLog" style="display:none;"><a href="#section-log" onclick="toggleSidebar()"><i class="fas fa-history"></i> Audit Log System</a></li>
+                <li class="menu-item active" id="nav-beranda"><a onclick="switchSection('section-beranda')"><i class="fas fa-globe"></i> Beranda Publik</a></li>
+                <li class="menu-item" id="nav-dashboard"><a onclick="switchSection('section-dashboard')"><i class="fas fa-chart-line"></i> Dashboard Ringkasan</a></li>
+                <li class="menu-item"><a onclick="switchSection('section-profil')"><i class="fas fa-landmark"></i> Profil & Visi Misi</a></li>
+            </ul>
+
+            <div class="sidebar-title">Layanan & Tata Kelola</div>
+            <ul class="menu-list">
+                <li class="menu-item"><a onclick="switchSection('section-surat')"><i class="fas fa-file-alt"></i> Layanan Surat Digital</a></li>
+                <li class="menu-item"><a onclick="switchSection('section-kependudukan')"><i class="fas fa-users"></i> Data Kependudukan</a></li>
+                <li class="menu-item"><a onclick="switchSection('section-keuangan')"><i class="fas fa-wallet"></i> Transparansi APBDes</a></li>
+                <li class="menu-item"><a onclick="switchSection('section-pembangunan')"><i class="fas fa-tools"></i> Pembangunan Desa</a></li>
+                <li class="menu-item"><a onclick="switchSection('section-aduan')"><i class="fas fa-comments"></i> Aduan Masyarakat</a></li>
+            </ul>
+
+            <div class="sidebar-title" id="titleInternal" style="display:none;">Internal Pemerintahan</div>
+            <ul class="menu-list">
+                <li class="menu-item" id="menuAbsen" style="display:none;"><a onclick="switchSection('section-absen')"><i class="fas fa-user-check"></i> Absensi Aparat Desa</a></li>
+                <li class="menu-item" id="menuLog" style="display:none;"><a onclick="switchSection('section-log')"><i class="fas fa-history"></i> Audit Log System</a></li>
             </ul>
         </aside>
 
         <!-- KONTEN UTAMA -->
         <main class="content">
             
-            <!-- RINGKASAN STATISTIK -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3 id="statTotal">0</h3>
-                    <p>Total Permohonan</p>
+            <!-- 1. BERANDA PUBLIK -->
+            <section id="section-beranda" class="app-section active">
+                <div class="hero-banner">
+                    <h2>Selamat Datang di Portal Desa Wawongkolono</h2>
+                    <p>Sistem Informasi Desa Terpadu untuk pelayanan masyarakat, kependudukan, dan transparansi tata kelola desa.</p>
+                    <button class="btn btn-warning" onclick="openModal('modalSurat')"><i class="fas fa-paper-plane"></i> Ajukan Surat Online</button>
                 </div>
-                <div class="stat-card" style="border-color: var(--warning-color);">
-                    <h3 id="statProses">0</h3>
-                    <p>Dalam Proses</p>
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><i class="fas fa-bullhorn"></i> Pengumuman Desa</span></div>
+                    <p style="font-size:0.88rem; color:#555;">Pelaksanaan Musrenbangdes Tahun 2026 akan dilaksanakan di Balai Desa Wawongkolono. Mohon kehadiran perwakilan RT/RW.</p>
                 </div>
-                <div class="stat-card" style="border-color: var(--success-color);">
-                    <h3 id="statSelesai">0</h3>
-                    <p>Selesai (QR Valid)</p>
-                </div>
-            </div>
+            </section>
 
-            <!-- TABEL LAYANAN SURAT DIGITAL -->
-            <div class="card" id="section-surat">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-file-alt"></i> Layanan Surat Digital</span>
-                    <button class="btn" onclick="openModal('modalSurat')"><i class="fas fa-plus"></i> Buat Surat</button>
+            <!-- 2. DASHBOARD RINGKASAN -->
+            <section id="section-dashboard" class="app-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="statTotal">0</h3>
+                        <p>Total Surat Masuk</p>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--warning-color);">
+                        <h3 id="statProses">0</h3>
+                        <p>Surat Dalam Proses</p>
+                    </div>
+                    <div class="stat-card" style="border-color: var(--success-color);">
+                        <h3 id="statSelesai">0</h3>
+                        <p>Surat Selesai</p>
+                    </div>
+                    <div class="stat-card" style="border-color: #3a86ef;">
+                        <h3>1,248</h3>
+                        <p>Penduduk Terdata</p>
+                    </div>
                 </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>NIK & Pemohon</th>
-                                <th>Jenis Surat</th>
-                                <th>Keperluan</th>
-                                <th>Status</th>
-                                <th>Aksi Transaksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableSuratBody">
-                            <tr><td colspan="5" style="text-align:center; color:#888;">Memuat data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            </section>
 
-            <!-- TABEL AUDIT LOG SYSTEM -->
-            <div class="card" id="section-log" style="display:none;">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-history"></i> Audit Log System</span>
+            <!-- 3. PROFIL DESA -->
+            <section id="section-profil" class="app-section">
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><i class="fas fa-landmark"></i> Profil Desa Wawongkolono</span></div>
+                    <p style="font-size:0.88rem; line-height:1.6; color:#444;">
+                        <strong>Visi:</strong> Terwujudnya Desa Wawongkolono yang Mandiri, Sejahtera, Transparan, dan Berdaya Saing melalui Tata Kelola Digital.<br><br>
+                        <strong>Misi:</strong><br>
+                        1. Meningkatkan kualitas pelayanan publik berbasis teknologi informasi.<br>
+                        2. Membangun infrastruktur desa yang merata dan berkelanjutan.<br>
+                        3. Mewujudkan transparansi anggaran dan akuntabilitas kinerja perangkat desa.
+                    </p>
                 </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Pengguna</th>
-                                <th>Role</th>
-                                <th>Aktivitas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableLogBody">
-                            <tr><td colspan="4" style="text-align:center; color:#888;">Memuat log...</td></tr>
-                        </tbody>
-                    </table>
+            </section>
+
+            <!-- 4. PRESENSI / ABSENSI APARAT DESA -->
+            <section id="section-absen" class="app-section">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-user-check"></i> Presensi Harian Aparat Desa</span>
+                        <button class="btn btn-success" onclick="openModal('modalAbsen')"><i class="fas fa-clock"></i> Catat Absen Hari Ini</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tanggal & Jam</th>
+                                    <th>Nama Aparat</th>
+                                    <th>Jabatan</th>
+                                    <th>Status Absen</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableAbsenBody">
+                                <tr><td colspan="5" style="text-align:center; color:#888;">Memuat data presensi...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- 5. SURAT DIGITAL -->
+            <section id="section-surat" class="app-section">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-file-alt"></i> Layanan Surat Digital</span>
+                        <button class="btn" onclick="openModal('modalSurat')"><i class="fas fa-plus"></i> Buat Surat</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>NIK & Pemohon</th>
+                                    <th>Jenis Surat</th>
+                                    <th>Keperluan</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableSuratBody">
+                                <tr><td colspan="5" style="text-align:center; color:#888;">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. KEPENDUDUKAN -->
+            <section id="section-kependudukan" class="app-section">
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><i class="fas fa-users"></i> Data Kependudukan</span></div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>NIK</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Jenis Kelamin</th>
+                                    <th>RT/RW</th>
+                                    <th>Status Hubungan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>7203010203000001</td>
+                                    <td>Ahmad Riski</td>
+                                    <td>Laki-Laki</td>
+                                    <td>001/001</td>
+                                    <td>Kepala Keluarga</td>
+                                </tr>
+                                <tr>
+                                    <td>7203010203000002</td>
+                                    <td>Siti Aminah</td>
+                                    <td>Perempuan</td>
+                                    <td>001/001</td>
+                                    <td>Istri</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. KEUANGAN APBDES -->
+            <section id="section-keuangan" class="app-section">
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><i class="fas fa-wallet"></i> Transparansi APBDes 2026</span></div>
+                    <div class="stats-grid">
+                        <div class="stat-card" style="border-color:#2a9d8f;">
+                            <h3>Rp 850.000.000</h3>
+                            <p>Total Pendapatan Desa</p>
+                        </div>
+                        <div class="stat-card" style="border-color:#e76f51;">
+                            <h3>Rp 780.000.000</h3>
+                            <p>Total Belanja Desa</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. PEMBANGUNAN DESA -->
+            <section id="section-pembangunan" class="app-section">
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><i class="fas fa-tools"></i> Proyek Pembangunan Infrastruktur</span></div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nama Kegiatan</th>
+                                    <th>Lokasi</th>
+                                    <th>Anggaran</th>
+                                    <th>Progres</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pemasangan Drainase Lingkungan</td>
+                                    <td>RT 02 / RW 01</td>
+                                    <td>Rp 45.000.000</td>
+                                    <td><span style="color:var(--success-color); font-weight:bold;">100% Selesai</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Pengaspalan Jalan Desa Utama</td>
+                                    <td>Dusun 1</td>
+                                    <td>Rp 120.000.000</td>
+                                    <td><span style="color:var(--warning-color); font-weight:bold;">60% Pengerjaan</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. ADUAN MASYARAKAT -->
+            <section id="section-aduan" class="app-section">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-comments"></i> Portal Aduan & Aspirasi Warga</span>
+                        <button class="btn btn-warning" onclick="alert('Fitur pengiriman aduan aktif.')"><i class="fas fa-pen"></i> Tulis Aduan</button>
+                    </div>
+                    <p style="font-size:0.85rem; color:#666;">Aduan warga dikirim secara terenkripsi dan langsung diproses oleh Sekdes/Kades.</p>
+                </div>
+            </section>
+
+            <!-- 10. AUDIT LOG SYSTEM -->
+            <section id="section-log" class="app-section">
+                <div class="card">
+                    <div class="card-header"><span class="card-title"><i class="fas fa-history"></i> Audit Log Activity</span></div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Waktu</th>
+                                    <th>Pengguna</th>
+                                    <th>Role</th>
+                                    <th>Aktivitas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableLogBody">
+                                <tr><td colspan="4" style="text-align:center; color:#888;">Memuat log...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 
         </main>
     </div>
@@ -269,7 +394,7 @@
     <div id="modalLogin" class="modal-backdrop">
         <div class="modal-box">
             <span class="modal-close" onclick="closeModal('modalLogin')">&times;</span>
-            <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-lock"></i> Login Petugas</h3>
+            <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-lock"></i> Login Petugas / Perangkat</h3>
             <form onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>Username / NIK</label>
@@ -280,6 +405,29 @@
                     <input type="password" id="loginPassword" class="form-control" placeholder="Password" required>
                 </div>
                 <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 10px;">Masuk Ke Sistem</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ABSENSI -->
+    <div id="modalAbsen" class="modal-backdrop">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeModal('modalAbsen')">&times;</span>
+            <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-user-check"></i> Form Presensi Aparat</h3>
+            <form onsubmit="handleTambahAbsen(event)">
+                <div class="form-group">
+                    <label>Status Kehadiran</label>
+                    <select id="absenStatus" class="form-control" required>
+                        <option value="Hadir Tepat Waktu">Hadir Tepat Waktu</option>
+                        <option value="Dinas Luar">Dinas Luar</option>
+                        <option value="Izin / Sakit">Izin / Sakit</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Keterangan / Catatan Kegiatan</label>
+                    <textarea id="absenKet" class="form-control" rows="3" placeholder="Contoh: Mengikuti rapat koordinasi kecamatan"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center;">Simpan Absensi</button>
             </form>
         </div>
     </div>
@@ -320,51 +468,30 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT SURAT -->
-    <div id="modalEditSurat" class="modal-backdrop">
-        <div class="modal-box">
-            <span class="modal-close" onclick="closeModal('modalEditSurat')">&times;</span>
-            <h3 style="margin-bottom: 15px; color: var(--warning-color);"><i class="fas fa-edit"></i> Edit Data Surat</h3>
-            <form onsubmit="handleEditSurat(event)">
-                <input type="hidden" id="editId">
-                <div class="form-group">
-                    <label>NIK Pemohon</label>
-                    <input type="text" id="editNik" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Nama Lengkap Pemohon</label>
-                    <input type="text" id="editNama" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>No. WhatsApp</label>
-                    <input type="text" id="editWa" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Jenis Surat</label>
-                    <input type="text" id="editJenis" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label>Keperluan / Keterangan</label>
-                    <textarea id="editKet" class="form-control" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-warning" style="width: 100%; justify-content: center;">Simpan Perubahan</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT CLIENT-SIDE UTAMA -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         const SUPABASE_URL = 'https://upsmpuzktefbrulsvydv.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ';
 
         let currentUser = JSON.parse(sessionStorage.getItem('user')) || { role: 'guest', nama: 'Tamu' };
         let cachedSurat = [];
+        let cachedAbsen = [];
 
         function toggleSidebar() {
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebarNav').classList.toggle('active');
                 document.getElementById('sidebarOverlay').classList.toggle('active');
             }
+        }
+
+        function switchSection(sectionId) {
+            document.querySelectorAll('.app-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) targetSection.classList.add('active');
+
+            if (window.innerWidth <= 768) toggleSidebar();
         }
 
         async function supabaseRequest(endpoint, method = 'GET', body = null) {
@@ -391,31 +518,30 @@
             });
         }
 
-        function formatWa(phone) {
-            phone = phone.replace(/[^0-9]/g, '');
-            if (phone.startsWith('0')) phone = '62' + phone.slice(1);
-            return phone;
-        }
-
         function renderUserPanel() {
             const panel = document.getElementById('userPanel');
             const menuLog = document.getElementById('menuLog');
-            const sectionLog = document.getElementById('section-log');
+            const menuAbsen = document.getElementById('menuAbsen');
+            const titleInternal = document.getElementById('titleInternal');
 
             if (currentUser.role === 'guest') {
-                panel.innerHTML = `<button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login</button>`;
+                panel.innerHTML = `<button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas</button>`;
                 menuLog.style.display = 'none';
-                sectionLog.style.display = 'none';
+                menuAbsen.style.display = 'none';
+                titleInternal.style.display = 'none';
             } else {
                 panel.innerHTML = `
-                    <div class="user-badge"><i class="fas fa-user-circle"></i> <strong>${currentUser.nama}</strong></div>
-                    <button class="btn btn-danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i></button>
+                    <div class="user-badge"><i class="fas fa-user-circle"></i> <strong>${currentUser.nama}</strong> (${currentUser.role.toUpperCase()})</div>
+                    <button class="btn btn-danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
                 `;
-                if (['admin', 'sekdes'].includes(currentUser.role)) {
+                menuAbsen.style.display = 'block';
+                titleInternal.style.display = 'block';
+                
+                if (['admin', 'sekdes', 'kades'].includes(currentUser.role)) {
                     menuLog.style.display = 'block';
-                    sectionLog.style.display = 'block';
                     loadLogs();
                 }
+                loadAbsen();
             }
         }
 
@@ -433,39 +559,36 @@
                 return;
             }
 
-            tbody.innerHTML = cachedSurat.map(s => {
-                let btnAction = '';
+            tbody.innerHTML = cachedSurat.map(s => `
+                <tr>
+                    <td><strong>${s.nama_pemohon}</strong><br><small style="color:#666;">${s.nik_pemohon}</small></td>
+                    <td>${s.jenis_surat}</td>
+                    <td>${s.keterangan}</td>
+                    <td><span style="padding: 3px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: bold; background: #e3f2fd; color: #0d47a1;">${s.status}</span></td>
+                    <td>-</td>
+                </tr>
+            `).join('');
+        }
 
-                if (['admin', 'sekdes', 'operator'].includes(currentUser.role)) {
-                    btnAction += `<button onclick="openEditModal(${s.id})" class="btn btn-warning" style="font-size:0.75rem;"><i class="fas fa-edit"></i></button>`;
-                }
+        async function loadAbsen() {
+            const data = await supabaseRequest('presensi?select=*&order=created_at.desc');
+            cachedAbsen = data || [];
+            const tbody = document.getElementById('tableAbsenBody');
 
-                if (s.status === 'Menunggu Verifikasi Sekdes' && ['admin', 'sekdes'].includes(currentUser.role)) {
-                    btnAction += `<button onclick="updateStatus(${s.id}, 'Menunggu TTD Kades')" class="btn btn-success" style="font-size:0.75rem;"><i class="fas fa-check"></i> Sekdes</button>`;
-                }
+            if (cachedAbsen.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #999;">Belum ada presensi tercatat hari ini.</td></tr>`;
+                return;
+            }
 
-                if (s.status === 'Menunggu TTD Kades' && ['admin', 'kades'].includes(currentUser.role)) {
-                    btnAction += `<button onclick="updateStatus(${s.id}, 'Selesai & Diterbitkan')" class="btn btn-warning" style="font-size:0.75rem;"><i class="fas fa-signature"></i> TTD Kades</button>`;
-                }
-
-                if (s.status === 'Selesai & Diterbitkan') {
-                    btnAction += `<button onclick="cetakDokumen('${s.nama_pemohon}', '${s.nik_pemohon}', '${s.jenis_surat}', '${s.keterangan}', '${s.qr_token}')" class="btn" style="font-size:0.75rem;"><i class="fas fa-print"></i> Cetak</button>`;
-                    if (s.no_wa) {
-                        const waLink = `https://wa.me/${formatWa(s.no_wa)}?text=${encodeURIComponent(`Halo ${s.nama_pemohon}, Surat${s.jenis_surat} Anda telah diterbitkan.`)}`;
-                        btnAction += `<a href="${waLink}" target="_blank" class="btn btn-wa" style="font-size:0.75rem;"><i class="fab fa-whatsapp"></i> WA</a>`;
-                    }
-                }
-
-                return `
-                    <tr>
-                        <td data-label="Pemohon"><strong>${s.nama_pemohon}</strong><br><small style="color:#666;">${s.nik_pemohon}</small></td>
-                        <td data-label="Jenis Surat">${s.jenis_surat}</td>
-                        <td data-label="Keperluan">${s.keterangan}</td>
-                        <td data-label="Status"><span style="padding: 3px 6px; border-radius: 4px; font-size: 0.72rem; font-weight: bold; background: #e3f2fd; color: #0d47a1;">${s.status}</span></td>
-                        <td data-label="Aksi">${btnAction}</td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = cachedAbsen.map(a => `
+                <tr>
+                    <td>${new Date(a.created_at).toLocaleString('id-ID')}</td>
+                    <td><strong>${a.nama_aparat}</strong></td>
+                    <td>${a.jabatan}</td>
+                    <td><span style="color: green; font-weight: bold;">${a.status_kehadiran}</span></td>
+                    <td>${a.keterangan || '-'}</td>
+                </tr>
+            `).join('');
         }
 
         async function loadLogs() {
@@ -477,10 +600,10 @@
             }
             tbody.innerHTML = logs.map(l => `
                 <tr>
-                    <td data-label="Waktu">${new Date(l.created_at).toLocaleString('id-ID')}</td>
-                    <td data-label="Pengguna"><strong>${l.user_nama}</strong></td>
-                    <td data-label="Role"><span style="font-size:0.75rem; font-weight:bold;">${l.role.toUpperCase()}</span></td>
-                    <td data-label="Aktivitas">${l.aksi}</td>
+                    <td>${new Date(l.created_at).toLocaleString('id-ID')}</td>
+                    <td><strong>${l.user_nama}</strong></td>
+                    <td><span style="font-size:0.75rem; font-weight:bold;">${l.role.toUpperCase()}</span></td>
+                    <td>${l.aksi}</td>
                 </tr>
             `).join('');
         }
@@ -510,6 +633,25 @@
             currentUser = { role: 'guest', nama: 'Tamu' };
             renderUserPanel();
             loadSurat();
+            switchSection('section-beranda');
+        }
+
+        async function handleTambahAbsen(e) {
+            e.preventDefault();
+            const body = {
+                nama_aparat: currentUser.nama,
+                jabatan: currentUser.role.toUpperCase(),
+                status_kehadiran: document.getElementById('absenStatus').value,
+                keterangan: document.getElementById('absenKet').value
+            };
+
+            const res = await supabaseRequest('presensi', 'POST', body);
+            if (res) {
+                await catatLog(`Presensi: ${body.status_kehadiran}`);
+                closeModal('modalAbsen');
+                loadAbsen();
+                alert('Presensi berhasil dicatat!');
+            }
         }
 
         async function handleTambahSurat(e) {
@@ -529,82 +671,9 @@
                 await catatLog(`Pengajuan Surat: ${body.jenis_surat} a.n ${body.nama_pemohon}`);
                 closeModal('modalSurat');
                 loadSurat();
+                switchSection('section-surat');
                 alert('Permohonan surat berhasil dikirim!');
             }
-        }
-
-        function openEditModal(id) {
-            const s = cachedSurat.find(item => item.id === id);
-            if (!s) return;
-            document.getElementById('editId').value = s.id;
-            document.getElementById('editNik').value = s.nik_pemohon;
-            document.getElementById('editNama').value = s.nama_pemohon;
-            document.getElementById('editWa').value = s.no_wa || '';
-            document.getElementById('editJenis').value = s.jenis_surat;
-            document.getElementById('editKet').value = s.keterangan;
-            openModal('modalEditSurat');
-        }
-
-        async function handleEditSurat(e) {
-            e.preventDefault();
-            const id = document.getElementById('editId').value;
-            const body = {
-                nik_pemohon: document.getElementById('editNik').value,
-                nama_pemohon: document.getElementById('editNama').value,
-                no_wa: document.getElementById('editWa').value,
-                jenis_surat: document.getElementById('editJenis').value,
-                keterangan: document.getElementById('editKet').value
-            };
-
-            await supabaseRequest(`surat?id=eq.${id}`, 'PATCH', body);
-            await catatLog(`Ubah Data Surat ID #${id} (Pemohon: ${body.nama_pemohon})`);
-            closeModal('modalEditSurat');
-            loadSurat();
-            alert('Data surat berhasil diperbarui!');
-        }
-
-        async function updateStatus(id, newStatus) {
-            await supabaseRequest(`surat?id=eq.${id}`, 'PATCH', { status: newStatus });
-            await catatLog(`Update Status Surat ID #${id} -> ${newStatus}`);
-            loadSurat();
-            alert('Status surat berhasil diperbarui!');
-        }
-
-        function cetakDokumen(nama, nik, jenis, ket, token) {
-            const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=" + encodeURIComponent(window.location.href + "?verify=" + token);
-            const htmlPrint = `
-                <div style="font-family:'Times New Roman', serif; padding: 30px; background:#fff; color:#000;">
-                    <div style="text-align:center; border-bottom:3px double #000; padding-bottom:10px; margin-bottom:20px;">
-                        <h3 style="font-size:14pt; margin:0;">PEMERINTAH KABUPATEN MOROWALI</h3>
-                        <h3 style="font-size:13pt; margin:0;">KECAMATAN MENUI KEPULAUAN</h3>
-                        <h2 style="font-size:16pt; margin:5px 0 0 0;">PEMERINTAH DESA WAWONGKOLONO</h2>
-                    </div>
-                    <div style="text-align:center; margin-bottom: 20px;">
-                        <h3 style="text-decoration:underline; font-size:13pt; margin:0;">${jenis.toUpperCase()}</h3>
-                        <span>Nomor: 140 / DW / ${new Date().getFullYear()}</span>
-                    </div>
-                    <p style="font-size:11pt; line-height:1.6;">Yang bertanda tangan di bawah ini Kepala Desa Wawongkolono menerangkan bahwa:</p>
-                    <table style="margin: 15px 0 15px 20px; font-size:11pt; width:90%;">
-                        <tr><td width="150" style="padding:4px 0;">Nama Lengkap</td><td>: <strong>${nama}</strong></td></tr>
-                        <tr><td style="padding:4px 0;">NIK Pemohon</td><td>: ${nik}</td></tr>
-                        <tr><td style="padding:4px 0;">Keperluan / Keterangan</td><td>: ${ket}</td></tr>
-                    </table>
-                    <p style="font-size:11pt; line-height:1.6;">Demikian surat keterangan ini diterbitkan secara resmi untuk dipergunakan sebagaimana mestinya.</p>
-                    <div style="float:right; width:250px; text-align:center; margin-top:30px;">
-                        <p style="margin:0;">Wawongkolono, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
-                        <p style="margin:5px 0 15px 0;">Kepala Desa Wawongkolono</p>
-                        <div style="border:1px dashed #aaa; display:inline-block; padding:5px; margin-bottom:8px;">
-                            <img src="${qrUrl}" width="90" height="90" alt="QR Signature">
-                        </div>
-                        <p style="margin:0; font-weight:bold; font-size:10pt;">PEMERINTAH DESA WAWONGKOLONO</p>
-                        <small style="font-size:7pt; color:#555;">Validasi Tanda Tangan Digital Terverifikasi</small>
-                    </div>
-                </div>
-            `;
-            const win = window.open('', '_blank');
-            win.document.write('<html><head><title>Cetak Dokumen Resmi</title></head><body>' + htmlPrint + '</body></html>');
-            win.document.close();
-            setTimeout(() => win.print(), 500);
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
