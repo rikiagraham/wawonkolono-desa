@@ -1,241 +1,579 @@
+<?php
+// ==========================================
+// 1. KONEKSI & HELPER SUPABASE / SESSION
+// ==========================================
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+define('SUPABASE_URL', 'https://upsmpuzktefbrulsvydv.supabase.co');
+define('SUPABASE_KEY', 'sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ');
+
+function supabase_request($endpoint, $method = 'GET', $data = null) {
+    $url = SUPABASE_URL . '/rest/v1/' . $endpoint;
+    $headers = [
+        'apikey: ' . SUPABASE_KEY,
+        'Authorization: Bearer ' . SUPABASE_KEY,
+        'Content-Type: application/json',
+        'Prefer: return=representation'
+    ];
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    if ($data !== null && in_array(strtoupper($method), ['POST', 'PUT', 'PATCH'])) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    }
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    return [
+        'status' => $httpCode,
+        'data'   => json_decode($response, true)
+    ];
+}
+
+function catat_log($user_nama, $role, $aksi) {
+    $payload = [
+        'user_nama' => $user_nama,
+        'role'      => $role,
+        'aksi'      => $aksi
+    ];
+    supabase_request('audit_logs', 'POST', $payload);
+}
+
+function format_wa_number($phone) {
+    $phone = preg_replace('/[^0-9]/', '', $phone);
+    if (substr($phone, 0, 1) === '0') {
+        $phone = '62' . substr($phone, 1);
+    }
+    return $phone;
+}
+
+// ==========================================
+// 2. LOGIKA PROSES FORM (POST & GET)
+// ==========================================
+
+// Autentikasi Login
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    $response = supabase_request("users?username=eq.{$username}&password=eq.{$password}&select=*");
+
+    if ($response['status'] === 200 && !empty($response['data'])) {
+        $user = $response['data'][0];
+        $_SESSION['user_id']  = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['nama']     = $user['nama'];
+        $_SESSION['role']     = $user['role'];
+
+        catat_log($user['nama'], $user['role'], "Login ke dalam sistem");
+        echo "<script>alert('Selamat datang, {$user['nama']}!'); window.location='index.php';</script>";
+        exit;
+    } else {
+        echo "<script>alert('Username atau Password salah!'); window.location='index.php';</script>";
+        exit;
+    }
+}
+
+// Logout
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    if (isset($_SESSION['nama'])) {
+        catat_log($_SESSION['nama'], $_SESSION['role'], "Logout dari sistem");
+    }
+    session_unset();
+    session_destroy();
+    echo "<script>window.location='index.php';</script>";
+    exit;
+}
+
+// Permohonan Surat Baru
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah_surat_action'])) {
+    $payload = [
+        'nik_pemohon'  => $_POST['nik_pemohon'],
+        'nama_pemohon' => $_POST['nama_pemohon'],
+        'no_wa'        => $_POST['no_wa'],
+        'jenis_surat'  => $_POST['jenis_surat'],
+        'keterangan'   => $_POST['keterangan'],
+        'status'       => 'Menunggu Verifikasi Sekdes',
+        'qr_token'     => bin2hex(random_bytes(16))
+    ];
+    $res = supabase_request('surat', 'POST', $payload);
+    if ($res['status'] === 201 || $res['status'] === 200) {
+        $nama_akt = $_SESSION['nama'] ?? $_POST['nama_pemohon'];
+        $role_akt = $_SESSION['role'] ?? 'masyarakat';
+        catat_log($nama_akt, $role_akt, "Pengajuan Surat: " . $_POST['jenis_surat'] . " a.n " . $_POST['nama_pemohon']);
+        echo "<script>alert('Permohonan surat berhasil dikirim!'); window.location='index.php';</script>";
+        exit;
+    }
+}
+
+// Edit Data Surat
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_surat_action'])) {
+    $user_role = $_SESSION['role'] ?? 'guest';
+    if (in_array($user_role, ['admin', 'sekdes', 'operator'])) {
+        $id_surat = $_POST['id_surat'];
+        $payload = [
+            'nik_pemohon'  => $_POST['nik_pemohon'],
+            'nama_pemohon' => $_POST['nama_pemohon'],
+            'no_wa'        => $_POST['no_wa'],
+            'jenis_surat'  => $_POST['jenis_surat'],
+            'keterangan'   => $_POST['keterangan']
+        ];
+        supabase_request("surat?id=eq.{$id_surat}", 'PATCH', $payload);
+        catat_log($_SESSION['nama'], $_SESSION['role'], "Ubah Data Surat ID #{$id_surat} (Pemohon: " . $_POST['nama_pemohon'] . ")");
+        echo "<script>alert('Data surat berhasil diperbarui!'); window.location='index.php';</script>";
+        exit;
+    }
+}
+
+// Approval Status Surat
+if (isset($_GET['action']) && isset($_GET['id'])) {
+    $user_role = $_SESSION['role'] ?? 'guest';
+    $id_surat = $_GET['id'];
+    $new_status = '';
+
+    if ($_GET['action'] === 'verifikasi_sekdes' && in_array($user_role, ['admin', 'sekdes'])) {
+        $new_status = 'Menunggu TTD Kades';
+    } elseif ($_GET['action'] === 'approve_kades' && in_array($user_role, ['admin', 'kades'])) {
+        $new_status = 'Selesai & Diterbitkan';
+    }
+
+    if ($new_status !== '') {
+        supabase_request("surat?id=eq.{$id_surat}", 'PATCH', ['status' => $new_status]);
+        catat_log($_SESSION['nama'], $user_role, "Update Status Surat ID #{$id_surat} -> {$new_status}");
+        echo "<script>alert('Status surat berhasil diubah!'); window.location='index.php';</script>";
+        exit;
+    }
+}
+
+// Inisialisasi Data Sesi & Query Dashboard
+$user_role = $_SESSION['role'] ?? 'guest';
+$user_nama = $_SESSION['nama'] ?? 'Masyarakat / Tamu';
+
+$fetch_surat = supabase_request('surat?select=*&order=created_at.desc');
+$list_surat = $fetch_surat['data'] ?? [];
+
+$fetch_logs = supabase_request('audit_logs?select=*&order=created_at.desc&limit=10');
+$list_logs = $fetch_logs['data'] ?? [];
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistem Informasi Desa Wawongkolono</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SID Wawongkolono - Sistem Informasi Desa Terpadu</title>
+    
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Style CSS Terpadu -->
+    <style>
+        :root {
+            --primary-color: #1b4332;
+            --secondary-color: #2d6a4f;
+            --accent-color: #40916c;
+            --bg-light: #f4f6f9;
+            --text-dark: #2b2b2b;
+            --danger-color: #b7094c;
+            --warning-color: #e76f51;
+            --success-color: #2a9d8f;
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg-light); color: var(--text-dark); display: flex; flex-direction: column; min-height: 100vh; }
 
-<script>
-/* ============================================================
-    SUPABASE INITIALIZATION - DESA WAWONGKOLONO
-   ============================================================ */
-const SUPABASE_URL = "https://upsmpuzktefbrulsvydv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ";
-window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-var currentUser = null;
-var selectedRole = "";
-var pageNames = {dashboard:"Dashboard",penduduk:"Data Penduduk",kk:"Data KK",pelayanan:"Pelayanan Desa",surat:"Surat Desa",absensi:"Absensi",pemerintahan:"Pemerintahan Desa",bantuan:"Bantuan",pembangunan:"Pembangunan Desa",dusun:"Program Dusun",keuangan:"Keuangan Desa",kritik:"Kritik & Saran",informasi:"Informasi Desa",laporan:"Laporan",arsip:"Arsip Desa",pengguna:"Pengguna & Hak Akses",log:"Log Aktivitas",pengaturan:"Pengaturan",ai:"AI Desa"};
-</script>
-<script>
+        /* HEADER & NAVBAR */
+        .navbar { background: var(--primary-color); color: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .navbar-brand h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.5px; }
+        .navbar-brand p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+        .user-panel { display: flex; align-items: center; gap: 15px; }
+        .user-badge { background: rgba(255,255,255,0.15); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; }
 
-/* ===== MODUL FUNGSIONAL TANPA MENGUBAH MODUL LAMA ===== */
-const DD_KEYS={surat:'DD_SURAT',absensi:'DD_ABSENSI',bantuan:'DD_BANTUAN',pembangunan:'DD_PEMBANGUNAN',dusun:'DD_DUSUN',keuangan:'DD_KEUANGAN',kritik:'DD_KRITIK',informasi:'DD_INFORMASI',arsip:'DD_ARSIP',pemerintahan:'DD_PEMERINTAHAN',pengguna:'DD_PENGGUNA',log:'DD_LOG',settings:'DD_SETTINGS'};
-function ddGet(k){try{return JSON.parse(localStorage.getItem(DD_KEYS[k])||'[]')}catch(e){return []}}
-function ddSet(k,v){localStorage.setItem(DD_KEYS[k],JSON.stringify(v))}
-function ddEsc(v){return escapeHtml(v==null?'':v)}
-function ddRp(v){return 'Rp '+Number(v||0).toLocaleString('id-ID')}
-function ddToday(){return new Date().toISOString().slice(0,10)}
-function ddActor(){return currentUser?.email||'Pengguna'}
-function ddLog(aktivitas,halaman){const a=ddGet('log');a.unshift({waktu:new Date().toLocaleString('id-ID'),pengguna:ddActor(),aktivitas,halaman});ddSet('log',a.slice(0,500));if(document.getElementById('page-log')?.classList.contains('active'))ddRenderLog()}
-function ddModal(id,title,body,onSave,saveText='💾 Simpan'){let m=document.getElementById(id);if(!m){m=document.createElement('div');m.id=id;m.className='modal';m.innerHTML=`<div class="modal-box"><div class="modal-header"><h3>${title}</h3><button class="modal-close" onclick="document.getElementById('${id}').style.display='none'">×</button></div>${body}<div class="modal-actions"><button class="btn btn-secondary" onclick="document.getElementById('${id}').style.display='none'">Batal</button><button class="btn btn-primary" id="${id}Save">${saveText}</button></div></div>`;document.body.appendChild(m);document.getElementById(id+'Save').onclick=onSave}m.style.display='flex';return m}
-function ddTable(id,headers,rows,empty='Belum ada data.'){const b=document.getElementById(id);if(!b)return;b.innerHTML=rows.length?rows.map((r,i)=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="empty">${empty}</td></tr>`}
-function ddEnsurePanel(page,title,html){const sec=document.getElementById('page-'+page);if(!sec)return;sec.innerHTML=`<div class="page-title"><h2>${title}</h2></div>${html}`}
-function ddRenderLog(){const a=ddGet('log');let b=document.getElementById('ddLogBody');if(!b)return;document.getElementById('ddLogTotal').textContent=a.length;document.getElementById('ddLogUsers').textContent=new Set(a.map(x=>x.pengguna)).size;b.innerHTML=a.length?a.map((x,i)=>`<tr><td>${i+1}</td><td>${ddEsc(x.waktu)}</td><td>${ddEsc(x.pengguna)}</td><td>${ddEsc(x.aktivitas)}</td><td>${ddEsc(x.halaman)}</td></tr>`).join(''):`<tr><td colspan="5" class="empty">Belum ada aktivitas.</td></tr>`}
-function ddClearLog(){if(confirm('Hapus semua log aktivitas?')){ddSet('log',[]);ddRenderLog();showToast('Log aktivitas dihapus.')}}
-function ddBuildDashboard(){const sec=document.getElementById('page-dashboard');if(!sec||sec.dataset.ddReady)return;sec.dataset.ddReady='1';const banner=document.createElement('div');banner.className='dashboard-banner';banner.innerHTML='<div><small>🌿 DESA WAWONGKOLONO DIGITAL</small><h2>Selamat Datang di Sistem Informasi Desa</h2><p>Kelola pelayanan, pembangunan, administrasi dan informasi desa dalam satu aplikasi.</p><div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="showPageByName(\'surat\')">📨 Pengajuan Surat</button><button class="btn btn-secondary" onclick="showPageByName(\'pembangunan\')">🏗 Program Desa</button></div></div><div class="dashboard-banner-art">🏡🌴</div>';sec.prepend(banner)}
-function ddSurat(){ddEnsurePanel('surat','📨 Surat Desa',`<div class="panel"><div class="module-note">Form pengajuan surat sudah aktif. Pengajuan dicatat dan siap disinkronkan ke Supabase.</div><button class="btn btn-primary" onclick="ddOpenSurat()">+ Pengajuan Surat</button></div><div class="panel"><h3>Daftar Pengajuan</h3><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Jenis Surat</th><th>Keperluan</th><th>Status</th><th>Tanggal</th></tr></thead><tbody id="ddSuratBody"></tbody></table></div></div>`);const a=ddGet('surat');ddTable('ddSuratBody',6,a.map((x,i)=>[i+1,ddEsc(x.nik),ddEsc(x.jenis),ddEsc(x.keperluan),'<span class="badge">'+ddEsc(x.status)+'</span>',ddEsc(x.tanggal)]),'Belum ada pengajuan surat.')}
-function ddOpenSurat(){ddModal('ddSuratModal','📨 Pengajuan Surat',`<div class="form-group"><label>NIK Pemohon *</label><input id="ddSNik"></div><div class="form-group"><label>Jenis Surat *</label><select id="ddSJenis"><option value="">Pilih</option><option>Surat Keterangan Domisili</option><option>Surat Keterangan Usaha</option><option>Surat Keterangan Tidak Mampu</option><option>Surat Keterangan Penghasilan</option><option>Surat Keterangan Kelahiran</option><option>Surat Keterangan Kematian</option><option>Surat Keterangan Belum Menikah</option><option>Surat Keterangan Menikah</option><option>Surat Keterangan Pindah</option><option>Surat Keterangan Umum</option></select></div><div class="form-group"><label>Keperluan *</label><textarea id="ddSKeperluan" rows="4"></textarea></div>`,async()=>{const nik=ddSNik.value.trim(),jenis=ddSJenis.value,keperluan=ddSKeperluan.value.trim();if(!nik||!jenis||!keperluan){showToast('NIK, jenis surat dan keperluan wajib diisi.');return}const row={nik,jenis_surat:jenis,keperluan,status:'Menunggu',tanggal:ddToday()};let saved=false;try{const r=await fetch(SUPABASE_URL+'/pengajuan_surat',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)});saved=r.ok;if(!r.ok)console.warn('Pengajuan surat Supabase:',await r.text())}catch(e){}const a=ddGet('surat');a.unshift(row);ddSet('surat',a);document.getElementById('ddSuratModal').style.display='none';ddSurat();ddLog('Mengajukan '+jenis,'Surat Desa');showToast(saved?'Pengajuan tersimpan ke Supabase.':'Pengajuan dicatat. Tabel Supabase belum tersedia/akses ditolak.')})}
-function ddAbsensi(){ddEnsurePanel('absensi','📅 Absensi Desa',`<div class="panel"><div class="module-note">API Supabase: ${SUPABASE_URL}/rest/v1/</div><button class="btn btn-primary" onclick="ddOpenAbsensi()">+ Tambah Absensi</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama</th><th>Tanggal</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="ddAbsBody"></tbody></table></div></div>`);ddLoadAbsensi()}
-async function ddLoadAbsensi(){let a=[];try{const r=await fetch(SUPABASE_URL+'/absensi?select=*&order=tanggal.desc',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(r.ok)a=await r.json()}catch(e){}if(!a.length)a=ddGet('absensi');if(a.length)ddSet('absensi',a);ddTable('ddAbsBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.tanggal),'<span class="badge">'+ddEsc(x.status)+'</span>',ddEsc(x.keterangan||'-')]),'Belum ada absensi.')}
-function ddOpenAbsensi(){ddModal('ddAbsModal','📅 Tambah Absensi',`<div class="form-grid"><div class="form-group"><label>Nama *</label><input id="ddANama"></div><div class="form-group"><label>Tanggal *</label><input type="date" id="ddATanggal" value="${ddToday()}"></div><div class="form-group"><label>Status</label><select id="ddAStatus"><option>Hadir</option><option>Izin</option><option>Sakit</option><option>Alpa</option></select></div><div class="form-group"><label>Keterangan</label><input id="ddAKet"></div></div>`,async()=>{const row={nama:ddANama.value.trim(),tanggal:ddATanggal.value,status:ddAStatus.value,keterangan:ddAKet.value.trim()};if(!row.nama||!row.tanggal){showToast('Nama dan tanggal wajib diisi.');return}let saved=false;try{const r=await fetch(SUPABASE_URL+'/absensi',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)});saved=r.ok;if(!r.ok)console.warn(await r.text())}catch(e){}const a=ddGet('absensi');a.unshift(row);ddSet('absensi',a);document.getElementById('ddAbsModal').style.display='none';ddAbsensi();ddLog('Menambah absensi '+row.nama,'Absensi');showToast(saved?'Absensi tersimpan ke Supabase.':'Absensi dicatat lokal karena tabel Supabase belum siap.')})}
-function ddBantuan(){ddEnsurePanel('bantuan','🎁 Data Bantuan',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenBantuan()">+ Tambah Bantuan</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Nama</th><th>Jenis</th><th>Nilai</th><th>Status</th></tr></thead><tbody id="ddBanBody"></tbody></table></div></div>`);const a=ddGet('bantuan');ddTable('ddBanBody',6,a.map((x,i)=>[i+1,ddEsc(x.nik||'-'),ddEsc(x.nama),ddEsc(x.jenis),ddRp(x.nilai),'<span class="badge">'+ddEsc(x.status)+'</span>']),'Belum ada data bantuan.');document.getElementById('statBantuan').textContent=a.length}
-function ddOpenBantuan(){ddModal('ddBanModal','🎁 Tambah Bantuan',`<div class="form-grid"><div class="form-group"><label>NIK</label><input id="ddBNik"></div><div class="form-group"><label>Nama *</label><input id="ddBNama"></div><div class="form-group"><label>Jenis Bantuan *</label><input id="ddBJenis"></div><div class="form-group"><label>Nilai</label><input type="number" id="ddBNilai" value="0"></div><div class="form-group"><label>Status</label><select id="ddBStatus"><option>Diterima</option><option>Menunggu</option><option>Ditolak</option></select></div></div>`,()=>{const row={nik:ddBNik.value.trim(),nama:ddBNama.value.trim(),jenis:ddBJenis.value.trim(),nilai:Number(ddBNilai.value||0),status:ddBStatus.value};if(!row.nama||!row.jenis){showToast('Nama dan jenis bantuan wajib diisi.');return}const a=ddGet('bantuan');a.unshift(row);ddSet('bantuan',a);document.getElementById('ddBanModal').style.display='none';ddBantuan();ddLog('Menambah bantuan','Bantuan');showToast('Data bantuan berhasil ditambahkan.')})}
-function ddPembangunan(){ddEnsurePanel('pembangunan','🏗 Pembangunan Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenPembangunan()">+ Program</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Program</th><th>Lokasi</th><th>Anggaran</th><th>Progres</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="ddProgBody"></tbody></table></div></div>`);ddRenderProg()}
-function ddRenderProg(filter=''){const a=ddGet('pembangunan').filter(x=>!filter||x.status===filter);ddTable('ddProgBody',7,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.lokasi||'-'),ddRp(x.anggaran),`${Number(x.progres||0)}%`,'<span class="badge">'+ddEsc(x.status)+'</span>',`<button class="btn btn-danger" onclick="ddDeleteProg(${i})">🗑</button>`]),'Belum ada program.');document.getElementById('statProgram').textContent=ddGet('pembangunan').length}
-function ddOpenPembangunan(){ddModal('ddProgModal','🏗 Program Pembangunan',`<div class="form-grid"><div class="form-group"><label>Program *</label><input id="ddPNama"></div><div class="form-group"><label>Lokasi</label><input id="ddPLokasi"></div><div class="form-group"><label>Anggaran</label><input type="number" id="ddPAnggaran" value="0"></div><div class="form-group"><label>Progres %</label><input type="number" id="ddPProgres" min="0" max="100" value="0"></div><div class="form-group"><label>Status</label><select id="ddPStatus"><option>Direncanakan</option><option>Berjalan</option><option>Selesai</option></select></div></div>`,()=>{const row={nama:ddPNama.value.trim(),lokasi:ddPLokasi.value.trim(),anggaran:Number(ddPAnggaran.value||0),progres:Number(ddPProgres.value||0),status:ddPStatus.value};if(!row.nama){showToast('Nama program wajib diisi.');return}const a=ddGet('pembangunan');a.unshift(row);ddSet('pembangunan',a);document.getElementById('ddProgModal').style.display='none';ddPembangunan();ddLog('Menambah program '+row.nama,'Pembangunan Desa');showToast('Program pembangunan berhasil ditambahkan.')})}
-function ddDeleteProg(i){const a=ddGet('pembangunan');a.splice(i,1);ddSet('pembangunan',a);ddRenderProg();showToast('Program dihapus.')}
-function ddDusun(){ddEnsurePanel('dusun','🌿 Program Dusun',`<div class="panel"><p style="color:#64748b;margin-bottom:12px">Pilih Dusun 1–5. Semua tombol sekarang aktif.</p><div class="quick-grid">${[1,2,3,4,5].map(i=>`<button class="quick-btn" onclick="ddShowDusun('Dusun ${i}')">🏘<br>Dusun ${i}</button>`).join('')}</div></div><div class="panel"><h3 id="ddDusunTitle">Program Dusun</h3><button class="btn btn-primary" onclick="ddOpenDusun()">+ Tambah Program</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Dusun</th><th>Program</th><th>Status</th><th>Anggaran</th></tr></thead><tbody id="ddDusunBody"></tbody></table></div></div>`);ddShowDusun('Dusun 1')}
-function ddShowDusun(d){document.getElementById('ddDusunTitle').textContent='Program '+d;document.getElementById('page-dusun').dataset.ddDusun=d;const a=ddGet('dusun').filter(x=>x.dusun===d);ddTable('ddDusunBody',5,a.map((x,i)=>[i+1,ddEsc(x.dusun),ddEsc(x.program),'<span class="badge">'+ddEsc(x.status)+'</span>',ddRp(x.anggaran)]),'Belum ada program di '+d+'.')}
-function ddOpenDusun(){const d=document.getElementById('page-dusun').dataset.ddDusun||'Dusun 1';ddModal('ddDusunModal','🌿 Program '+d,`<div class="form-group"><label>Program *</label><input id="ddDProgram"></div><div class="form-grid"><div class="form-group"><label>Status</label><select id="ddDStatus"><option>Direncanakan</option><option>Berjalan</option><option>Selesai</option></select></div><div class="form-group"><label>Anggaran</label><input type="number" id="ddDAnggaran" value="0"></div></div>`,()=>{const row={dusun:d,program:ddDProgram.value.trim(),status:ddDStatus.value,anggaran:Number(ddDAnggaran.value||0)};if(!row.program){showToast('Program wajib diisi.');return}const a=ddGet('dusun');a.unshift(row);ddSet('dusun',a);document.getElementById('ddDusunModal').style.display='none';ddShowDusun(d);ddLog('Menambah '+row.program,d);showToast('Program dusun berhasil ditambahkan.')})}
-function ddKeuangan(){ddEnsurePanel('keuangan','💰 Keuangan Desa',`<div class="stats"><div class="stat-card"><div class="stat-icon">📥</div><h3 id="ddKMasuk">Rp 0</h3><p>Pemasukan</p></div><div class="stat-card"><div class="stat-icon">📤</div><h3 id="ddKKeluar">Rp 0</h3><p>Pengeluaran</p></div><div class="stat-card"><div class="stat-icon">💵</div><h3 id="ddKSaldo">Rp 0</h3><p>Saldo</p></div></div><div class="panel"><button class="btn btn-primary" onclick="ddOpenKeu()">+ Transaksi</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th></tr></thead><tbody id="ddKeuBody"></tbody></table></div></div>`);ddRenderKeu()}
-function ddRenderKeu(){const a=ddGet('keuangan'),inm=a.filter(x=>x.jenis==='Pemasukan').reduce((s,x)=>s+Number(x.nominal),0),out=a.filter(x=>x.jenis==='Pengeluaran').reduce((s,x)=>s+Number(x.nominal),0);document.getElementById('ddKMasuk').textContent=ddRp(inm);document.getElementById('ddKKeluar').textContent=ddRp(out);document.getElementById('ddKSaldo').textContent=ddRp(inm-out);ddTable('ddKeuBody',5,a.map((x,i)=>[i+1,ddEsc(x.tanggal),ddEsc(x.jenis),ddEsc(x.keterangan),ddRp(x.nominal)]),'Belum ada transaksi.')}
-function ddOpenKeu(){ddModal('ddKeuModal','💰 Tambah Transaksi',`<div class="form-grid"><div class="form-group"><label>Tanggal</label><input type="date" id="ddKTanggal" value="${ddToday()}"></div><div class="form-group"><label>Jenis</label><select id="ddKJenis"><option>Pemasukan</option><option>Pengeluaran</option></select></div><div class="form-group full"><label>Keterangan *</label><input id="ddKKet"></div><div class="form-group"><label>Nominal *</label><input type="number" id="ddKNominal" value="0"></div></div>`,()=>{const row={tanggal:ddKTanggal.value,jenis:ddKJenis.value,keterangan:ddKKet.value.trim(),nominal:Number(ddKNominal.value||0)};if(!row.keterangan||row.nominal<=0){showToast('Keterangan dan nominal wajib diisi.');return}const a=ddGet('keuangan');a.unshift(row);ddSet('keuangan',a);document.getElementById('ddKeuModal').style.display='none';ddRenderKeu();ddLog('Menambah transaksi '+row.jenis,'Keuangan Desa');showToast('Transaksi berhasil dicatat.')})}
-function ddKritik(){ddEnsurePanel('kritik','💬 Kritik & Saran',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenKritik()">+ Kirim Kritik / Saran</button></div><div class="panel"><h3>🔔 Notifikasi Masuk</h3><div id="ddKritikList"></div></div>`);ddRenderKritik()}
-function ddRenderKritik(){const a=ddGet('kritik'),b=document.getElementById('ddKritikList');if(!b)return;b.innerHTML=a.length?a.map(x=>`<div style="padding:12px;border-bottom:1px solid #e2e8f0"><b>🔔 ${ddEsc(x.nama)}</b><p style="margin:6px 0">${ddEsc(x.isi)}</p><small>${ddEsc(x.waktu)} • ${ddEsc(x.status)}</small></div>`).join(''):'<div class="empty">Belum ada kritik atau saran.</div>'}
-function ddOpenKritik(){ddModal('ddKritikModal','💬 Kritik & Saran',`<div class="form-group"><label>Nama</label><input id="ddKNama" value="${ddEsc(ddActor())}"></div><div class="form-group"><label>Isi *</label><textarea id="ddKIsi" rows="6"></textarea></div>`,()=>{const row={nama:ddKNama.value.trim()||ddActor(),isi:ddKIsi.value.trim(),waktu:new Date().toLocaleString('id-ID'),status:'Notifikasi Baru'};if(!row.isi){showToast('Isi kritik/saran wajib diisi.');return}const a=ddGet('kritik');a.unshift(row);ddSet('kritik',a);document.getElementById('ddKritikModal').style.display='none';ddRenderKritik();ddLog('Mengirim kritik/saran','Kritik & Saran');showToast('Kritik/saran berhasil dikirim ke notifikasi.')})}
-function ddInformasi(){ddEnsurePanel('informasi','ℹ Informasi Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenInfo()">+ Informasi</button></div><div class="panel"><div id="ddInfoList"></div></div>`);ddRenderInfo()}
-function ddRenderInfo(){const a=ddGet('informasi'),b=document.getElementById('ddInfoList');b.innerHTML=a.length?a.map(x=>`<article style="padding:15px;border-bottom:1px solid #e2e8f0"><h3>📌 ${ddEsc(x.judul)}</h3><p style="line-height:1.7;margin-top:7px">${ddEsc(x.isi)}</p><small>${ddEsc(x.tanggal)}</small></article>`).join(''):'<div class="empty">Belum ada informasi.</div>'}
-function ddOpenInfo(){ddModal('ddInfoModal','ℹ Informasi Desa',`<div class="form-group"><label>Judul *</label><input id="ddIJudul"></div><div class="form-group"><label>Isi *</label><textarea id="ddIIsi" rows="6"></textarea></div>`,()=>{const row={judul:ddIJudul.value.trim(),isi:ddIIsi.value.trim(),tanggal:ddToday()};if(!row.judul||!row.isi){showToast('Judul dan isi wajib diisi.');return}const a=ddGet('informasi');a.unshift(row);ddSet('informasi',a);document.getElementById('ddInfoModal').style.display='none';ddRenderInfo();ddLog('Menambah informasi desa','Informasi Desa');showToast('Informasi berhasil disimpan.')})}
-function ddArsip(){ddEnsurePanel('arsip','🗄 Arsip Desa',`<div class="panel"><div class="module-note">Isi arsip desa di sini. Data arsip tersimpan pada browser agar modul langsung berfungsi; penyimpanan file ke Supabase Storage dapat ditambahkan setelah tabel/storage disiapkan.</div><button class="btn btn-primary" onclick="ddOpenArsip()">+ Tambah Dokumen</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Dokumen</th><th>Nomor</th><th>Tanggal</th><th>Keterangan</th></tr></thead><tbody id="ddArsipBody"></tbody></table></div></div>`);const a=ddGet('arsip');ddTable('ddArsipBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.nomor||'-'),ddEsc(x.tanggal),ddEsc(x.keterangan||'-')]),'Belum ada dokumen.');}
-function ddOpenArsip(){ddModal('ddArsipModal','🗄 Tambah Dokumen Arsip',`<div class="form-grid"><div class="form-group"><label>Nama Dokumen *</label><input id="ddArNama"></div><div class="form-group"><label>Nomor</label><input id="ddArNomor"></div><div class="form-group"><label>Tanggal</label><input type="date" id="ddArTanggal" value="${ddToday()}"></div><div class="form-group full"><label>Keterangan</label><textarea id="ddArKet"></textarea></div></div>`,()=>{const row={nama:ddArNama.value.trim(),nomor:ddArNomor.value.trim(),tanggal:ddArTanggal.value,keterangan:ddArKet.value.trim()};if(!row.nama){showToast('Nama dokumen wajib diisi.');return}const a=ddGet('arsip');a.unshift(row);ddSet('arsip',a);document.getElementById('ddArsipModal').style.display='none';ddArsip();ddLog('Menambah arsip '+row.nama,'Arsip Desa');showToast('Dokumen berhasil dicatat.')})}
-function ddPemerintahan(){ddEnsurePanel('pemerintahan','🏛 Pemerintahan Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenPem()">+ Tambah Perangkat</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama</th><th>Jabatan</th><th>Kontak</th></tr></thead><tbody id="ddPemBody"></tbody></table></div></div>`);const a=ddGet('pemerintahan');ddTable('ddPemBody',4,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.jabatan),ddEsc(x.kontak||'-')]),'Belum ada perangkat desa.')}
-function ddOpenPem(){ddModal('ddPemModal','🏛 Tambah Perangkat Desa',`<div class="form-grid"><div class="form-group"><label>Nama *</label><input id="ddPemNama"></div><div class="form-group"><label>Jabatan *</label><input id="ddPemJabatan"></div><div class="form-group"><label>Kontak</label><input id="ddPemKontak"></div></div>`,()=>{const row={nama:ddPemNama.value.trim(),jabatan:ddPemJabatan.value.trim(),kontak:ddPemKontak.value.trim()};if(!row.nama||!row.jabatan){showToast('Nama dan jabatan wajib diisi.');return}const a=ddGet('pemerintahan');a.unshift(row);ddSet('pemerintahan',a);document.getElementById('ddPemModal').style.display='none';ddPemerintahan();ddLog('Menambah perangkat desa','Pemerintahan Desa');showToast('Perangkat desa berhasil ditambahkan.')})}
-function ddPengguna(){ddEnsurePanel('pengguna','👤 Pengguna & Hak Akses',`<div class="panel"><div class="module-grid"><div class="module-card"><h4>🔐 Admin</h4><p>Akses penuh sistem</p></div><div class="module-card"><h4>💻 Operator</h4><p>Operasional desa</p></div><div class="module-card"><h4>🏘 Dusun 1–5</h4><p>Akses wilayah</p></div></div><button class="btn btn-primary" style="margin-top:15px" onclick="ddOpenUser()">+ Tambah Hak Akses</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama/Email</th><th>Role</th><th>Wilayah</th><th>Status</th></tr></thead><tbody id="ddUserBody"></tbody></table></div></div>`);const a=ddGet('pengguna');ddTable('ddUserBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.role),ddEsc(x.wilayah),'<span class="badge">'+ddEsc(x.status)+'</span>']),'Belum ada pengguna tambahan.')}
-function ddOpenUser(){ddModal('ddUserModal','👤 Tambah Hak Akses',`<div class="form-grid"><div class="form-group"><label>Nama/Email *</label><input id="ddUNama"></div><div class="form-group"><label>Role</label><select id="ddURole"><option>Admin</option><option>Operator</option><option>Kepala Desa</option><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>Wilayah</label><input id="ddUWilayah" placeholder="Semua Dusun / Dusun tertentu"></div><div class="form-group"><label>Status</label><select id="ddUStatus"><option>Aktif</option><option>Nonaktif</option></select></div></div>`,()=>{const row={nama:ddUNama.value.trim(),role:ddURole.value,wilayah:ddUWilayah.value.trim()||'Sesuai Role',status:ddUStatus.value};if(!row.nama){showToast('Nama/email wajib diisi.');return}const a=ddGet('pengguna');a.unshift(row);ddSet('pengguna',a);document.getElementById('ddUserModal').style.display='none';ddPengguna();ddLog('Menambah hak akses '+row.role,'Pengguna & Hak Akses');showToast('Hak akses dicatat.')})}
-function ddPengaturan(){ddEnsurePanel('pengaturan','⚙ Pengaturan & Profil',`<div class="panel"><h3>Identitas Desa</h3><div class="form-grid"><div class="form-group"><label>Nama Desa</label><input id="ddSNama" value="Desa Wawongkolono"></div><div class="form-group"><label>Kecamatan</label><input id="ddSKec" value="Menui Kepulauan"></div><div class="form-group"><label>Kabupaten</label><input id="ddSKab" value="Morowali"></div><div class="form-group"><label>Provinsi</label><input id="ddSProv" value="Sulawesi Tengah"></div></div><button class="btn btn-primary" onclick="ddSaveSettings()">💾 Simpan</button></div><div class="panel"><h3>👤 Profil</h3><div class="profile-box"><b>Akun:</b> ${ddEsc(ddActor())}<br><b>Ruang Kerja:</b> ${ddEsc(selectedRole||'Pengguna')}<br><b>Status:</b> 🟢 Aktif</div></div>`)}
-function ddSaveSettings(){ddSet('settings',[{nama:ddSNama.value,kecamatan:ddSKec.value,kabupaten:ddSKab.value,provinsi:ddSProv.value}]);ddLog('Menyimpan pengaturan','Pengaturan');showToast('Pengaturan berhasil disimpan.')}
-function ddAI(){const q=document.getElementById('aiQuestion');const a=document.getElementById('aiAnswer');if(!q||!a)return;const old=a.innerHTML;a.innerHTML=old.replace('Integrasi AI Desa dengan informasi dan database Desa Wawongkolono akan kita pasang pada tahap berikutnya.','');}
-function ddRoute(page){if(page==='dashboard')ddBuildDashboard();if(page==='surat')ddSurat();if(page==='absensi')ddAbsensi();if(page==='pemerintahan')ddPemerintahan();if(page==='bantuan')ddBantuan();if(page==='pembangunan')ddPembangunan();if(page==='dusun')ddDusun();if(page==='keuangan')ddKeuangan();if(page==='kritik')ddKritik();if(page==='informasi')ddInformasi();if(page==='arsip')ddArsip();if(page==='pengguna')ddPengguna();if(page==='log'){ddEnsurePanel('log','📝 Log Aktivitas',`<div class="panel"><div class="stats"><div class="stat-card"><h3 id="ddLogTotal">0</h3><p>Total Aktivitas</p></div><div class="stat-card"><h3 id="ddLogUsers">0</h3><p>Pengguna Aktif</p></div></div><button class="btn btn-secondary" onclick="ddClearLog()">Bersihkan Log</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Halaman</th></tr></thead><tbody id="ddLogBody"></tbody></table></div></div>`);ddRenderLog()}if(page==='pengaturan')ddPengaturan();ddLog('Membuka '+(pageNames[page]||page),pageNames[page]||page)}
-const ddOriginalShowPage=showPage;showPage=function(page,button){ddOriginalShowPage(page,button);setTimeout(()=>{if(typeof window.ddRoute==='function')window.ddRoute(page);},0)};
-const ddOriginalDashboard=loadDashboard;loadDashboard=async function(){await ddOriginalDashboard();document.getElementById('statBantuan').textContent=ddGet('bantuan').length;document.getElementById('statProgram').textContent=ddGet('pembangunan').length};
-window.addEventListener('DOMContentLoaded',()=>{ddBuildDashboard()});
+        /* BUTTONS */
+        .btn { background: var(--secondary-color); color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; text-decoration: none; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn:hover { background: var(--accent-color); }
+        .btn-danger { background: var(--danger-color); }
+        .btn-danger:hover { background: #800f2f; }
+        .btn-warning { background: var(--warning-color); }
+        .btn-warning:hover { background: #f4a261; }
+        .btn-success { background: var(--success-color); }
+        .btn-success:hover { background: #218380; }
+        .btn-wa { background: #25D366; }
+        .btn-wa:hover { background: #128C7E; }
 
-function escapeHtml(value){
-if(value===null || value===undefined)return ""; return String(value)
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
-}
+        /* LAYOUT MAIN */
+        .main-wrapper { display: flex; flex: 1; }
+        .sidebar { width: 260px; background: #fff; border-right: 1px solid #e0e0e0; padding: 20px; }
+        .sidebar-title { font-size: 0.75rem; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
+        .menu-list { list-style: none; }
+        .menu-item { margin-bottom: 5px; }
+        .menu-item a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: var(--text-dark); text-decoration: none; border-radius: 6px; font-size: 0.9rem; font-weight: 500; transition: background 0.2s; }
+        .menu-item a:hover, .menu-item.active a { background: #e8f5e9; color: var(--primary-color); font-weight: 700; }
 
-function formatDate(date){ if(!date)return "-";
-try{
-return new Date(date).toLocaleDateString("id-ID",{ day:"2-digit", month:"2-digit", year:"numeric"});
-}catch(e){
-return date;
-}
-}
+        .content { flex: 1; padding: 25px; overflow-y: auto; }
+        .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eef2f5; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .card-title { font-size: 1.1rem; color: var(--primary-color); font-weight: 700; }
 
-function showToast(message){ 
-const toast = document.getElementById("toast"); 
-if(!toast) return;
-toast.textContent=message; toast.style.display="block"; clearTimeout(window.toastTimer);
-window.toastTimer = setTimeout(()=>{
-toast.style.display="none";
-},3500);
-}
+        /* STATS GRID */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff; padding: 18px; border-radius: 8px; border-left: 4px solid var(--primary-color); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-card h3 { font-size: 1.6rem; color: var(--primary-color); }
+        .stat-card p { font-size: 0.85rem; color: #666; margin-top: 4px; }
 
-/* ============================================================ CEK SESSION SAAT HALAMAN DIBUKA ============================================================ */
-async function checkSession(){ 
-const {data} = await supabaseClient.auth.getSession(); 
-if(data && data.session){
-currentUser=data.session.user;
-document.getElementById("homePage").style.display="none";
-document.getElementById("appPage").style.display="block"; 
-document.getElementById("displayUser").textContent=currentUser.email;
-document.getElementById("displayRole").textContent=selectedRole || "Pengguna"; 
-await loadDashboard();
-}
-}
+        /* TABLE */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+        th { background: #f8f9fa; color: #444; padding: 12px; font-weight: 600; border-bottom: 2px solid #dee2e6; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        tr:hover { background: #fdfdfd; }
 
-document.addEventListener("DOMContentLoaded",()=>{ checkSession(); });
-
-window.addEventListener("click",(event)=>{
-const modals = document.querySelectorAll(".modal");
-modals.forEach(modal=>{ if(event.target===modal){ modal.style.display="none"; } });
-});
-</script>
-
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;color:#1e293b;}
-button,input,select,textarea{font-family:inherit;}
-button{cursor:pointer;}
-.hidden{display:none!important;}
-
-/* ================= HEADER ================= */
-.home-header{background:linear-gradient(135deg,#064e3b,#047857);color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;}
-.brand{display:flex;align-items:center;gap:14px;}
-.logo{width:52px;height:52px;background:white;color:#047857;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:27px;}
-.brand h1{font-size:21px;}
-.brand p{font-size:13px;opacity:.9;margin-top:3px;}
-.login-home-btn{border:none;background:white;color:#047857;padding:11px 18px;border-radius:10px;font-weight:bold;}
-
-/* ================= HOME ================= */
-#homePage{min-height:100vh;}
-.hero{padding:65px 20px;text-align:center;background:linear-gradient(rgba(6,78,59,.82),rgba(4,120,87,.82)), radial-gradient(circle at top,#34d399,#064e3b);color:white;}
-.hero h2{font-size:35px;margin-bottom:12px;}
-.hero p{max-width:700px;margin:auto;line-height:1.7;}
-.hero-btn{margin-top:25px;border:none;background:white;color:#047857;padding:13px 25px;border-radius:10px;font-weight:bold;}
-.info-section{padding:35px 5%;}
-.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;max-width:1100px;margin:auto;}
-.info-card{background:white;padding:22px;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,.06);text-align:center;}
-.info-card .icon{font-size:32px;margin-bottom:10px;}
-.info-card h3{font-size:16px;margin-bottom:7px;}
-.info-card p{font-size:13px;color:#64748b;line-height:1.5;}
-
-/* ================= LOGIN ================= */
-.login-overlay{position:fixed;inset:0;background:rgba(15,23,42,.75);z-index:1000;display:none;align-items:center;justify-content:center;padding:15px;}
-.login-box{background:white;width:100%;max-width:430px;border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(0,0,0,.25);max-height:90vh;overflow-y:auto;}
-.login-title{text-align:center;margin-bottom:20px;}
-.login-title .big-icon{font-size:45px;}
-.login-title h2{color:#065f46;margin-top:8px;}
-.role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:17px;}
-.role-btn{border:1px solid #cbd5e1;background:#f8fafc;padding:10px 5px;border-radius:9px;font-size:13px;font-weight:bold;color:#475569;transition:all .2s;}
-.role-btn.active{background:#ecfdf5;border-color:#059669;color:#047857;}
-
-/* ================= MOBILE OPTIMIZATION ================= */
-@media(max-width: 768px){
-  .home-header{flex-direction:column;text-align:center;}
-  .info-grid{grid-template-columns:1fr;}
-  .role-grid{grid-template-columns:1fr;}
-  .login-box{padding:20px;max-width:95%;}
-}
-</style>
+        /* MODAL POPUP */
+        .modal-backdrop { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-align: center; padding: 20px; }
+        .modal-box { background: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 480px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative; margin: auto; }
+        .modal-close { position: absolute; right: 20px; top: 20px; font-size: 1.2rem; cursor: pointer; color: #888; }
+        
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; }
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.9rem; }
+        .form-control:focus { border-color: var(--primary-color); outline: none; }
+        
+        /* PRINT STYLESHEET */
+        @media print {
+            .navbar, .sidebar, .btn, .no-print { display: none !important; }
+            .main-wrapper { display: block; }
+            .content { padding: 0; }
+            .card { border: none; box-shadow: none; }
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Home Page -->
-  <div id="homePage">
-    <header class="home-header">
-      <div class="brand">
-        <div class="logo">🏡</div>
-        <div>
-          <h1>Desa Wawongkolono</h1>
-          <p>Kec. Menui Kepulauan, Kab. Morowali</p>
+    <!-- NAVBAR HEADER -->
+    <header class="navbar">
+        <div class="navbar-brand">
+            <h1>PEMERINTAH DESA WAWONGKOLONO</h1>
+            <p>Kecamatan Menui Kepulauan, Kabupaten Morowali</p>
         </div>
-      </div>
-      <button class="login-home-btn" onclick="document.getElementById('loginModal').style.display='flex'">Masuk Sistem</button>
+        <div class="user-panel">
+            <?php if ($user_role === 'guest') : ?>
+                <button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas</button>
+            <?php else : ?>
+                <div class="user-badge"><i class="fas fa-user-circle"></i> <strong><?= htmlspecialchars($user_nama); ?></strong> (<?= strtoupper($user_role); ?>)</div>
+                <a href="index.php?action=logout" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Keluar</a>
+            <?php endif; ?>
+        </div>
     </header>
 
-    <section class="hero">
-      <h2>Sistem Informasi Desa Digital</h2>
-      <p>Pusat layanan administrasi, transparansi anggaran, kependudukan, serta kemudahan akses informasi bagi seluruh warga Desa Wawongkolono.</p>
-      <button class="hero-btn" onclick="document.getElementById('loginModal').style.display='flex'">Mulai Masuk</button>
-    </section>
+    <div class="main-wrapper">
+        <!-- SIDEBAR NAVIGASI DINAMIS (RBAC) -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Menu Utama</div>
+            <ul class="menu-list">
+                <li class="menu-item active"><a href="index.php"><i class="fas fa-home"></i> Dashboard Utama</a></li>
+                <li class="menu-item"><a href="#" onclick="openModal('modalSurat')"><i class="fas fa-paper-plane"></i> Ajukan Surat</a></li>
+                <?php if (in_array($user_role, ['admin', 'sekdes', 'kades', 'operator', 'kadus'])) : ?>
+                    <li class="menu-item"><a href="#section-surat"><i class="fas fa-file-signature"></i> Kelola Surat</a></li>
+                <?php endif; ?>
+                <?php if (in_array($user_role, ['admin', 'sekdes'])) : ?>
+                    <li class="menu-item"><a href="#section-log"><i class="fas fa-history"></i> Audit Log System</a></li>
+                <?php endif; ?>
+            </ul>
+        </aside>
 
-    <section class="info-section">
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="icon">📨</div>
-          <h3>Layanan Surat</h3>
-          <p>Pengajuan administrasi surat keterangan mandiri secara online.</p>
-        </div>
-        <div class="info-card">
-          <div class="icon">🏗</div>
-          <h3>Pembangunan</h3>
-          <p>Transparansi progres pembangunan dan anggaran desa.</p>
-        </div>
-        <div class="info-card">
-          <div class="icon">💰</div>
-          <h3>Keuangan</h3>
-          <p>Laporan berkala pemasukan dan pengeluaran dana desa.</p>
-        </div>
-        <div class="info-card">
-          <div class="icon">🤖</div>
-          <h3>AI Desa</h3>
-          <p>Asisten pintar yang siap membantu memberikan informasi seputar desa.</p>
-        </div>
-      </div>
-    </section>
-  </div>
+        <!-- KONTEN UTAMA -->
+        <main class="content">
+            
+            <!-- RINGKASAN STATISTIK -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3><?= count($list_surat); ?></h3>
+                    <p>Total Permohonan Surat</p>
+                </div>
+                <div class="stat-card" style="border-color: var(--warning-color);">
+                    <h3><?= count(array_filter($list_surat, fn($s) =>$s['status'] !== 'Selesai & Diterbitkan')); ?></h3>
+                    <p>Surat Dalam Proses</p>
+                </div>
+                <div class="stat-card" style="border-color: var(--success-color);">
+                    <h3><?= count(array_filter($list_surat, fn($s) =>$s['status'] === 'Selesai & Diterbitkan')); ?></h3>
+                    <p>Surat Selesai (QR Valid)</p>
+                </div>
+            </div>
 
-  <!-- Login Modal -->
-  <div id="loginModal" class="login-overlay">
-    <div class="login-box">
-      <div class="login-title">
-        <div class="big-icon">🔐</div>
-        <h2>Masuk Sistem Desa</h2>
-      </div>
-      <div class="role-grid">
-        <button type="button" class="role-btn active" onclick="selectedRole='Admin'; document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">Admin</button>
-        <button type="button" class="role-btn" onclick="selectedRole='Operator'; document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active');">Operator</button>
-      </div>
-      <p style="text-align:center;font-size:13px;color:#64748b;margin-bottom:15px;">Silakan login menggunakan akun Supabase Anda.</p>
-      <button class="btn btn-primary" style="width:100%;padding:12px;background:#047857;color:white;border:none;border-radius:10px;font-weight:bold;" onclick="document.getElementById('loginModal').style.display='none'">Tutup</button>
+            <!-- TABEL LAYANAN SURAT DIGITAL -->
+            <div class="card" id="section-surat">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-file-alt"></i> Layanan Surat Digital Wawongkolono</span>
+                    <button class="btn" onclick="openModal('modalSurat')"><i class="fas fa-plus"></i> Buat Surat Baru</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>NIK & Pemohon</th>
+                                <th>Jenis Surat</th>
+                                <th>Keterangan / Keperluan</th>
+                                <th>Status Verification</th>
+                                <th>Aksi Transaksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($list_surat)) : ?>
+                                <tr><td colspan="5" style="text-align: center; color: #999;">Belum ada data permohonan surat.</td></tr>
+                            <?php else : ?>
+                                <?php foreach ($list_surat as$s) : ?>
+                                    <tr>
+                                        <td>
+                                            <strong><?= htmlspecialchars($s['nama_pemohon']); ?></strong><br>
+                                            <small style="color: #666;"><?= htmlspecialchars($s['nik_pemohon']); ?></small>
+                                        </td>
+                                        <td><?= htmlspecialchars($s['jenis_surat']); ?></td>
+                                        <td><?= htmlspecialchars($s['keterangan']); ?></td>
+                                        <td>
+                                            <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #e3f2fd; color: #0d47a1;">
+                                                <?= htmlspecialchars($s['status']); ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <!-- Tombol Edit Data (Admin/Sekdes/Operator) -->
+                                            <?php if (in_array($user_role, ['admin', 'sekdes', 'operator'])) : ?>
+                                                <button onclick="editSurat(<?= htmlspecialchars(json_encode($s)); ?>)" class="btn btn-warning" style="font-size:0.75rem;"><i class="fas fa-edit"></i> Edit</button>
+                                            <?php endif; ?>
+
+                                            <!-- Tombol Verifikasi Sekdes -->
+                                            <?php if ($s['status'] === 'Menunggu Verifikasi Sekdes' && in_array($user_role, ['admin', 'sekdes'])) : ?>
+                                                <a href="index.php?action=verifikasi_sekdes&id=<?= $s['id']; ?>" class="btn btn-success" style="font-size:0.75rem;"><i class="fas fa-check"></i> Verifikasi Sekdes</a>
+                                            <?php endif; ?>
+
+                                            <!-- Tombol Approval Kades -->
+                                            <?php if ($s['status'] === 'Menunggu TTD Kades' && in_array($user_role, ['admin', 'kades'])) : ?>
+                                                <a href="index.php?action=approve_kades&id=<?= $s['id']; ?>" class="btn btn-warning" style="font-size:0.75rem;"><i class="fas fa-signature"></i> TTD Kades</a>
+                                            <?php endif; ?>
+
+                                            <!-- Tombol Cetak PDF & WA -->
+                                            <?php if ($s['status'] === 'Selesai & Diterbitkan') : ?>
+                                                <button onclick="cetakDokumen('<?= htmlspecialchars($s['nama_pemohon']); ?>', '<?= htmlspecialchars($s['nik_pemohon']); ?>', '<?= htmlspecialchars($s['jenis_surat']); ?>', '<?= htmlspecialchars($s['keterangan']); ?>', '<?=$s['qr_token']; ?>')" class="btn" style="font-size:0.75rem;"><i class="fas fa-print"></i> Cetak Dokumen</button>
+                                                <?php if (!empty($s['no_wa'])) : 
+                                                    $wa_link = "https://wa.me/" . format_wa_number($s['no_wa']) . "?text=" . urlencode("Halo Bapak/Ibu " . $s['nama_pemohon'] . ", Surat " . $s['jenis_surat'] . " Anda di Desa Wawongkolono telah selesai disetujui."); ?>
+                                                    <a href="<?= $wa_link; ?>" target="_blank" class="btn btn-wa" style="font-size:0.75rem;"><i class="fab fa-whatsapp"></i> Kirim WA</a>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TABEL AUDIT LOG SYSTEM (Khusus Admin/Sekdes) -->
+            <?php if (in_array($user_role, ['admin', 'sekdes'])) : ?>
+                <div class="card" id="section-log">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-history"></i> Audit Log Aktivitas Terakhir</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Waktu Log</th>
+                                    <th>Nama Pengguna</th>
+                                    <th>Peran (Role)</th>
+                                    <th>Aktivitas Sistem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($list_logs as$l) : ?>
+                                    <tr>
+                                        <td><?= date('d/m/Y H:i', strtotime($l['created_at'])); ?></td>
+                                        <td><strong><?= htmlspecialchars($l['user_nama']); ?></strong></td>
+                                        <td><span style="font-size:0.75rem; font-weight:bold;"><?= strtoupper($l['role']); ?></span></td>
+                                        <td><?= htmlspecialchars($l['aksi']); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+        </main>
     </div>
-  </div>
 
-  <!-- App Main Page Container (Placeholder) -->
-  <div id="appPage" style="display:none;padding:20px;">
-    <h2>Dashboard Utama</h2>
-    <p>Selamat datang, <span id="displayUser"></span> (<span id="displayRole"></span>)</p>
-  </div>
+    <!-- ========================================== -->
+    <!-- 3. MODAL POPUP DIALOGS                     -->
+    <!-- ========================================== -->
 
-  <div id="toast" style="display:none;position:fixed;bottom:20px;right:20px;background:#1e293b;color:white;padding:12px 20px;border-radius:8px;z-index:2000;"></div>
+    <!-- Modal Login -->
+    <div id="modalLogin" class="modal-backdrop">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeModal('modalLogin')">&times;</span>
+            <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-lock"></i> Login Akses Perangkat</h3>
+            <form method="POST">
+                <input type="hidden" name="login_action" value="1">
+                <div class="form-group">
+                    <label>Username / NIK</label>
+                    <input type="text" name="username" class="form-control" placeholder="Masukkan username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 10px;">Masuk ke Sistem</button>
+            </form>
+        </div>
+    </div>
 
+    <!-- Modal Buat Surat -->
+    <div id="modalSurat" class="modal-backdrop">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeModal('modalSurat')">&times;</span>
+            <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-file-signature"></i> Form Permohonan Surat</h3>
+            <form method="POST">
+                <input type="hidden" name="tambah_surat_action" value="1">
+                <div class="form-group">
+                    <label>NIK Pemohon</label>
+                    <input type="text" name="nik_pemohon" class="form-control" required placeholder="720..." maxlength="16">
+                </div>
+                <div class="form-group">
+                    <label>Nama Lengkap Pemohon</label>
+                    <input type="text" name="nama_pemohon" class="form-control" required placeholder="Nama sesuai KTP">
+                </div>
+                <div class="form-group">
+                    <label>No. WhatsApp Aktif</label>
+                    <input type="text" name="no_wa" class="form-control" placeholder="08..." required>
+                </div>
+                <div class="form-group">
+                    <label>Jenis Surat</label>
+                    <select name="jenis_surat" class="form-control" required>
+                        <option value="Surat Keterangan Usaha (SKU)">Surat Keterangan Usaha (SKU)</option>
+                        <option value="Surat Keterangan Domisili">Surat Keterangan Domisili</option>
+                        <option value="Surat Keterangan Tidak Mampu (SKTM)">Surat Keterangan Tidak Mampu (SKTM)</option>
+                        <option value="Surat Pengantar SKCK">Surat Pengantar SKCK</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Keperluan / Keterangan</label>
+                    <textarea name="keterangan" class="form-control" rows="3" required placeholder="Contoh: Persyaratan pengajuan kredit KUR Bank"></textarea>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; justify-content: center;">Kirim Permohonan Surat</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit Surat -->
+    <div id="modalEditSurat" class="modal-backdrop">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeModal('modalEditSurat')">&times;</span>
+            <h3 style="margin-bottom: 15px; color: var(--warning-color);"><i class="fas fa-edit"></i> Edit Data Permohonan Surat</h3>
+            <form method="POST">
+                <input type="hidden" name="edit_surat_action" value="1">
+                <input type="hidden" name="id_surat" id="edit_id_surat">
+                <div class="form-group">
+                    <label>NIK Pemohon</label>
+                    <input type="text" name="nik_pemohon" id="edit_nik_pemohon" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Nama Lengkap Pemohon</label>
+                    <input type="text" name="nama_pemohon" id="edit_nama_pemohon" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>No. WhatsApp</label>
+                    <input type="text" name="no_wa" id="edit_no_wa" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Jenis Surat</label>
+                    <input type="text" name="jenis_surat" id="edit_jenis_surat" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Keperluan / Keterangan</label>
+                    <textarea name="keterangan" id="edit_keterangan" class="form-control" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-warning" style="width: 100%; justify-content: center;">Simpan Perubahan Data</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Area Cetak Dokumen Rahasia (Ditampilkan Saat Diprint) -->
+    <div id="printArea" style="display: none;"></div>
+
+    <!-- ========================================== -->
+    <!-- 4. JAVASCRIPT KONTROL DOKUMEN & MODAL      -->
+    <!-- ========================================== -->
+    <script>
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function editSurat(data) {
+            document.getElementById('edit_id_surat').value = data.id;
+            document.getElementById('edit_nik_pemohon').value = data.nik_pemohon;
+            document.getElementById('edit_nama_pemohon').value = data.nama_pemohon;
+            document.getElementById('edit_no_wa').value = data.no_wa || '';
+            document.getElementById('edit_jenis_surat').value = data.jenis_surat;
+            document.getElementById('edit_keterangan').value = data.keterangan;
+            openModal('modalEditSurat');
+        }
+
+        function cetakDokumen(nama, nik, jenis, ket, token) {
+            const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=" + encodeURIComponent(window.location.href + "?verify=" + token);
+            const htmlPrint = `
+                <div style="font-family:'Times New Roman', serif; padding: 40px; background:#fff; color:#000;">
+                    <div style="text-align:center; border-bottom:3px double #000; padding-bottom:10px; margin-bottom:20px;">
+                        <h3 style="font-size:16pt; margin:0;">PEMERINTAH KABUPATEN MOROWALI</h3>
+                        <h3 style="font-size:15pt; margin:0;">KECAMATAN MENUI KEPULAUAN</h3>
+                        <h2 style="font-size:18pt; margin:5px 0 0 0;">PEMERINTAH DESA WAWONGKOLONO</h2>
+                    </div>
+                    <div style="text-align:center; margin-bottom: 25px;">
+                        <h3 style="text-decoration:underline; font-size:14pt; margin:0;">${jenis.toUpperCase()}</h3>
+                        <span>Nomor: 140 / DW / ${new Date().getFullYear()}</span>
+                    </div>
+                    <p style="font-size:12pt; line-height:1.6;">Yang bertanda tangan di bawah ini Kepala Desa Wawongkolono, Kecamatan Menui Kepulauan, Kabupaten Morowali menerangkan bahwa:</p>
+                    <table style="margin: 20px 0 20px 30px; font-size:12pt; width:90%;">
+                        <tr><td width="160" style="padding:4px 0;">Nama Lengkap</td><td>: <strong>${nama}</strong></td></tr>
+                        <tr><td style="padding:4px 0;">NIK Pemohon</td><td>: ${nik}</td></tr>
+                        <tr><td style="padding:4px 0;">Keperluan / Keterangan</td><td>: ${ket}</td></tr>
+                    </table>
+                    <p style="font-size:12pt; line-height:1.6;">Demikian surat keterangan ini diterbitkan secara resmi untuk dipergunakan sebagaimana mestinya.</p>
+                    <div style="float:right; width:280px; text-align:center; margin-top:40px;">
+                        <p style="margin:0;">Wawongkolono, ${new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'long', year: 'numeric'})}</p>
+                        <p style="margin:5px 0 15px 0;">Kepala Desa Wawongkolono</p>
+                        <div style="border:1px dashed #aaa; display:inline-block; padding:6px; margin-bottom:10px;">
+                            <img src="${qrUrl}" width="100" height="100" alt="QR Signature">
+                        </div>
+                        <p style="margin:0; font-weight:bold;">PEMERINTAH DESA WAWONGKOLONO</p>
+                        <small style="font-size:8pt; color:#555;">Validasi Tanda Tangan Digital Terverifikasi</small>
+                    </div>
+                </div>
+            `;
+            
+            const win = window.open('', '_blank');
+            win.document.write('<html><head><title>Cetak Dokumen Resmi</title></head><body>' + htmlPrint + '</body></html>');
+            win.document.close();
+            setTimeout(function() {
+                win.print();
+            }, 500);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-backdrop')) {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
