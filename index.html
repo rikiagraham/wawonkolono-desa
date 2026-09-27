@@ -1,169 +1,3 @@
-<?php
-// ==========================================
-// 1. KONEKSI & HELPER SUPABASE / SESSION
-// ==========================================
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-define('SUPABASE_URL', 'https://upsmpuzktefbrulsvydv.supabase.co');
-define('SUPABASE_KEY', 'sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ');
-
-function supabase_request($endpoint, $method = 'GET', $data = null) {
-    $url = SUPABASE_URL . '/rest/v1/' . $endpoint;
-    $headers = [
-        'apikey: ' . SUPABASE_KEY,
-        'Authorization: Bearer ' . SUPABASE_KEY,
-        'Content-Type: application/json',
-        'Prefer: return=representation'
-    ];
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-
-    if ($data !== null && in_array(strtoupper($method), ['POST', 'PUT', 'PATCH'])) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    }
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    return [
-        'status' => $httpCode,
-        'data'   => json_decode($response, true)
-    ];
-}
-
-function catat_log($user_nama, $role, $aksi) {
-    $payload = [
-        'user_nama' => $user_nama,
-        'role'      => $role,
-        'aksi'      => $aksi
-    ];
-    supabase_request('audit_logs', 'POST', $payload);
-}
-
-function format_wa_number($phone) {
-    $phone = preg_replace('/[^0-9]/', '', $phone);
-    if (substr($phone, 0, 1) === '0') {
-        $phone = '62' . substr($phone, 1);
-    }
-    return $phone;
-}
-
-// ==========================================
-// 2. LOGIKA PROSES FORM (POST & GET)
-// ==========================================
-
-// Autentikasi Login
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_action'])) {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
-
-    $response = supabase_request("users?username=eq.{$username}&password=eq.{$password}&select=*");
-
-    if ($response['status'] === 200 && !empty($response['data'])) {
-        $user = $response['data'][0];
-        $_SESSION['user_id']  = $user['id'];
-        $_SESSION['username'] = $user['username'];
-        $_SESSION['nama']     = $user['nama'];
-        $_SESSION['role']     = $user['role'];
-
-        catat_log($user['nama'], $user['role'], "Login ke dalam sistem");
-        echo "<script>alert('Selamat datang, {$user['nama']}!'); window.location='index.php';</script>";
-        exit;
-    } else {
-        echo "<script>alert('Username atau Password salah!'); window.location='index.php';</script>";
-        exit;
-    }
-}
-
-// Logout
-if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-    if (isset($_SESSION['nama'])) {
-        catat_log($_SESSION['nama'], $_SESSION['role'], "Logout dari sistem");
-    }
-    session_unset();
-    session_destroy();
-    echo "<script>window.location='index.php';</script>";
-    exit;
-}
-
-// Permohonan Surat Baru
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tambah_surat_action'])) {
-    $payload = [
-        'nik_pemohon'  => $_POST['nik_pemohon'],
-        'nama_pemohon' => $_POST['nama_pemohon'],
-        'no_wa'        => $_POST['no_wa'],
-        'jenis_surat'  => $_POST['jenis_surat'],
-        'keterangan'   => $_POST['keterangan'],
-        'status'       => 'Menunggu Verifikasi Sekdes',
-        'qr_token'     => bin2hex(random_bytes(16))
-    ];
-    $res = supabase_request('surat', 'POST', $payload);
-    if ($res['status'] === 201 || $res['status'] === 200) {
-        $nama_akt = $_SESSION['nama'] ?? $_POST['nama_pemohon'];
-        $role_akt = $_SESSION['role'] ?? 'masyarakat';
-        catat_log($nama_akt, $role_akt, "Pengajuan Surat: " . $_POST['jenis_surat'] . " a.n " . $_POST['nama_pemohon']);
-        echo "<script>alert('Permohonan surat berhasil dikirim!'); window.location='index.php';</script>";
-        exit;
-    }
-}
-
-// Edit Data Surat
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_surat_action'])) {
-    $user_role = $_SESSION['role'] ?? 'guest';
-    if (in_array($user_role, ['admin', 'sekdes', 'operator'])) {
-        $id_surat = $_POST['id_surat'];
-        $payload = [
-            'nik_pemohon'  => $_POST['nik_pemohon'],
-            'nama_pemohon' => $_POST['nama_pemohon'],
-            'no_wa'        => $_POST['no_wa'],
-            'jenis_surat'  => $_POST['jenis_surat'],
-            'keterangan'   => $_POST['keterangan']
-        ];
-        supabase_request("surat?id=eq.{$id_surat}", 'PATCH', $payload);
-        catat_log($_SESSION['nama'], $_SESSION['role'], "Ubah Data Surat ID #{$id_surat} (Pemohon: " . $_POST['nama_pemohon'] . ")");
-        echo "<script>alert('Data surat berhasil diperbarui!'); window.location='index.php';</script>";
-        exit;
-    }
-}
-
-// Approval Status Surat
-if (isset($_GET['action']) && isset($_GET['id'])) {
-    $user_role = $_SESSION['role'] ?? 'guest';
-    $id_surat = $_GET['id'];
-    $new_status = '';
-
-    if ($_GET['action'] === 'verifikasi_sekdes' && in_array($user_role, ['admin', 'sekdes'])) {
-        $new_status = 'Menunggu TTD Kades';
-    } elseif ($_GET['action'] === 'approve_kades' && in_array($user_role, ['admin', 'kades'])) {
-        $new_status = 'Selesai & Diterbitkan';
-    }
-
-    if ($new_status !== '') {
-        supabase_request("surat?id=eq.{$id_surat}", 'PATCH', ['status' => $new_status]);
-        catat_log($_SESSION['nama'], $user_role, "Update Status Surat ID #{$id_surat} -> {$new_status}");
-        echo "<script>alert('Status surat berhasil diubah!'); window.location='index.php';</script>";
-        exit;
-    }
-}
-
-// Inisialisasi Data Sesi & Query Dashboard
-$user_role = $_SESSION['role'] ?? 'guest';
-$user_nama = $_SESSION['nama'] ?? 'Masyarakat / Tamu';
-
-$fetch_surat = supabase_request('surat?select=*&order=created_at.desc');
-$list_surat = $fetch_surat['data'] ?? [];
-
-$fetch_logs = supabase_request('audit_logs?select=*&order=created_at.desc&limit=10');
-$list_logs = $fetch_logs['data'] ?? [];
-?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -174,7 +8,6 @@ $list_logs = $fetch_logs['data'] ?? [];
     <!-- FontAwesome CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Style CSS Terpadu -->
     <style>
         :root {
             --primary-color: #1b4332;
@@ -237,7 +70,7 @@ $list_logs = $fetch_logs['data'] ?? [];
         tr:hover { background: #fdfdfd; }
 
         /* MODAL POPUP */
-        .modal-backdrop { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-align: center; padding: 20px; }
+        .modal-backdrop { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; padding: 20px; }
         .modal-box { background: #fff; padding: 25px; border-radius: 8px; width: 100%; max-width: 480px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); position: relative; margin: auto; }
         .modal-close { position: absolute; right: 20px; top: 20px; font-size: 1.2rem; cursor: pointer; color: #888; }
         
@@ -245,14 +78,6 @@ $list_logs = $fetch_logs['data'] ?? [];
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; }
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.9rem; }
         .form-control:focus { border-color: var(--primary-color); outline: none; }
-        
-        /* PRINT STYLESHEET */
-        @media print {
-            .navbar, .sidebar, .btn, .no-print { display: none !important; }
-            .main-wrapper { display: block; }
-            .content { padding: 0; }
-            .card { border: none; box-shadow: none; }
-        }
     </style>
 </head>
 <body>
@@ -263,29 +88,20 @@ $list_logs = $fetch_logs['data'] ?? [];
             <h1>PEMERINTAH DESA WAWONGKOLONO</h1>
             <p>Kecamatan Menui Kepulauan, Kabupaten Morowali</p>
         </div>
-        <div class="user-panel">
-            <?php if ($user_role === 'guest') : ?>
-                <button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas</button>
-            <?php else : ?>
-                <div class="user-badge"><i class="fas fa-user-circle"></i> <strong><?= htmlspecialchars($user_nama); ?></strong> (<?= strtoupper($user_role); ?>)</div>
-                <a href="index.php?action=logout" class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Keluar</a>
-            <?php endif; ?>
+        <div class="user-panel" id="userPanel">
+            <button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas</button>
         </div>
     </header>
 
     <div class="main-wrapper">
-        <!-- SIDEBAR NAVIGASI DINAMIS (RBAC) -->
+        <!-- SIDEBAR NAVIGASI -->
         <aside class="sidebar">
             <div class="sidebar-title">Menu Utama</div>
             <ul class="menu-list">
-                <li class="menu-item active"><a href="index.php"><i class="fas fa-home"></i> Dashboard Utama</a></li>
+                <li class="menu-item active"><a href="#"><i class="fas fa-home"></i> Dashboard Utama</a></li>
                 <li class="menu-item"><a href="#" onclick="openModal('modalSurat')"><i class="fas fa-paper-plane"></i> Ajukan Surat</a></li>
-                <?php if (in_array($user_role, ['admin', 'sekdes', 'kades', 'operator', 'kadus'])) : ?>
-                    <li class="menu-item"><a href="#section-surat"><i class="fas fa-file-signature"></i> Kelola Surat</a></li>
-                <?php endif; ?>
-                <?php if (in_array($user_role, ['admin', 'sekdes'])) : ?>
-                    <li class="menu-item"><a href="#section-log"><i class="fas fa-history"></i> Audit Log System</a></li>
-                <?php endif; ?>
+                <li class="menu-item"><a href="#section-surat"><i class="fas fa-file-signature"></i> Daftar Surat</a></li>
+                <li class="menu-item" id="menuLog" style="display:none;"><a href="#section-log"><i class="fas fa-history"></i> Audit Log System</a></li>
             </ul>
         </aside>
 
@@ -295,15 +111,15 @@ $list_logs = $fetch_logs['data'] ?? [];
             <!-- RINGKASAN STATISTIK -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3><?= count($list_surat); ?></h3>
+                    <h3 id="statTotal">0</h3>
                     <p>Total Permohonan Surat</p>
                 </div>
                 <div class="stat-card" style="border-color: var(--warning-color);">
-                    <h3><?= count(array_filter($list_surat, fn($s) =>$s['status'] !== 'Selesai & Diterbitkan')); ?></h3>
+                    <h3 id="statProses">0</h3>
                     <p>Surat Dalam Proses</p>
                 </div>
                 <div class="stat-card" style="border-color: var(--success-color);">
-                    <h3><?= count(array_filter($list_surat, fn($s) =>$s['status'] === 'Selesai & Diterbitkan')); ?></h3>
+                    <h3 id="statSelesai">0</h3>
                     <p>Surat Selesai (QR Valid)</p>
                 </div>
             </div>
@@ -325,136 +141,78 @@ $list_logs = $fetch_logs['data'] ?? [];
                                 <th>Aksi Transaksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <?php if (empty($list_surat)) : ?>
-                                <tr><td colspan="5" style="text-align: center; color: #999;">Belum ada data permohonan surat.</td></tr>
-                            <?php else : ?>
-                                <?php foreach ($list_surat as$s) : ?>
-                                    <tr>
-                                        <td>
-                                            <strong><?= htmlspecialchars($s['nama_pemohon']); ?></strong><br>
-                                            <small style="color: #666;"><?= htmlspecialchars($s['nik_pemohon']); ?></small>
-                                        </td>
-                                        <td><?= htmlspecialchars($s['jenis_surat']); ?></td>
-                                        <td><?= htmlspecialchars($s['keterangan']); ?></td>
-                                        <td>
-                                            <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #e3f2fd; color: #0d47a1;">
-                                                <?= htmlspecialchars($s['status']); ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <!-- Tombol Edit Data (Admin/Sekdes/Operator) -->
-                                            <?php if (in_array($user_role, ['admin', 'sekdes', 'operator'])) : ?>
-                                                <button onclick="editSurat(<?= htmlspecialchars(json_encode($s)); ?>)" class="btn btn-warning" style="font-size:0.75rem;"><i class="fas fa-edit"></i> Edit</button>
-                                            <?php endif; ?>
-
-                                            <!-- Tombol Verifikasi Sekdes -->
-                                            <?php if ($s['status'] === 'Menunggu Verifikasi Sekdes' && in_array($user_role, ['admin', 'sekdes'])) : ?>
-                                                <a href="index.php?action=verifikasi_sekdes&id=<?= $s['id']; ?>" class="btn btn-success" style="font-size:0.75rem;"><i class="fas fa-check"></i> Verifikasi Sekdes</a>
-                                            <?php endif; ?>
-
-                                            <!-- Tombol Approval Kades -->
-                                            <?php if ($s['status'] === 'Menunggu TTD Kades' && in_array($user_role, ['admin', 'kades'])) : ?>
-                                                <a href="index.php?action=approve_kades&id=<?= $s['id']; ?>" class="btn btn-warning" style="font-size:0.75rem;"><i class="fas fa-signature"></i> TTD Kades</a>
-                                            <?php endif; ?>
-
-                                            <!-- Tombol Cetak PDF & WA -->
-                                            <?php if ($s['status'] === 'Selesai & Diterbitkan') : ?>
-                                                <button onclick="cetakDokumen('<?= htmlspecialchars($s['nama_pemohon']); ?>', '<?= htmlspecialchars($s['nik_pemohon']); ?>', '<?= htmlspecialchars($s['jenis_surat']); ?>', '<?= htmlspecialchars($s['keterangan']); ?>', '<?=$s['qr_token']; ?>')" class="btn" style="font-size:0.75rem;"><i class="fas fa-print"></i> Cetak Dokumen</button>
-                                                <?php if (!empty($s['no_wa'])) : 
-                                                    $wa_link = "https://wa.me/" . format_wa_number($s['no_wa']) . "?text=" . urlencode("Halo Bapak/Ibu " . $s['nama_pemohon'] . ", Surat " . $s['jenis_surat'] . " Anda di Desa Wawongkolono telah selesai disetujui."); ?>
-                                                    <a href="<?= $wa_link; ?>" target="_blank" class="btn btn-wa" style="font-size:0.75rem;"><i class="fab fa-whatsapp"></i> Kirim WA</a>
-                                                <?php endif; ?>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                        <tbody id="tableSuratBody">
+                            <tr><td colspan="5" style="text-align:center; color:#888;">Memuat data dari Supabase...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TABEL AUDIT LOG SYSTEM (Khusus Admin/Sekdes) -->
-            <?php if (in_array($user_role, ['admin', 'sekdes'])) : ?>
-                <div class="card" id="section-log">
-                    <div class="card-header">
-                        <span class="card-title"><i class="fas fa-history"></i> Audit Log Aktivitas Terakhir</span>
-                    </div>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Waktu Log</th>
-                                    <th>Nama Pengguna</th>
-                                    <th>Peran (Role)</th>
-                                    <th>Aktivitas Sistem</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($list_logs as$l) : ?>
-                                    <tr>
-                                        <td><?= date('d/m/Y H:i', strtotime($l['created_at'])); ?></td>
-                                        <td><strong><?= htmlspecialchars($l['user_nama']); ?></strong></td>
-                                        <td><span style="font-size:0.75rem; font-weight:bold;"><?= strtoupper($l['role']); ?></span></td>
-                                        <td><?= htmlspecialchars($l['aksi']); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- TABEL AUDIT LOG SYSTEM -->
+            <div class="card" id="section-log" style="display:none;">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-history"></i> Audit Log Aktivitas Terakhir</span>
                 </div>
-            <?php endif; ?>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Waktu Log</th>
+                                <th>Nama Pengguna</th>
+                                <th>Peran (Role)</th>
+                                <th>Aktivitas Sistem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableLogBody">
+                            <tr><td colspan="4" style="text-align:center; color:#888;">Memuat log...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
         </main>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. MODAL POPUP DIALOGS                     -->
-    <!-- ========================================== -->
-
-    <!-- Modal Login -->
+    <!-- MODAL LOGIN -->
     <div id="modalLogin" class="modal-backdrop">
         <div class="modal-box">
             <span class="modal-close" onclick="closeModal('modalLogin')">&times;</span>
             <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-lock"></i> Login Akses Perangkat</h3>
-            <form method="POST">
-                <input type="hidden" name="login_action" value="1">
+            <form onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>Username / NIK</label>
-                    <input type="text" name="username" class="form-control" placeholder="Masukkan username" required>
+                    <input type="text" id="loginUsername" class="form-control" placeholder="admin / sekdes / kades" required>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Password" required>
                 </div>
                 <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 10px;">Masuk ke Sistem</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Buat Surat -->
+    <!-- MODAL BUAT SURAT -->
     <div id="modalSurat" class="modal-backdrop">
         <div class="modal-box">
             <span class="modal-close" onclick="closeModal('modalSurat')">&times;</span>
             <h3 style="margin-bottom: 15px; color: var(--primary-color);"><i class="fas fa-file-signature"></i> Form Permohonan Surat</h3>
-            <form method="POST">
-                <input type="hidden" name="tambah_surat_action" value="1">
+            <form onsubmit="handleTambahSurat(event)">
                 <div class="form-group">
                     <label>NIK Pemohon</label>
-                    <input type="text" name="nik_pemohon" class="form-control" required placeholder="720..." maxlength="16">
+                    <input type="text" id="addNik" class="form-control" required placeholder="720..." maxlength="16">
                 </div>
                 <div class="form-group">
                     <label>Nama Lengkap Pemohon</label>
-                    <input type="text" name="nama_pemohon" class="form-control" required placeholder="Nama sesuai KTP">
+                    <input type="text" id="addNama" class="form-control" required placeholder="Nama sesuai KTP">
                 </div>
                 <div class="form-group">
                     <label>No. WhatsApp Aktif</label>
-                    <input type="text" name="no_wa" class="form-control" placeholder="08..." required>
+                    <input type="text" id="addWa" class="form-control" placeholder="08..." required>
                 </div>
                 <div class="form-group">
                     <label>Jenis Surat</label>
-                    <select name="jenis_surat" class="form-control" required>
+                    <select id="addJenis" class="form-control" required>
                         <option value="Surat Keterangan Usaha (SKU)">Surat Keterangan Usaha (SKU)</option>
                         <option value="Surat Keterangan Domisili">Surat Keterangan Domisili</option>
                         <option value="Surat Keterangan Tidak Mampu (SKTM)">Surat Keterangan Tidak Mampu (SKTM)</option>
@@ -463,69 +221,255 @@ $list_logs = $fetch_logs['data'] ?? [];
                 </div>
                 <div class="form-group">
                     <label>Keperluan / Keterangan</label>
-                    <textarea name="keterangan" class="form-control" rows="3" required placeholder="Contoh: Persyaratan pengajuan kredit KUR Bank"></textarea>
+                    <textarea id="addKet" class="form-control" rows="3" required placeholder="Contoh: Persyaratan pengajuan kredit KUR Bank"></textarea>
                 </div>
                 <button type="submit" class="btn" style="width: 100%; justify-content: center;">Kirim Permohonan Surat</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal Edit Surat -->
+    <!-- MODAL EDIT SURAT -->
     <div id="modalEditSurat" class="modal-backdrop">
         <div class="modal-box">
             <span class="modal-close" onclick="closeModal('modalEditSurat')">&times;</span>
             <h3 style="margin-bottom: 15px; color: var(--warning-color);"><i class="fas fa-edit"></i> Edit Data Permohonan Surat</h3>
-            <form method="POST">
-                <input type="hidden" name="edit_surat_action" value="1">
-                <input type="hidden" name="id_surat" id="edit_id_surat">
+            <form onsubmit="handleEditSurat(event)">
+                <input type="hidden" id="editId">
                 <div class="form-group">
                     <label>NIK Pemohon</label>
-                    <input type="text" name="nik_pemohon" id="edit_nik_pemohon" class="form-control" required>
+                    <input type="text" id="editNik" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label>Nama Lengkap Pemohon</label>
-                    <input type="text" name="nama_pemohon" id="edit_nama_pemohon" class="form-control" required>
+                    <input type="text" id="editNama" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label>No. WhatsApp</label>
-                    <input type="text" name="no_wa" id="edit_no_wa" class="form-control">
+                    <input type="text" id="editWa" class="form-control">
                 </div>
                 <div class="form-group">
                     <label>Jenis Surat</label>
-                    <input type="text" name="jenis_surat" id="edit_jenis_surat" class="form-control" required>
+                    <input type="text" id="editJenis" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label>Keperluan / Keterangan</label>
-                    <textarea name="keterangan" id="edit_keterangan" class="form-control" rows="3" required></textarea>
+                    <textarea id="editKet" class="form-control" rows="3" required></textarea>
                 </div>
                 <button type="submit" class="btn btn-warning" style="width: 100%; justify-content: center;">Simpan Perubahan Data</button>
             </form>
         </div>
     </div>
 
-    <!-- Area Cetak Dokumen Rahasia (Ditampilkan Saat Diprint) -->
-    <div id="printArea" style="display: none;"></div>
-
-    <!-- ========================================== -->
-    <!-- 4. JAVASCRIPT KONTROL DOKUMEN & MODAL      -->
-    <!-- ========================================== -->
+    <!-- JAVASCRIPT CLIENT-SIDE UTAMA -->
     <script>
-        function openModal(id) {
-            document.getElementById(id).style.display = 'flex';
+        const SUPABASE_URL = 'https://upsmpuzktefbrulsvydv.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ';
+
+        let currentUser = JSON.parse(sessionStorage.getItem('user')) || { role: 'guest', nama: 'Masyarakat / Tamu' };
+        let cachedSurat = [];
+
+        // Helper API Supabase REST (Fetch API)
+        async function supabaseRequest(endpoint, method = 'GET', body = null) {
+            const options = {
+                method: method,
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
+            if (!res.ok) return null;
+            return await res.json();
         }
 
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
+        async function catatLog(aksi) {
+            await supabaseRequest('audit_logs', 'POST', {
+                user_nama: currentUser.nama,
+                role: currentUser.role,
+                aksi: aksi
+            });
         }
 
-        function editSurat(data) {
-            document.getElementById('edit_id_surat').value = data.id;
-            document.getElementById('edit_nik_pemohon').value = data.nik_pemohon;
-            document.getElementById('edit_nama_pemohon').value = data.nama_pemohon;
-            document.getElementById('edit_no_wa').value = data.no_wa || '';
-            document.getElementById('edit_jenis_surat').value = data.jenis_surat;
-            document.getElementById('edit_keterangan').value = data.keterangan;
+        function formatWa(phone) {
+            phone = phone.replace(/[^0-9]/g, '');
+            if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+            return phone;
+        }
+
+        function renderUserPanel() {
+            const panel = document.getElementById('userPanel');
+            const menuLog = document.getElementById('menuLog');
+            const sectionLog = document.getElementById('section-log');
+
+            if (currentUser.role === 'guest') {
+                panel.innerHTML = `<button class="btn" onclick="openModal('modalLogin')"><i class="fas fa-sign-in-alt"></i> Login Petugas</button>`;
+                menuLog.style.display = 'none';
+                sectionLog.style.display = 'none';
+            } else {
+                panel.innerHTML = `
+                    <div class="user-badge"><i class="fas fa-user-circle"></i> <strong>${currentUser.nama}</strong> (${currentUser.role.toUpperCase()})</div>
+                    <button class="btn btn-danger" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Keluar</button>
+                `;
+                if (['admin', 'sekdes'].includes(currentUser.role)) {
+                    menuLog.style.display = 'block';
+                    sectionLog.style.display = 'block';
+                    loadLogs();
+                }
+            }
+        }
+
+        async function loadSurat() {
+            const data = await supabaseRequest('surat?select=*&order=created_at.desc');
+            cachedSurat = data || [];
+
+            document.getElementById('statTotal').innerText = cachedSurat.length;
+            document.getElementById('statProses').innerText = cachedSurat.filter(s => s.status !== 'Selesai & Diterbitkan').length;
+            document.getElementById('statSelesai').innerText = cachedSurat.filter(s => s.status === 'Selesai & Diterbitkan').length;
+
+            const tbody = document.getElementById('tableSuratBody');
+            if (cachedSurat.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #999;">Belum ada data permohonan surat.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = cachedSurat.map(s => {
+                let btnAction = '';
+
+                if (['admin', 'sekdes', 'operator'].includes(currentUser.role)) {
+                    btnAction += `<button onclick="openEditModal(${s.id})" class="btn btn-warning" style="font-size:0.75rem; margin-right:4px;"><i class="fas fa-edit"></i> Edit</button>`;
+                }
+
+                if (s.status === 'Menunggu Verifikasi Sekdes' && ['admin', 'sekdes'].includes(currentUser.role)) {
+                    btnAction += `<button onclick="updateStatus(${s.id}, 'Menunggu TTD Kades')" class="btn btn-success" style="font-size:0.75rem;"><i class="fas fa-check"></i> Verifikasi Sekdes</button>`;
+                }
+
+                if (s.status === 'Menunggu TTD Kades' && ['admin', 'kades'].includes(currentUser.role)) {
+                    btnAction += `<button onclick="updateStatus(${s.id}, 'Selesai & Diterbitkan')" class="btn btn-warning" style="font-size:0.75rem;"><i class="fas fa-signature"></i> TTD Kades</button>`;
+                }
+
+                if (s.status === 'Selesai & Diterbitkan') {
+                    btnAction += `<button onclick="cetakDokumen('${s.nama_pemohon}', '${s.nik_pemohon}', '${s.jenis_surat}', '${s.keterangan}', '${s.qr_token}')" class="btn" style="font-size:0.75rem; margin-right:4px;"><i class="fas fa-print"></i> Cetak</button>`;
+                    if (s.no_wa) {
+                        const waLink = `https://wa.me/${formatWa(s.no_wa)}?text=${encodeURIComponent(`Halo Bpk/Ibu ${s.nama_pemohon}, Surat${s.jenis_surat} Anda di Desa Wawongkolono telah selesai disetujui.`)}`;
+                        btnAction += `<a href="${waLink}" target="_blank" class="btn btn-wa" style="font-size:0.75rem;"><i class="fab fa-whatsapp"></i> WA</a>`;
+                    }
+                }
+
+                return `
+                    <tr>
+                        <td><strong>${s.nama_pemohon}</strong><br><small style="color:#666;">${s.nik_pemohon}</small></td>
+                        <td>${s.jenis_surat}</td>
+                        <td>${s.keterangan}</td>
+                        <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; background: #e3f2fd; color: #0d47a1;">${s.status}</span></td>
+                        <td>${btnAction}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadLogs() {
+            const logs = await supabaseRequest('audit_logs?select=*&order=created_at.desc&limit=10');
+            const tbody = document.getElementById('tableLogBody');
+            if (!logs || logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Belum ada log.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = logs.map(l => `
+                <tr>
+                    <td>${new Date(l.created_at).toLocaleString('id-ID')}</td>
+                    <td><strong>${l.user_nama}</strong></td>
+                    <td><span style="font-size:0.75rem; font-weight:bold;">${l.role.toUpperCase()}</span></td>
+                    <td>${l.aksi}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value;
+            const p = document.getElementById('loginPassword').value;
+
+            const res = await supabaseRequest(`users?username=eq.${u}&password=eq.${p}&select=*`);
+            if (res && res.length > 0) {
+                currentUser = { role: res[0].role, nama: res[0].nama, id: res[0].id };
+                sessionStorage.setItem('user', JSON.stringify(currentUser));
+                await catatLog("Login ke dalam sistem");
+                closeModal('modalLogin');
+                renderUserPanel();
+                loadSurat();
+                alert(`Selamat datang, ${currentUser.nama}!`);
+            } else {
+                alert('Username atau Password salah!');
+            }
+        }
+
+        async function handleLogout() {
+            await catatLog("Logout dari sistem");
+            sessionStorage.removeItem('user');
+            currentUser = { role: 'guest', nama: 'Masyarakat / Tamu' };
+            renderUserPanel();
+            loadSurat();
+        }
+
+        async function handleTambahSurat(e) {
+            e.preventDefault();
+            const body = {
+                nik_pemohon: document.getElementById('addNik').value,
+                nama_pemohon: document.getElementById('addNama').value,
+                no_wa: document.getElementById('addWa').value,
+                jenis_surat: document.getElementById('addJenis').value,
+                keterangan: document.getElementById('addKet').value,
+                status: 'Menunggu Verifikasi Sekdes',
+                qr_token: Math.random().toString(36).substring(2) + Date.now().toString(36)
+            };
+
+            const res = await supabaseRequest('surat', 'POST', body);
+            if (res) {
+                await catatLog(`Pengajuan Surat: ${body.jenis_surat} a.n ${body.nama_pemohon}`);
+                closeModal('modalSurat');
+                loadSurat();
+                alert('Permohonan surat berhasil dikirim!');
+            }
+        }
+
+        function openEditModal(id) {
+            const s = cachedSurat.find(item => item.id === id);
+            if (!s) return;
+            document.getElementById('editId').value = s.id;
+            document.getElementById('editNik').value = s.nik_pemohon;
+            document.getElementById('editNama').value = s.nama_pemohon;
+            document.getElementById('editWa').value = s.no_wa || '';
+            document.getElementById('editJenis').value = s.jenis_surat;
+            document.getElementById('editKet').value = s.keterangan;
             openModal('modalEditSurat');
+        }
+
+        async function handleEditSurat(e) {
+            e.preventDefault();
+            const id = document.getElementById('editId').value;
+            const body = {
+                nik_pemohon: document.getElementById('editNik').value,
+                nama_pemohon: document.getElementById('editNama').value,
+                no_wa: document.getElementById('editWa').value,
+                jenis_surat: document.getElementById('editJenis').value,
+                keterangan: document.getElementById('editKet').value
+            };
+
+            await supabaseRequest(`surat?id=eq.${id}`, 'PATCH', body);
+            await catatLog(`Ubah Data Surat ID #${id} (Pemohon: ${body.nama_pemohon})`);
+            closeModal('modalEditSurat');
+            loadSurat();
+            alert('Data surat berhasil diperbarui!');
+        }
+
+        async function updateStatus(id, newStatus) {
+            await supabaseRequest(`surat?id=eq.${id}`, 'PATCH', { status: newStatus });
+            await catatLog(`Update Status Surat ID #${id} -> ${newStatus}`);
+            loadSurat();
+            alert('Status surat berhasil diperbarui!');
         }
 
         function cetakDokumen(nama, nik, jenis, ket, token) {
@@ -541,7 +485,7 @@ $list_logs = $fetch_logs['data'] ?? [];
                         <h3 style="text-decoration:underline; font-size:14pt; margin:0;">${jenis.toUpperCase()}</h3>
                         <span>Nomor: 140 / DW / ${new Date().getFullYear()}</span>
                     </div>
-                    <p style="font-size:12pt; line-height:1.6;">Yang bertanda tangan di bawah ini Kepala Desa Wawongkolono, Kecamatan Menui Kepulauan, Kabupaten Morowali menerangkan bahwa:</p>
+                    <p style="font-size:12pt; line-height:1.6;">Yang bertanda tangan di bawah ini Kepala Desa Wawongkolono menerangkan bahwa:</p>
                     <table style="margin: 20px 0 20px 30px; font-size:12pt; width:90%;">
                         <tr><td width="160" style="padding:4px 0;">Nama Lengkap</td><td>: <strong>${nama}</strong></td></tr>
                         <tr><td style="padding:4px 0;">NIK Pemohon</td><td>: ${nik}</td></tr>
@@ -559,21 +503,18 @@ $list_logs = $fetch_logs['data'] ?? [];
                     </div>
                 </div>
             `;
-            
             const win = window.open('', '_blank');
             win.document.write('<html><head><title>Cetak Dokumen Resmi</title></head><body>' + htmlPrint + '</body></html>');
             win.document.close();
-            setTimeout(function() {
-                win.print();
-            }, 500);
+            setTimeout(() => win.print(), 500);
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-backdrop')) {
-                event.target.style.display = "none";
-            }
-        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Initial Load
+        renderUserPanel();
+        loadSurat();
     </script>
 </body>
 </html>
