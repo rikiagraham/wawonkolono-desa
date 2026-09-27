@@ -5,1220 +5,672 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistem Informasi Desa Wawongkolono</title>
 
-<!-- Supabase JS Client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script>
+/* ============================================================
+   SUPABASE INITIALIZATION - DESA WAWONGKOLONO
+   ============================================================ */
+const SUPABASE_URL = "https://upsmpuzktefbrulsvydv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ";
+window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+var currentUser = null;
+var selectedRole = "";
+var pageNames = {dashboard:"Dashboard",penduduk:"Data Penduduk",kk:"Data KK",pelayanan:"Pelayanan Desa",surat:"Surat Desa",absensi:"Absensi",pemerintahan:"Pemerintahan Desa",bantuan:"Bantuan",pembangunan:"Pembangunan Desa",dusun:"Program Dusun",keuangan:"Keuangan Desa",kritik:"Kritik & Saran",informasi:"Informasi Desa",laporan:"Laporan",arsip:"Arsip Desa",pengguna:"Pengguna & Hak Akses",log:"Log Aktivitas",pengaturan:"Pengaturan",ai:"AI Desa"};
+
+/* ===== FUNGSI DASAR APLIKASI ===== */
+function showPage(page, button) {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(p => p.classList.remove('active'));
+    
+    const navBtns = document.querySelectorAll('.nav-btn');
+    navBtns.forEach(b => b.classList.remove('active'));
+    
+    const targetPage = document.getElementById('page-' + page);
+    if(targetPage) targetPage.classList.add('active');
+    if(button) button.classList.add('active');
+}
+
+function showPageByName(page) {
+    const btn = document.querySelector(`[onclick*="'${page}'"]`);
+    showPage(page, btn);
+}
+
+async function loadDashboard() {
+    // Fungsi awal pemuatan dashboard
+    console.log("Dashboard dimuat.");
+}
+</script>
+
+<script>
+/* ===== MODUL FUNGSIONAL TANPA MENGUBAH MODUL LAMA ===== */
+const DD_KEYS={surat:'DD_SURAT',absensi:'DD_ABSENSI',bantuan:'DD_BANTUAN',pembangunan:'DD_PEMBANGUNAN',dusun:'DD_DUSUN',keuangan:'DD_KEUANGAN',kritik:'DD_KRITIK',informasi:'DD_INFORMASI',arsip:'DD_ARSIP',pemerintahan:'DD_PEMERINTAHAN',pengguna:'DD_PENGGUNA',log:'DD_LOG',settings:'DD_SETTINGS'};
+function ddGet(k){try{return JSON.parse(localStorage.getItem(DD_KEYS[k])||'[]')}catch(e){return []}}
+function ddSet(k,v){localStorage.setItem(DD_KEYS[k],JSON.stringify(v))}
+function ddEsc(v){return escapeHtml(v==null?'':v)}
+function ddRp(v){return 'Rp '+Number(v||0).toLocaleString('id-ID')}
+function ddToday(){return new Date().toISOString().slice(0,10)}
+function ddActor(){return currentUser?.email||'Pengguna'}
+function ddLog(aktivitas,halaman){const a=ddGet('log');a.unshift({waktu:new Date().toLocaleString('id-ID'),pengguna:ddActor(),aktivitas,halaman});ddSet('log',a.slice(0,500));if(document.getElementById('page-log')?.classList.contains('active'))ddRenderLog()}
+function ddModal(id,title,body,onSave,saveText='💾 Simpan'){let m=document.getElementById(id);if(!m){m=document.createElement('div');m.id=id;m.className='modal';m.innerHTML=`<div class="modal-box"><div class="modal-header"><h3>${title}</h3><button class="modal-close" onclick="document.getElementById('${id}').style.display='none'">×</button></div>${body}<div class="modal-actions"><button class="btn btn-secondary" onclick="document.getElementById('${id}').style.display='none'">Batal</button><button class="btn btn-primary" id="${id}Save">${saveText}</button></div></div>`;document.body.appendChild(m);document.getElementById(id+'Save').onclick=onSave}m.style.display='flex';return m}
+function ddTable(id,headers,rows,empty='Belum ada data.'){const b=document.getElementById(id);if(!b)return;b.innerHTML=rows.length?rows.map((r,i)=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${headers.length}" class="empty">${empty}</td></tr>`}
+function ddEnsurePanel(page,title,html){const sec=document.getElementById('page-'+page);if(!sec)return;sec.innerHTML=`<div class="page-title"><h2>${title}</h2></div>${html}`}
+function ddRenderLog(){const a=ddGet('log');let b=document.getElementById('ddLogBody');if(!b)return;document.getElementById('ddLogTotal').textContent=a.length;document.getElementById('ddLogUsers').textContent=new Set(a.map(x=>x.pengguna)).size;b.innerHTML=a.length?a.map((x,i)=>`<tr><td>${i+1}</td><td>${ddEsc(x.waktu)}</td><td>${ddEsc(x.pengguna)}</td><td>${ddEsc(x.aktivitas)}</td><td>${ddEsc(x.halaman)}</td></tr>`).join(''):`<tr><td colspan="5" class="empty">Belum ada aktivitas.</td></tr>`}
+function ddClearLog(){if(confirm('Hapus semua log aktivitas?')){ddSet('log',[]);ddRenderLog();showToast('Log aktivitas dihapus.')}}
+function ddBuildDashboard(){const sec=document.getElementById('page-dashboard');if(!sec||sec.dataset.ddReady)return;sec.dataset.ddReady='1';const banner=document.createElement('div');banner.className='dashboard-banner';banner.innerHTML='<div><small>🌿 DESA WAWONGKOLONO DIGITAL</small><h2>Selamat Datang di Sistem Informasi Desa</h2><p>Kelola pelayanan, pembangunan, administrasi dan informasi desa dalam satu aplikasi.</p><div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary" onclick="showPageByName(\'surat\')">📨 Pengajuan Surat</button><button class="btn btn-secondary" onclick="showPageByName(\'pembangunan\')">🏗 Program Desa</button></div></div><div class="dashboard-banner-art">🏡🌴</div>';sec.prepend(banner)}
+function ddSurat(){ddEnsurePanel('surat','📨 Surat Desa',`<div class="panel"><div class="module-note">Form pengajuan surat sudah aktif. Pengajuan dicatat dan siap disinkronkan ke Supabase.</div><button class="btn btn-primary" onclick="ddOpenSurat()">+ Pengajuan Surat</button></div><div class="panel"><h3>Daftar Pengajuan</h3><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Jenis Surat</th><th>Keperluan</th><th>Status</th><th>Tanggal</th></tr></thead><tbody id="ddSuratBody"></tbody></table></div></div>`);const a=ddGet('surat');ddTable('ddSuratBody',6,a.map((x,i)=>[i+1,ddEsc(x.nik),ddEsc(x.jenis),ddEsc(x.keperluan),'<span class="badge">'+ddEsc(x.status)+'</span>',ddEsc(x.tanggal)]),'Belum ada pengajuan surat.')}
+function ddOpenSurat(){ddModal('ddSuratModal','📨 Pengajuan Surat',`<div class="form-group"><label>NIK Pemohon *</label><input id="ddSNik"></div><div class="form-group"><label>Jenis Surat *</label><select id="ddSJenis"><option value="">Pilih</option><option>Surat Keterangan Domisili</option><option>Surat Keterangan Usaha</option><option>Surat Keterangan Tidak Mampu</option><option>Surat Keterangan Penghasilan</option><option>Surat Keterangan Kelahiran</option><option>Surat Keterangan Kematian</option><option>Surat Keterangan Belum Menikah</option><option>Surat Keterangan Menikah</option><option>Surat Keterangan Pindah</option><option>Surat Keterangan Umum</option></select></div><div class="form-group"><label>Keperluan *</label><textarea id="ddSKeperluan" rows="4"></textarea></div>`,async()=>{const nik=document.getElementById('ddSNik').value.trim(),jenis=document.getElementById('ddSJenis').value,keperluan=document.getElementById('ddSKeperluan').value.trim();if(!nik||!jenis||!keperluan){showToast('NIK, jenis surat dan keperluan wajib diisi.');return}const row={nik,jenis_surat:jenis,keperluan,status:'Menunggu',tanggal:ddToday()};let saved=false;try{const r=await fetch(SUPABASE_URL+'/pengajuan_surat',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)});saved=r.ok;if(!r.ok)console.warn('Pengajuan surat Supabase:',await r.text())}catch(e){}const a=ddGet('surat');a.unshift(row);ddSet('surat',a);document.getElementById('ddSuratModal').style.display='none';ddSurat();ddLog('Mengajukan '+jenis,'Surat Desa');showToast(saved?'Pengajuan tersimpan ke Supabase.':'Pengajuan dicatat. Tabel Supabase belum tersedia/akses ditolak.')})}
+function ddAbsensi(){ddEnsurePanel('absensi','📅 Absensi Desa',`<div class="panel"><div class="module-note">API Supabase: ${SUPABASE_URL}/rest/v1/</div><button class="btn btn-primary" onclick="ddOpenAbsensi()">+ Tambah Absensi</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama</th><th>Tanggal</th><th>Status</th><th>Keterangan</th></tr></thead><tbody id="ddAbsBody"></tbody></table></div></div>`);ddLoadAbsensi()}
+async function ddLoadAbsensi(){let a=[];try{const r=await fetch(SUPABASE_URL+'/absensi?select=*&order=tanggal.desc',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY}});if(r.ok)a=await r.json()}catch(e){}if(!a.length)a=ddGet('absensi');if(a.length)ddSet('absensi',a);ddTable('ddAbsBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.tanggal),'<span class="badge">'+ddEsc(x.status)+'</span>',ddEsc(x.keterangan||'-')]),'Belum ada absensi.')}
+function ddOpenAbsensi(){ddModal('ddAbsModal','📅 Tambah Absensi',`<div class="form-grid"><div class="form-group"><label>Nama *</label><input id="ddANama"></div><div class="form-group"><label>Tanggal *</label><input type="date" id="ddATanggal" value="${ddToday()}"></div><div class="form-group"><label>Status</label><select id="ddAStatus"><option>Hadir</option><option>Izin</option><option>Sakit</option><option>Alpa</option></select></div><div class="form-group"><label>Keterangan</label><input id="ddAKet"></div></div>`,async()=>{const row={nama:document.getElementById('ddANama').value.trim(),tanggal:document.getElementById('ddATanggal').value,status:document.getElementById('ddAStatus').value,keterangan:document.getElementById('ddAKet').value.trim()};if(!row.nama||!row.tanggal){showToast('Nama dan tanggal wajib diisi.');return}let saved=false;try{const r=await fetch(SUPABASE_URL+'/absensi',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)});saved=r.ok;if(!r.ok)console.warn(await r.text())}catch(e){}const a=ddGet('absensi');a.unshift(row);ddSet('absensi',a);document.getElementById('ddAbsModal').style.display='none';ddAbsensi();ddLog('Menambah absensi '+row.nama,'Absensi');showToast(saved?'Absensi tersimpan ke Supabase.':'Absensi dicatat lokal karena tabel Supabase belum siap.')})}
+function ddBantuan(){ddEnsurePanel('bantuan','🎁 Data Bantuan',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenBantuan()">+ Tambah Bantuan</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>NIK</th><th>Nama</th><th>Jenis</th><th>Nilai</th><th>Status</th></tr></thead><tbody id="ddBanBody"></tbody></table></div></div>`);const a=ddGet('bantuan');ddTable('ddBanBody',6,a.map((x,i)=>[i+1,ddEsc(x.nik||'-'),ddEsc(x.nama),ddEsc(x.jenis),ddRp(x.nilai),'<span class="badge">'+ddEsc(x.status)+'</span>']),'Belum ada data bantuan.');const el=document.getElementById('statBantuan');if(el)el.textContent=a.length}
+function ddOpenBantuan(){ddModal('ddBanModal','🎁 Tambah Bantuan',`<div class="form-grid"><div class="form-group"><label>NIK</label><input id="ddBNik"></div><div class="form-group"><label>Nama *</label><input id="ddBNama"></div><div class="form-group"><label>Jenis Bantuan *</label><input id="ddBJenis"></div><div class="form-group"><label>Nilai</label><input type="number" id="ddBNilai" value="0"></div><div class="form-group"><label>Status</label><select id="ddBStatus"><option>Diterima</option><option>Menunggu</option><option>Ditolak</option></select></div></div>`,()=>{const row={nik:document.getElementById('ddBNik').value.trim(),nama:document.getElementById('ddBNama').value.trim(),jenis:document.getElementById('ddBJenis').value.trim(),nilai:Number(document.getElementById('ddBNilai').value||0),status:document.getElementById('ddBStatus').value};if(!row.nama||!row.jenis){showToast('Nama dan jenis bantuan wajib diisi.');return}const a=ddGet('bantuan');a.unshift(row);ddSet('bantuan',a);document.getElementById('ddBanModal').style.display='none';ddBantuan();ddLog('Menambah bantuan','Bantuan');showToast('Data bantuan berhasil ditambahkan.')})}
+function ddPembangunan(){ddEnsurePanel('pembangunan','🏗 Pembangunan Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenPembangunan()">+ Program</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Program</th><th>Lokasi</th><th>Anggaran</th><th>Progres</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="ddProgBody"></tbody></table></div></div>`);ddRenderProg()}
+function ddRenderProg(filter=''){const a=ddGet('pembangunan').filter(x=>!filter||x.status===filter);ddTable('ddProgBody',7,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.lokasi||'-'),ddRp(x.anggaran),`${Number(x.progres||0)}%`,'<span class="badge">'+ddEsc(x.status)+'</span>',`<button class="btn btn-danger" onclick="ddDeleteProg(${i})">🗑</button>`]),'Belum ada program.');const el=document.getElementById('statProgram');if(el)el.textContent=ddGet('pembangunan').length}
+function ddOpenPembangunan(){ddModal('ddProgModal','🏗 Program Pembangunan',`<div class="form-grid"><div class="form-group"><label>Program *</label><input id="ddPNama"></div><div class="form-group"><label>Lokasi</label><input id="ddPLokasi"></div><div class="form-group"><label>Anggaran</label><input type="number" id="ddPAnggaran" value="0"></div><div class="form-group"><label>Progres %</label><input type="number" id="ddPProgres" min="0" max="100" value="0"></div><div class="form-group"><label>Status</label><select id="ddPStatus"><option>Direncanakan</option><option>Berjalan</option><option>Selesai</option></select></div></div>`,()=>{const row={nama:document.getElementById('ddPNama').value.trim(),lokasi:document.getElementById('ddPLokasi').value.trim(),anggaran:Number(document.getElementById('ddPAnggaran').value||0),progres:Number(document.getElementById('ddPProgres').value||0),status:document.getElementById('ddPStatus').value};if(!row.nama){showToast('Nama program wajib diisi.');return}const a=ddGet('pembangunan');a.unshift(row);ddSet('pembangunan',a);document.getElementById('ddProgModal').style.display='none';ddPembangunan();ddLog('Menambah program '+row.nama,'Pembangunan Desa');showToast('Program pembangunan berhasil ditambahkan.')})}
+function ddDeleteProg(i){const a=ddGet('pembangunan');a.splice(i,1);ddSet('pembangunan',a);ddRenderProg();showToast('Program dihapus.')}
+function ddDusun(){ddEnsurePanel('dusun','🌿 Program Dusun',`<div class="panel"><p style="color:#64748b;margin-bottom:12px">Pilih Dusun 1–5. Semua tombol sekarang aktif.</p><div class="quick-grid">${[1,2,3,4,5].map(i=>`<button class="quick-btn" onclick="ddShowDusun('Dusun ${i}')">🏘<br>Dusun ${i}</button>`).join('')}</div></div><div class="panel"><h3 id="ddDusunTitle">Program Dusun</h3><button class="btn btn-primary" onclick="ddOpenDusun()">+ Tambah Program</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Dusun</th><th>Program</th><th>Status</th><th>Anggaran</th></tr></thead><tbody id="ddDusunBody"></tbody></table></div></div>`);ddShowDusun('Dusun 1')}
+function ddShowDusun(d){const t=document.getElementById('ddDusunTitle');if(t)t.textContent='Program '+d;const p=document.getElementById('page-dusun');if(p)p.dataset.ddDusun=d;const a=ddGet('dusun').filter(x=>x.dusun===d);ddTable('ddDusunBody',5,a.map((x,i)=>[i+1,ddEsc(x.dusun),ddEsc(x.program),'<span class="badge">'+ddEsc(x.status)+'</span>',ddRp(x.anggaran)]),'Belum ada program di '+d+'.')}
+function ddOpenDusun(){const d=document.getElementById('page-dusun')?.dataset?.ddDusun||'Dusun 1';ddModal('ddDusunModal','🌿 Program '+d,`<div class="form-group"><label>Program *</label><input id="ddDProgram"></div><div class="form-grid"><div class="form-group"><label>Status</label><select id="ddDStatus"><option>Direncanakan</option><option>Berjalan</option><option>Selesai</option></select></div><div class="form-group"><label>Anggaran</label><input type="number" id="ddDAnggaran" value="0"></div></div>`,()=>{const row={dusun:d,program:document.getElementById('ddDProgram').value.trim(),status:document.getElementById('ddDStatus').value,anggaran:Number(document.getElementById('ddDAnggaran').value||0)};if(!row.program){showToast('Program wajib diisi.');return}const a=ddGet('dusun');a.unshift(row);ddSet('dusun',a);document.getElementById('ddDusunModal').style.display='none';ddShowDusun(d);ddLog('Menambah '+row.program,d);showToast('Program dusun berhasil ditambahkan.')})}
+function ddKeuangan(){ddEnsurePanel('keuangan','💰 Keuangan Desa',`<div class="stats"><div class="stat-card"><div class="stat-icon">📥</div><h3 id="ddKMasuk">Rp 0</h3><p>Pemasukan</p></div><div class="stat-card"><div class="stat-icon">📤</div><h3 id="ddKKeluar">Rp 0</h3><p>Pengeluaran</p></div><div class="stat-card"><div class="stat-icon">💵</div><h3 id="ddKSaldo">Rp 0</h3><p>Saldo</p></div></div><div class="panel"><button class="btn btn-primary" onclick="ddOpenKeu()">+ Transaksi</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Tanggal</th><th>Jenis</th><th>Keterangan</th><th>Nominal</th></tr></thead><tbody id="ddKeuBody"></tbody></table></div></div>`);ddRenderKeu()}
+function ddRenderKeu(){const a=ddGet('keuangan'),inm=a.filter(x=>x.jenis==='Pemasukan').reduce((s,x)=>s+Number(x.nominal),0),out=a.filter(x=>x.jenis==='Pengeluaran').reduce((s,x)=>s+Number(x.nominal),0);const km=document.getElementById('ddKMasuk');if(km)km.textContent=ddRp(inm);const kk=document.getElementById('ddKKeluar');if(kk)kk.textContent=ddRp(out);const ks=document.getElementById('ddKSaldo');if(ks)ks.textContent=ddRp(inm-out);ddTable('ddKeuBody',5,a.map((x,i)=>[i+1,ddEsc(x.tanggal),ddEsc(x.jenis),ddEsc(x.keterangan),ddRp(x.nominal)]),'Belum ada transaksi.')}
+function ddOpenKeu(){ddModal('ddKeuModal','💰 Tambah Transaksi',`<div class="form-grid"><div class="form-group"><label>Tanggal</label><input type="date" id="ddKTanggal" value="${ddToday()}"></div><div class="form-group"><label>Jenis</label><select id="ddKJenis"><option>Pemasukan</option><option>Pengeluaran</option></select></div><div class="form-group full"><label>Keterangan *</label><input id="ddKKet"></div><div class="form-group"><label>Nominal *</label><input type="number" id="ddKNominal" value="0"></div></div>`,()=>{const row={tanggal:document.getElementById('ddKTanggal').value,jenis:document.getElementById('ddKJenis').value,keterangan:document.getElementById('ddKKet').value.trim(),nominal:Number(document.getElementById('ddKNominal').value||0)};if(!row.keterangan||row.nominal<=0){showToast('Keterangan dan nominal wajib diisi.');return}const a=ddGet('keuangan');a.unshift(row);ddSet('keuangan',a);document.getElementById('ddKeuModal').style.display='none';ddRenderKeu();ddLog('Menambah transaksi '+row.jenis,'Keuangan Desa');showToast('Transaksi berhasil dicatat.')})}
+function ddKritik(){ddEnsurePanel('kritik','💬 Kritik & Saran',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenKritik()">+ Kirim Kritik / Saran</button></div><div class="panel"><h3>🔔 Notifikasi Masuk</h3><div id="ddKritikList"></div></div>`);ddRenderKritik()}
+function ddRenderKritik(){const a=ddGet('kritik'),b=document.getElementById('ddKritikList');if(!b)return;b.innerHTML=a.length?a.map(x=>`<div style="padding:12px;border-bottom:1px solid #e2e8f0"><b>🔔 ${ddEsc(x.nama)}</b><p style="margin:6px 0">${ddEsc(x.isi)}</p><small>${ddEsc(x.waktu)} • ${ddEsc(x.status)}</small></div>`).join(''):'<div class="empty">Belum ada kritik atau saran.</div>'}
+function ddOpenKritik(){ddModal('ddKritikModal','💬 Kritik & Saran',`<div class="form-group"><label>Nama</label><input id="ddKNama" value="${ddEsc(ddActor())}"></div><div class="form-group"><label>Isi *</label><textarea id="ddKIsi" rows="6"></textarea></div>`,()=>{const row={nama:document.getElementById('ddKNama').value.trim()||ddActor(),isi:document.getElementById('ddKIsi').value.trim(),waktu:new Date().toLocaleString('id-ID'),status:'Notifikasi Baru'};if(!row.isi){showToast('Isi kritik/saran wajib diisi.');return}const a=ddGet('kritik');a.unshift(row);ddSet('kritik',a);document.getElementById('ddKritikModal').style.display='none';ddRenderKritik();ddLog('Mengirim kritik/saran','Kritik & Saran');showToast('Kritik/saran berhasil dikirim ke notifikasi.')})}
+function ddInformasi(){ddEnsurePanel('informasi','ℹ Informasi Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenInfo()">+ Informasi</button></div><div class="panel"><div id="ddInfoList"></div></div>`);ddRenderInfo()}
+function ddRenderInfo(){const a=ddGet('informasi'),b=document.getElementById('ddInfoList');if(!b)return;b.innerHTML=a.length?a.map(x=>`<article style="padding:15px;border-bottom:1px solid #e2e8f0"><h3>📌 ${ddEsc(x.judul)}</h3><p style="line-height:1.7;margin-top:7px">${ddEsc(x.isi)}</p><small>${ddEsc(x.tanggal)}</small></article>`).join(''):'<div class="empty">Belum ada informasi.</div>'}
+function ddOpenInfo(){ddModal('ddInfoModal','ℹ Informasi Desa',`<div class="form-group"><label>Judul *</label><input id="ddIJudul"></div><div class="form-group"><label>Isi *</label><textarea id="ddIIsi" rows="6"></textarea></div>`,()=>{const row={judul:document.getElementById('ddIJudul').value.trim(),isi:document.getElementById('ddIIsi').value.trim(),tanggal:ddToday()};if(!row.judul||!row.isi){showToast('Judul dan isi wajib diisi.');return}const a=ddGet('informasi');a.unshift(row);ddSet('informasi',a);document.getElementById('ddInfoModal').style.display='none';ddRenderInfo();ddLog('Menambah informasi desa','Informasi Desa');showToast('Informasi berhasil disimpan.')})}
+function ddArsip(){ddEnsurePanel('arsip','🗄 Arsip Desa',`<div class="panel"><div class="module-note">Isi arsip desa di sini. Data arsip tersimpan pada browser agar modul langsung berfungsi; penyimpanan file ke Supabase Storage dapat ditambahkan setelah tabel/storage disiapkan.</div><button class="btn btn-primary" onclick="ddOpenArsip()">+ Tambah Dokumen</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Dokumen</th><th>Nomor</th><th>Tanggal</th><th>Keterangan</th></tr></thead><tbody id="ddArsipBody"></tbody></table></div></div>`);const a=ddGet('arsip');ddTable('ddArsipBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.nomor||'-'),ddEsc(x.tanggal),ddEsc(x.keterangan||'-')]),'Belum ada dokumen.');}
+function ddOpenArsip(){ddModal('ddArsipModal','🗄 Tambah Dokumen Arsip',`<div class="form-grid"><div class="form-group"><label>Nama Dokumen *</label><input id="ddArNama"></div><div class="form-group"><label>Nomor</label><input id="ddArNomor"></div><div class="form-group"><label>Tanggal</label><input type="date" id="ddArTanggal" value="${ddToday()}"></div><div class="form-group full"><label>Keterangan</label><textarea id="ddArKet"></textarea></div></div>`,()=>{const row={nama:document.getElementById('ddArNama').value.trim(),nomor:document.getElementById('ddArNomor').value.trim(),tanggal:document.getElementById('ddArTanggal').value,keterangan:document.getElementById('ddArKet').value.trim()};if(!row.nama){showToast('Nama dokumen wajib diisi.');return}const a=ddGet('arsip');a.unshift(row);ddSet('arsip',a);document.getElementById('ddArsipModal').style.display='none';ddArsip();ddLog('Menambah arsip '+row.nama,'Arsip Desa');showToast('Dokumen berhasil dicatat.')})}
+function ddPemerintahan(){ddEnsurePanel('pemerintahan','🏛 Pemerintahan Desa',`<div class="panel"><button class="btn btn-primary" onclick="ddOpenPem()">+ Tambah Perangkat</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama</th><th>Jabatan</th><th>Kontak</th></tr></thead><tbody id="ddPemBody"></tbody></table></div></div>`);const a=ddGet('pemerintahan');ddTable('ddPemBody',4,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.jabatan),ddEsc(x.kontak||'-')]),'Belum ada perangkat desa.')}
+function ddOpenPem(){ddModal('ddPemModal','🏛 Tambah Perangkat Desa',`<div class="form-grid"><div class="form-group"><label>Nama *</label><input id="ddPemNama"></div><div class="form-group"><label>Jabatan *</label><input id="ddPemJabatan"></div><div class="form-group"><label>Kontak</label><input id="ddPemKontak"></div></div>`,()=>{const row={nama:document.getElementById('ddPemNama').value.trim(),jabatan:document.getElementById('ddPemJabatan').value.trim(),kontak:document.getElementById('ddPemKontak').value.trim()};if(!row.nama||!row.jabatan){showToast('Nama dan jabatan wajib diisi.');return}const a=ddGet('pemerintahan');a.unshift(row);ddSet('pemerintahan',a);document.getElementById('ddPemModal').style.display='none';ddPemerintahan();ddLog('Menambah perangkat desa','Pemerintahan Desa');showToast('Perangkat desa berhasil ditambahkan.')})}
+function ddPengguna(){ddEnsurePanel('pengguna','👤 Pengguna & Hak Akses',`<div class="panel"><div class="module-grid"><div class="module-card"><h4>🔐 Admin</h4><p>Akses penuh sistem</p></div><div class="module-card"><h4>💻 Operator</h4><p>Operasional desa</p></div><div class="module-card"><h4>🏘 Dusun 1–5</h4><p>Akses wilayah</p></div></div><button class="btn btn-primary" style="margin-top:15px" onclick="ddOpenUser()">+ Tambah Hak Akses</button></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>No</th><th>Nama/Email</th><th>Role</th><th>Wilayah</th><th>Status</th></tr></thead><tbody id="ddUserBody"></tbody></table></div></div>`);const a=ddGet('pengguna');ddTable('ddUserBody',5,a.map((x,i)=>[i+1,ddEsc(x.nama),ddEsc(x.role),ddEsc(x.wilayah),'<span class="badge">'+ddEsc(x.status)+'</span>']),'Belum ada pengguna tambahan.')}
+function ddOpenUser(){ddModal('ddUserModal','👤 Tambah Hak Akses',`<div class="form-grid"><div class="form-group"><label>Nama/Email *</label><input id="ddUNama"></div><div class="form-group"><label>Role</label><select id="ddURole"><option>Admin</option><option>Operator</option><option>Kepala Desa</option><option>Dusun 1</option><option>Dusun 2</option><option>Dusun 3</option><option>Dusun 4</option><option>Dusun 5</option></select></div><div class="form-group"><label>Wilayah</label><input id="ddUWilayah" placeholder="Semua Dusun / Dusun tertentu"></div><div class="form-group"><label>Status</label><select id="ddUStatus"><option>Aktif</option><option>Nonaktif</option></select></div></div>`,()=>{const row={nama:document.getElementById('ddUNama').value.trim(),role:document.getElementById('ddURole').value,wilayah:document.getElementById('ddUWilayah').value.trim()||'Sesuai Role',status:document.getElementById('ddUStatus').value};if(!row.nama){showToast('Nama/email wajib diisi.');return}const a=ddGet('pengguna');a.unshift(row);ddSet('pengguna',a);document.getElementById('ddUserModal').style.display='none';ddPengguna();ddLog('Menambah hak akses '+row.role,'Pengguna & Hak Akses');showToast('Hak akses dicatat.')})}
+function ddPengaturan(){ddEnsurePanel('pengaturan','⚙ Pengaturan & Profil',`<div class="panel"><h3>Identitas Desa</h3><div class="form-grid"><div class="form-group"><label>Nama Desa</label><input id="ddSNama" value="Desa Wawongkolono"></div><div class="form-group"><label>Kecamatan</label><input id="ddSKec" value="Menui Kepulauan"></div><div class="form-group"><label>Kabupaten</label><input id="ddSKab" value="Morowali"></div><div class="form-group"><label>Provinsi</label><input id="ddSProv" value="Sulawesi Tengah"></div></div><button class="btn btn-primary" onclick="ddSaveSettings()">💾 Simpan</button></div><div class="panel"><h3>👤 Profil</h3><div class="profile-box"><b>Akun:</b> ${ddEsc(ddActor())}<br><b>Ruang Kerja:</b> ${ddEsc(selectedRole||'Pengguna')}<br><b>Status:</b> 🟢 Aktif</div></div>`)}
+function ddSaveSettings(){ddSet('settings',[{nama:document.getElementById('ddSNama').value,kecamatan:document.getElementById('ddSKec').value,kabupaten:document.getElementById('ddSKab').value,provinsi:document.getElementById('ddSProv').value}]);ddLog('Menyimpan pengaturan','Pengaturan');showToast('Pengaturan berhasil disimpan.')}
+function ddAI(){const q=document.getElementById('aiQuestion');const a=document.getElementById('aiAnswer');if(!q||!a)return;const old=a.innerHTML;a.innerHTML=old.replace('Integrasi AI Desa dengan informasi dan database Desa Wawongkolono akan kita pasang pada tahap berikutnya.','');}
+function ddRoute(page){if(page==='dashboard')ddBuildDashboard();if(page==='surat')ddSurat();if(page==='absensi')ddAbsensi();if(page==='pemerintahan')ddPemerintahan();if(page==='bantuan')ddBantuan();if(page==='pembangunan')ddPembangunan();if(page==='dusun')ddDusun();if(page==='keuangan')ddKeuangan();if(page==='kritik')ddKritik();if(page==='informasi')ddInformasi();if(page==='arsip')ddArsip();if(page==='pengguna')ddPengguna();if(page==='log'){ddEnsurePanel('log','📝 Log Aktivitas',`<div class="panel"><div class="stats"><div class="stat-card"><h3 id="ddLogTotal">0</h3><p>Total Aktivitas</p></div><div class="stat-card"><h3 id="ddLogUsers">0</h3><p>Pengguna Aktif</p></div></div><button class="btn btn-secondary" onclick="ddClearLog()">Bersihkan Log</button><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>No</th><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Halaman</th></tr></thead><tbody id="ddLogBody"></tbody></table></div></div>`);ddRenderLog()}if(page==='pengaturan')ddPengaturan();ddLog('Membuka '+(pageNames[page]||page),pageNames[page]||page)}
+
+const ddOriginalShowPage=showPage;showPage=function(page,button){ddOriginalShowPage(page,button);setTimeout(()=>{if(typeof window.ddRoute==='function')window.ddRoute(page);},0)};
+const ddOriginalDashboard=loadDashboard;loadDashboard=async function(){await ddOriginalDashboard();const sb=document.getElementById('statBantuan');if(sb)sb.textContent=ddGet('bantuan').length;const sp=document.getElementById('statProgram');if(sp)sp.textContent=ddGet('pembangunan').length};
+window.addEventListener('DOMContentLoaded',()=>{ddBuildDashboard()});
+
+function escapeHtml(value){
+    if(value===null || value===undefined)return ""; 
+    return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function formatDate(date){ 
+    if(!date)return "-";
+    try{
+        return new Date(date).toLocaleDateString("id-ID",{ day:"2-digit", month:"2-digit", year:"numeric"});
+    }catch(e){
+        return date;
+    }
+}
+
+function showToast(message){ 
+    const toast = document.getElementById("toast"); 
+    if(!toast) return;
+    toast.textContent=message; 
+    toast.style.display="block"; 
+    clearTimeout(window.toastTimer);
+    window.toastTimer = setTimeout(()=>{ toast.style.display="none"; },3500);
+}
+
+/* ============================================================ 
+   CEK SESSION SAAT HALAMAN DIBUKA
+============================================================ */
+async function checkSession(){ 
+    const {data} = await supabaseClient.auth.getSession(); 
+    if(data && data.session){
+        currentUser=data.session.user;
+        const home = document.getElementById("homePage");
+        const app = document.getElementById("appPage");
+        if(home) home.style.display="none";
+        if(app) app.style.display="block"; 
+        
+        const usr = document.getElementById("displayUser");
+        if(usr) usr.textContent=currentUser.email;
+
+        const rl = document.getElementById("displayRole");
+        if(rl) rl.textContent=selectedRole || "Pengguna"; 
+        
+        await loadDashboard();
+    }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{ 
+    checkSession();
+});
+
+/* Tutup modal jika klik area luar */ 
+window.addEventListener("click",(event)=>{
+    const modals = document.querySelectorAll(".modal");
+    modals.forEach(modal=>{ 
+        if(event.target===modal){
+            modal.style.display="none";
+        }
+    });
+});
+</script>
+
 <style>
-/* ============================================================
-   RESET & BASE STYLES
-   ============================================================ */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+*{
+    box-sizing:border-box; 
+    margin:0;
+    padding:0;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: #f1f5f9;
-  color: #1e293b;
-  line-height: 1.5;
-  -webkit-tap-highlight-color: transparent;
+body{
+    font-family:Arial,Helvetica,sans-serif; 
+    background:#f1f5f9;
+    color:#1e293b;
 }
 
-button, input, select, textarea {
-  font-family: inherit;
-  font-size: 14px;
+button,input,select,textarea{ 
+    font-family:inherit;
 }
 
-button {
-  cursor: pointer;
-  border: none;
-  outline: none;
+button{
+    cursor:pointer;
 }
 
-.hidden {
-  display: none !important;
+.hidden{
+    display:none!important;
 }
 
-/* ============================================================
-   HEADER & LANDING PAGE (DESKTOP & MOBILE)
-   ============================================================ */
-#homePage {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* ================= HEADER ================= */
+.home-header{
+    background:linear-gradient(135deg,#064e3b,#047857); 
+    color:white;
+    padding:18px 5%; 
+    display:flex;
+    justify-content:space-between; 
+    align-items:center;
+    gap:20px;
 }
 
-.home-header {
-  background: linear-gradient(135deg, #064e3b, #047857);
-  color: white;
-  padding: 16px 5%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+.brand{
+    display:flex;
+    align-items:center; 
+    gap:14px;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.logo{
+    width:52px; 
+    height:52px; 
+    background:white; 
+    color:#047857; 
+    border-radius:50%; 
+    display:flex;
+    align-items:center; 
+    justify-content:center; 
+    font-size:27px;
 }
 
-.logo {
-  width: 44px;
-  height: 44px;
-  background: white;
-  color: #047857;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+.brand h1{
+    font-size:21px;
 }
 
-.brand h1 {
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.2;
+.brand p{
+    font-size:13px; 
+    opacity:.9; 
+    margin-top:3px;
 }
 
-.brand p {
-  font-size: 12px;
-  opacity: 0.9;
+.login-home-btn{ 
+    border:none; 
+    background:white; 
+    color:#047857; 
+    padding:11px 18px; 
+    border-radius:10px; 
+    font-weight:bold;
 }
 
-.login-home-btn {
-  background: white;
-  color: #047857;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: all 0.2s;
-  white-space: nowrap;
+/* ================= HOME ================= */
+#homePage{
+    min-height:100vh;
 }
 
-.login-home-btn:hover {
-  background: #e6f4ea;
+.hero{
+    padding:65px 20px; 
+    text-align:center; 
+    background:linear-gradient(rgba(6,78,59,.82),rgba(4,120,87,.82)), radial-gradient(circle at top,#34d399,#064e3b);
+    color:white;
 }
 
-.hero {
-  padding: 60px 20px;
-  text-align: center;
-  background: linear-gradient(rgba(6,78,59,0.85), rgba(4,120,87,0.85)), radial-gradient(circle at top, #34d399, #064e3b);
-  color: white;
+.hero h2{
+    font-size:35px; 
+    margin-bottom:12px;
 }
 
-.hero h2 {
-  font-size: 28px;
-  margin-bottom: 12px;
+.hero p{
+    max-width:700px; 
+    margin:auto;
+    line-height:1.7;
 }
 
-.hero p {
-  max-width: 650px;
-  margin: auto;
-  font-size: 15px;
-  opacity: 0.95;
+.hero-btn{
+    margin-top:25px; 
+    border:none; 
+    background:white; 
+    color:#047857; 
+    padding:13px 25px; 
+    border-radius:10px; 
+    font-weight:bold;
 }
 
-.hero-btn {
-  margin-top: 25px;
-  background: white;
-  color: #047857;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+.info-section{ 
+    padding:35px 5%;
 }
 
-.info-section {
-  padding: 40px 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
+.info-grid{ 
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); 
+    gap:18px;
+    max-width:1100px; 
+    margin:auto;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+.info-card{ 
+    background:white; 
+    padding:22px; 
+    border-radius:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06); 
+    text-align:center;
 }
 
-.info-card {
-  background: white;
-  padding: 22px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-  text-align: center;
-  border: 1px solid #e2e8f0;
+.info-card .icon{ 
+    font-size:32px;
+    margin-bottom:10px;
 }
 
-.info-card .icon {
-  font-size: 32px;
-  margin-bottom: 10px;
+.info-card h3{ 
+    font-size:16px;
+    margin-bottom:7px;
 }
 
-.info-card h3 {
-  font-size: 16px;
-  margin-bottom: 6px;
-  color: #0f172a;
+.info-card p{
+    font-size:13px; 
+    color:#64748b; 
+    line-height:1.5;
 }
 
-.info-card p {
-  font-size: 13px;
-  color: #64748b;
+/* ================= LOGIN ================= */
+.login-overlay{ 
+    position:fixed; 
+    inset:0;
+    background:rgba(15,23,42,.75); 
+    z-index:1000;
+    display:none; 
+    align-items:center;
+    justify-content:center; 
+    padding:15px;
 }
 
-/* ============================================================
-   LOGIN OVERLAY MODAL
-   ============================================================ */
-.login-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15,23,42,0.75);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-  backdrop-filter: blur(4px);
+.login-box{ 
+    background:white; 
+    width:100%;
+    max-width:430px; 
+    border-radius:18px; 
+    padding:28px;
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
 }
 
-.login-box {
-  background: white;
-  width: 100%;
-  max-width: 400px;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+.login-title{
+    text-align:center; 
+    margin-bottom:20px;
 }
 
-.login-title {
-  text-align: center;
-  margin-bottom: 20px;
+.login-title .big-icon{ 
+    font-size:45px;
 }
 
-.login-title .big-icon {
-  font-size: 40px;
+.login-title h2{ 
+    color:#065f46; 
+    margin-top:8px;
 }
 
-.login-title h2 {
-  color: #065f46;
-  font-size: 20px;
-  margin-top: 5px;
+.role-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr); 
+    gap:8px;
+    margin-bottom:15px;
 }
 
-.role-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 15px;
+/* ================= UTILITY & LAYOUT ================= */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: all 0.2s;
 }
-
-.role-btn {
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #334155;
-  transition: all 0.2s;
-}
-
-.role-btn.active, .role-btn:hover {
-  background: #e6f4ea;
-  border-color: #059669;
-  color: #065f46;
-}
-
-/* ============================================================
-   APP LAYOUT & RESPONSIVE NAVIGATION
-   ============================================================ */
-#appPage {
-  min-height: 100vh;
-}
+.btn-primary { background: #047857; color: white; }
+.btn-secondary { background: #e2e8f0; color: #1e293b; }
+.btn-danger { background: #ef4444; color: white; }
 
 .app-container {
-  display: flex;
-  min-height: 100vh;
-  position: relative;
+    display: flex;
+    min-height: 100vh;
 }
 
-/* Sidebar Styling */
 .sidebar {
-  width: 260px;
-  background: #064e3b;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  z-index: 100;
+    width: 250px;
+    background: #064e3b;
+    color: white;
+    padding: 20px;
 }
 
-.sidebar-header {
-  padding: 18px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.sidebar .nav-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    background: transparent;
+    color: white;
+    border: none;
+    text-align: left;
+    border-radius: 8px;
 }
 
-.sidebar-menu {
-  list-style: none;
-  padding: 12px 10px;
-  overflow-y: auto;
-  flex: 1;
+.sidebar .nav-btn.active, .sidebar .nav-btn:hover {
+    background: #047857;
 }
 
-.sidebar-menu li a {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 14px;
-  color: #d1fae5;
-  text-decoration: none;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-bottom: 3px;
-  transition: background 0.2s;
+.content {
+    flex: 1;
+    padding: 25px;
 }
 
-.sidebar-menu li a:hover, .sidebar-menu li a.active {
-  background: #047857;
-  color: white;
-  font-weight: bold;
-}
+.page { display: none; }
+.page.active { display: block; }
 
-/* Sidebar Backdrop for Mobile */
-.sidebar-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 90;
-}
-
-/* Main Area */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.top-navbar {
-  background: white;
-  padding: 12px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #e2e8f0;
-  position: sticky;
-  top: 0;
-  z-index: 80;
-}
-
-.nav-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.menu-toggle {
-  display: none;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  font-size: 20px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  color: #0f172a;
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-info {
-  text-align: right;
-  font-size: 12px;
-}
-
-.user-info strong {
-  display: block;
-  color: #0f172a;
-  font-size: 13px;
-}
-
-.content-body {
-  padding: 20px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-/* ============================================================
-   UI COMPONENTS (PANELS, TABLES, STATS, MODAL, TOAST)
-   ============================================================ */
 .panel {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-  border: 1px solid #e2e8f0;
-}
-
-.panel h3 {
-  margin-bottom: 15px;
-  color: #0f172a;
-  font-size: 16px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
 }
 
 .stat-card {
-  background: white;
-  padding: 16px;
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  border-left: 4px solid #059669;
-  border-top: 1px solid #e2e8f0;
-  border-right: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
 }
-
-.stat-card h3 {
-  font-size: 20px;
-  color: #065f46;
-  margin-top: 4px;
-}
-
-.stat-card p {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.btn {
-  padding: 9px 15px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: opacity 0.2s;
-}
-
-.btn:hover {
-  opacity: 0.9;
-}
-
-.btn-primary { background: #059669; color: white; }
-.btn-secondary { background: #e2e8f0; color: #334155; }
-.btn-danger { background: #ef4444; color: white; }
 
 .table-wrap {
-  width: 100%;
-  overflow-x: auto;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+    overflow-x: auto;
 }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-  font-size: 13px;
-  white-space: nowrap;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
 th, td {
-  padding: 10px 14px;
-  border-bottom: 1px solid #e2e8f0;
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
 }
 
-th {
-  background: #f8fafc;
-  color: #475569;
-  font-weight: 600;
-}
-
-td.empty {
-  text-align: center;
-  color: #94a3b8;
-  padding: 25px;
-}
+th { background: #f8fafc; }
 
 .badge {
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  background: #e2e8f0;
-  color: #334155;
-  font-weight: 600;
-}
-
-.form-group {
-  margin-bottom: 12px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #334155;
-}
-
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%;
-  padding: 9px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: white;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+    padding: 4px 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    font-size: 12px;
 }
 
 .modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(15,23,42,0.6);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-  backdrop-filter: blur(2px);
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
 }
 
 .modal-box {
-  background: white;
-  width: 100%;
-  max-width: 480px;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  max-height: 90vh;
-  overflow-y: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
 }
 
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 .modal-close {
-  background: none;
-  font-size: 22px;
-  color: #64748b;
+    background: none;
+    border: none;
+    font-size: 20px;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 18px;
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; }
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
 }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.form-group.full { grid-column: span 2; }
 
 #toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #0f172a;
-  color: white;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 13px;
-  display: none;
-  z-index: 2000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #064e3b;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    display: none;
+    z-index: 3000;
 }
 
 .dashboard-banner {
-  background: linear-gradient(135deg, #064e3b, #047857);
-  color: white;
-  padding: 22px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-}
-
-.dashboard-banner-art {
-  font-size: 40px;
+    background: linear-gradient(135deg, #047857, #10b981);
+    color: white;
+    padding: 25px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
 .quick-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-  gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
 }
 
 .quick-btn {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  padding: 12px 8px;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: 600;
-  font-size: 12px;
-  color: #334155;
-}
-
-.module-note {
-  background: #eff6ff;
-  border-left: 4px solid #3b82f6;
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #1e40af;
-  margin-bottom: 12px;
-}
-
-/* ============================================================
-   AI DESA MODULE STYLES (FIXED & ENHANCED)
-   ============================================================ */
-.ai-chat-box {
-  display: flex;
-  flex-direction: column;
-  height: 420px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  background: #f8fafc;
-  overflow: hidden;
-}
-
-.ai-chat-messages {
-  flex: 1;
-  padding: 15px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.chat-bubble {
-  max-width: 80%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.chat-bubble.user {
-  align-self: flex-end;
-  background: #059669;
-  color: white;
-  border-bottom-right-radius: 2px;
-}
-
-.chat-bubble.ai {
-  align-self: flex-start;
-  background: white;
-  color: #1e293b;
-  border: 1px solid #e2e8f0;
-  border-bottom-left-radius: 2px;
-}
-
-.ai-chat-input {
-  display: flex;
-  padding: 10px;
-  background: white;
-  border-top: 1px solid #e2e8f0;
-  gap: 8px;
-}
-
-.ai-chat-input input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-}
-
-/* ============================================================
-   MEDIA QUERIES FOR MOBILE RESPONSIVENESS
-   ============================================================ */
-@media (max-width: 768px) {
-  .menu-toggle {
-    display: block;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    transform: translateX(-100%);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .sidebar-overlay.active {
-    display: block;
-  }
-
-  .hero h2 {
-    font-size: 22px;
-  }
-
-  .dashboard-banner-art {
-    display: none;
-  }
-
-  .top-navbar {
-    padding: 10px 15px;
-  }
-
-  .content-body {
-    padding: 12px;
-  }
-
-  .stat-card h3 {
-    font-size: 18px;
-  }
-
-  #toast {
-    left: 15px;
-    right: 15px;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
     text-align: center;
-  }
 }
 </style>
 </head>
 <body>
 
-<!-- ================= LANDING PAGE ================= -->
-<div id="homePage">
-  <header class="home-header">
-    <div class="brand">
-      <div class="logo">🌴</div>
-      <div>
-        <h1>Desa Wawongkolono</h1>
-        <p>Kec. Menui Kepulauan, Kab. Morowali</p>
-      </div>
-    </div>
-    <button class="login-home-btn" onclick="openLoginModal()">🔑 Masuk Sistem</button>
-  </header>
-
-  <section class="hero">
-    <h2>Sistem Informasi Digital Desa Wawongkolono</h2>
-    <p>Layanan publik, administrasi pemerintahan, dan tranparansi pembangunan desa terintegrasi berbasis digital.</p>
-    <button class="hero-btn" onclick="openLoginModal()">Akses Sistem Sekarang</button>
-  </section>
-
-  <section class="info-section">
-    <div class="info-grid">
-      <div class="info-card">
-        <div class="icon">📑</div>
-        <h3>Pelayanan Surat</h3>
-        <p>Pengajuan dokumen administrasi warga secara efisien.</p>
-      </div>
-      <div class="info-card">
-        <div class="icon">🏗</div>
-        <h3>Pembangunan</h3>
-        <p>Monitoring program kerja dan transparansi anggaran fisik.</p>
-      </div>
-      <div class="info-card">
-        <div class="icon">🎁</div>
-        <h3>Data Bantuan</h3>
-        <p>Pencatatan distribusi bantuan sosial tepat sasaran.</p>
-      </div>
-      <div class="info-card">
-        <div class="icon">🤖</div>
-        <h3>AI Asisten Desa</h3>
-        <p>Asisten kecerdasan buatan penjawab informasi desa.</p>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ================= MODAL LOGIN ================= -->
-<div id="loginOverlay" class="login-overlay">
-  <div class="login-box">
-    <div class="login-title">
-      <div class="big-icon">🏡</div>
-      <h2>Masuk ke Sistem</h2>
-      <p style="font-size: 12px; color: #64748b; margin-top: 4px;">Pilih peran dan gunakan akun Anda</p>
-    </div>
-
-    <div class="role-grid">
-      <button class="role-btn active" onclick="selectRole(this, 'Admin')">🔑 Admin</button>
-      <button class="role-btn" onclick="selectRole(this, 'Operator')">💻 Operator</button>
-      <button class="role-btn" onclick="selectRole(this, 'Kepala Desa')">🏛 Kades</button>
-      <button class="role-btn" onclick="selectRole(this, 'Masyarakat')">👤 Warga</button>
-    </div>
-
-    <div class="form-group">
-      <label>Email / Username</label>
-      <input type="email" id="loginEmail" placeholder="admin@wawongkolono.desa.id">
-    </div>
-    <div class="form-group">
-      <label>Kata Sandi</label>
-      <input type="password" id="loginPassword" placeholder="••••••••">
-    </div>
-
-    <div style="display: flex; gap: 8px; margin-top: 15px;">
-      <button class="btn btn-secondary" style="flex: 1;" onclick="closeLoginModal()">Batal</button>
-      <button class="btn btn-primary" style="flex: 1;" onclick="handleLogin()">Masuk</button>
-    </div>
-  </div>
-</div>
-
-<!-- ================= APLIKASI UTAMA ================= -->
-<div id="appPage" class="hidden">
-  <div class="app-container">
-    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-    <!-- Sidebar Navigation -->
-    <aside id="appSidebar" class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo" style="width:36px; height:36px; font-size:18px;">🌿</div>
-        <div>
-          <h4 style="font-size: 14px;">Wawongkolono</h4>
-          <p style="font-size: 11px; opacity: 0.8;">Sistem Informasi Desa</p>
-        </div>
-      </div>
-      <ul class="sidebar-menu">
-        <li><a href="#" class="active" onclick="navTo('dashboard', this)">📊 Dashboard</a></li>
-        <li><a href="#" onclick="navTo('surat', this)">📨 Surat Desa</a></li>
-        <li><a href="#" onclick="navTo('absensi', this)">📅 Absensi</a></li>
-        <li><a href="#" onclick="navTo('bantuan', this)">🎁 Bantuan</a></li>
-        <li><a href="#" onclick="navTo('pembangunan', this)">🏗 Pembangunan</a></li>
-        <li><a href="#" onclick="navTo('dusun', this)">🌿 Program Dusun</a></li>
-        <li><a href="#" onclick="navTo('keuangan', this)">💰 Keuangan Desa</a></li>
-        <li><a href="#" onclick="navTo('kritik', this)">💬 Kritik & Saran</a></li>
-        <li><a href="#" onclick="navTo('informasi', this)">ℹ Informasi Desa</a></li>
-        <li><a href="#" onclick="navTo('arsip', this)">🗄 Arsip Desa</a></li>
-        <li><a href="#" onclick="navTo('pemerintahan', this)">🏛 Pemerintahan</a></li>
-        <li><a href="#" onclick="navTo('ai', this)">🤖 AI Desa</a></li>
-        <li><a href="#" onclick="navTo('pengguna', this)">👤 Hak Akses</a></li>
-        <li><a href="#" onclick="navTo('log', this)">📝 Log Aktivitas</a></li>
-        <li><a href="#" onclick="navTo('pengaturan', this)">⚙ Pengaturan</a></li>
-      </ul>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="main-content">
-      <header class="top-navbar">
-        <div class="nav-left">
-          <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
-          <h3 id="currentTabTitle" style="color: #0f172a; font-size: 16px;">Dashboard</h3>
-        </div>
-        <div class="user-profile">
-          <div class="user-info">
-            <strong id="displayUser">admin@wawongkolono.desa.id</strong>
-            <span id="displayRole" style="color: #059669; font-weight: bold;">Admin</span>
-          </div>
-          <button class="btn btn-secondary" style="padding: 6px 10px;" onclick="handleLogout()">🚪 Log Out</button>
-        </div>
-      </header>
-
-      <div class="content-body">
-        <section id="page-dashboard" class="page-panel active"></section>
-        <section id="page-surat" class="page-panel hidden"></section>
-        <section id="page-absensi" class="page-panel hidden"></section>
-        <section id="page-bantuan" class="page-panel hidden"></section>
-        <section id="page-pembangunan" class="page-panel hidden"></section>
-        <section id="page-dusun" class="page-panel hidden"></section>
-        <section id="page-keuangan" class="page-panel hidden"></section>
-        <section id="page-kritik" class="page-panel hidden"></section>
-        <section id="page-informasi" class="page-panel hidden"></section>
-        <section id="page-arsip" class="page-panel hidden"></section>
-        <section id="page-pemerintahan" class="page-panel hidden"></section>
-        <section id="page-ai" class="page-panel hidden"></section>
-        <section id="page-pengguna" class="page-panel hidden"></section>
-        <section id="page-log" class="page-panel hidden"></section>
-        <section id="page-pengaturan" class="page-panel hidden"></section>
-      </div>
-    </main>
-  </div>
-</div>
-
-<!-- Toast element -->
 <div id="toast"></div>
 
-<!-- ================= JAVASCRIPT LOGIC ================= -->
-<script>
-/* Supabase Init */
-const SUPABASE_URL = "https://upsmpuzktefbrulsvydv.supabase.co";
-const SUPABASE_KEY = "sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ";
-window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-var currentUser = null;
-var selectedRole = "Admin";
-
-const pageNames = {
-  dashboard: "Dashboard", surat: "Surat Desa", absensi: "Absensi", bantuan: "Bantuan",
-  pembangunan: "Pembangunan Desa", dusun: "Program Dusun", keuangan: "Keuangan Desa",
-  kritik: "Kritik & Saran", informasi: "Informasi Desa", arsip: "Arsip Desa",
-  pemerintahan: "Pemerintahan Desa", ai: "AI Desa", pengguna: "Pengguna & Hak Akses",
-  log: "Log Aktivitas", pengaturan: "Pengaturan"
-};
-
-/* Data Management Helpers */
-const DD_KEYS = {
-  surat:'DD_SURAT', absensi:'DD_ABSENSI', bantuan:'DD_BANTUAN', pembangunan:'DD_PEMBANGUNAN',
-  dusun:'DD_DUSUN', keuangan:'DD_KEUANGAN', kritik:'DD_KRITIK', informasi:'DD_INFORMASI',
-  arsip:'DD_ARSIP', pemerintahan:'DD_PEMERINTAHAN', pengguna:'DD_PENGGUNA', log:'DD_LOG', settings:'DD_SETTINGS'
-};
-
-function ddGet(k) { try { return JSON.parse(localStorage.getItem(DD_KEYS[k]) || '[]'); } catch(e) { return []; } }
-function ddSet(k, v) { localStorage.setItem(DD_KEYS[k], JSON.stringify(v)); }
-function ddEsc(v) { return escapeHtml(v == null ? '' : v); }
-function ddRp(v) { return 'Rp ' + Number(v || 0).toLocaleString('id-ID'); }
-function ddToday() { return new Date().toISOString().slice(0, 10); }
-function ddActor() { return currentUser?.email || 'Pengguna'; }
-
-function escapeHtml(value) {
-  if (value === null || value === undefined) return "";
-  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
-
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.style.display = "block";
-  clearTimeout(window.toastTimer);
-  window.toastTimer = setTimeout(() => { toast.style.display = "none"; }, 3500);
-}
-
-function ddLog(aktivitas, halaman) {
-  const a = ddGet('log');
-  a.unshift({ waktu: new Date().toLocaleString('id-ID'), pengguna: ddActor(), aktivitas, halaman });
-  ddSet('log', a.slice(0, 500));
-  if (document.getElementById('page-log')?.classList.contains('active')) ddRenderLog();
-}
-
-function ddModal(id, title, body, onSave, saveText = '💾 Simpan') {
-  let m = document.getElementById(id);
-  if (!m) {
-    m = document.createElement('div');
-    m.id = id;
-    m.className = 'modal';
-    m.innerHTML = `<div class="modal-box"><div class="modal-header"><h3>${title}</h3><button class="modal-close" onclick="document.getElementById('${id}').style.display='none'">×</button></div>${body}<div class="modal-actions"><button class="btn btn-secondary" onclick="document.getElementById('${id}').style.display='none'">Batal</button><button class="btn btn-primary" id="${id}Save">${saveText}</button></div></div>`;
-    document.body.appendChild(m);
-  }
-  document.getElementById(id + 'Save').onclick = onSave;
-  m.style.display = 'flex';
-  return m;
-}
-
-function ddTable(id, headersCount, rows, emptyMsg = 'Belum ada data.') {
-  const b = document.getElementById(id);
-  if (!b) return;
-  b.innerHTML = rows.length 
-    ? rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')
-    : `<tr><td colspan="${headersCount}" class="empty">${emptyMsg}</td></tr>`;
-}
-
-function ddEnsurePanel(page, title, html) {
-  const sec = document.getElementById('page-' + page);
-  if (!sec) return;
-  sec.innerHTML = `<div class="panel"><h3>${title}</h3></div>${html}`;
-}
-
-/* UI Helpers & Responsive Navigation */
-function toggleSidebar() {
-  document.getElementById('appSidebar').classList.toggle('open');
-  document.getElementById('sidebarOverlay').classList.toggle('active');
-}
-
-function selectRole(btn, role) {
-  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedRole = role;
-}
-
-function openLoginModal() { document.getElementById('loginOverlay').style.display = 'flex'; }
-function closeLoginModal() { document.getElementById('loginOverlay').style.display = 'none'; }
-
-function handleLogin() {
-  const email = document.getElementById('loginEmail').value.trim() || "admin@wawongkolono.desa.id";
-  currentUser = { email: email };
-  document.getElementById('displayUser').textContent = currentUser.email;
-  document.getElementById('displayRole').textContent = selectedRole;
-  closeLoginModal();
-  document.getElementById('homePage').classList.add('hidden');
-  document.getElementById('appPage').classList.remove('hidden');
-  showToast('Berhasil masuk sebagai ' + selectedRole);
-  navTo('dashboard');
-}
-
-function handleLogout() {
-  currentUser = null;
-  document.getElementById('appPage').classList.add('hidden');
-  document.getElementById('homePage').classList.remove('hidden');
-  showToast('Anda telah keluar.');
-}
-
-function showPage(pageName) {
-  document.querySelectorAll('.page-panel').forEach(el => {
-    el.classList.add('hidden');
-    el.classList.remove('active');
-  });
-  const target = document.getElementById('page-' + pageName);
-  if (target) {
-    target.classList.remove('hidden');
-    target.classList.add('active');
-  }
-  const titleEl = document.getElementById('currentTabTitle');
-  if (titleEl && pageNames[pageName]) {
-    titleEl.textContent = pageNames[pageName];
-  }
-}
-
-function navTo(pageName, btn) {
-  if (btn) {
-    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-    btn.classList.add('active');
-  }
-  if (window.innerWidth <= 768) {
-    document.getElementById('appSidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('active');
-  }
-  showPage(pageName);
-  ddRoute(pageName);
-}
-
-/* Modul Rute Antarmuka */
-function ddBuildDashboard() {
-  const sec = document.getElementById('page-dashboard');
-  if (!sec) return;
-  sec.innerHTML = `
-    <div class="dashboard-banner">
-      <div>
-        <small>🌿 DESA WAWONGKOLONO DIGITAL</small>
-        <h2 style="font-size:20px; margin:4px 0">Selamat Datang di Sistem Informasi Desa</h2>
-        <p style="font-size:13px; opacity:0.9">Kelola pelayanan, administrasi, dan informasi desa dalam satu platform.</p>
-        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap">
-          <button class="btn btn-primary" onclick="navTo('surat')">📨 Pengajuan Surat</button>
-          <button class="btn btn-secondary" onclick="navTo('pembangunan')">🏗 Program Desa</button>
+<!-- HOME PAGE -->
+<div id="homePage">
+    <header class="home-header">
+        <div class="brand">
+            <div class="logo">🏡</div>
+            <div>
+                <h1>Desa Wawongkolono</h1>
+                <p>Sistem Informasi & Pelayanan Digital</p>
+            </div>
         </div>
-      </div>
-      <div class="dashboard-banner-art">🏡</div>
-    </div>
-    <div class="stats">
-      <div class="stat-card">
-        <p>Total Bantuan</p>
-        <h3 id="statBantuan">${ddGet('bantuan').length}</h3>
-      </div>
-      <div class="stat-card">
-        <p>Program Pembangunan</p>
-        <h3 id="statProgram">${ddGet('pembangunan').length}</h3>
-      </div>
-      <div class="stat-card">
-        <p>Surat Diajukan</p>
-        <h3>${ddGet('surat').length}</h3>
-      </div>
-    </div>
-  `;
-}
+        <button class="login-home-btn" onclick="document.getElementById('loginOverlay').style.display='flex'">Masuk System</button>
+    </header>
 
-function ddSurat() {
-  ddEnsurePanel('surat', '📨 Surat Desa', `
-    <div class="panel">
-      <button class="btn btn-primary" onclick="ddOpenSurat()">+ Pengajuan Surat Baru</button>
-    </div>
-    <div class="panel">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>No</th><th>NIK</th><th>Jenis Surat</th><th>Keperluan</th><th>Status</th><th>Tanggal</th></tr></thead>
-          <tbody id="ddSuratBody"></tbody>
-        </table>
-      </div>
-    </div>
-  `);
-  const a = ddGet('surat');
-  ddTable('ddSuratBody', 6, a.map((x, i) => [i + 1, ddEsc(x.nik), ddEsc(x.jenis), ddEsc(x.keperluan), `<span class="badge">${ddEsc(x.status)}</span>`, ddEsc(x.tanggal)]));
-}
+    <section class="hero">
+        <h2>Selamat Datang di Portal Resmi Desa Wawongkolono</h2>
+        <p>Layanan informasi, pengajuan surat, pembangunan, dan pengelolaan administrasi desa secara transparan dan terpadu.</p>
+        <button class="hero-btn" onclick="document.getElementById('loginOverlay').style.display='flex'">Mulai Penggunaan</button>
+    </section>
 
-function ddOpenSurat() {
-  ddModal('ddSuratModal', '📨 Pengajuan Surat', `
-    <div class="form-group"><label>NIK Pemohon *</label><input id="ddSNik" placeholder="7208..."></div>
-    <div class="form-group"><label>Jenis Surat *</label>
-      <select id="ddSJenis">
-        <option value="">Pilih Jenis Surat</option>
-        <option>Surat Keterangan Domisili</option>
-        <option>Surat Keterangan Usaha</option>
-        <option>Surat Keterangan Tidak Mampu</option>
-      </select>
-    </div>
-    <div class="form-group"><label>Keperluan *</label><textarea id="ddSKeperluan" rows="3"></textarea></div>
-  `, () => {
-    const nik = document.getElementById('ddSNik').value.trim();
-    const jenis = document.getElementById('ddSJenis').value;
-    const keperluan = document.getElementById('ddSKeperluan').value.trim();
-    if (!nik || !jenis || !keperluan) return showToast('Semua kolom wajib diisi.');
-    const row = { nik, jenis, keperluan, status: 'Menunggu', tanggal: ddToday() };
-    const a = ddGet('surat'); a.unshift(row); ddSet('surat', a);
-    document.getElementById('ddSuratModal').style.display = 'none';
-    ddSurat(); ddLog('Mengajukan ' + jenis, 'Surat Desa');
-    showToast('Pengajuan surat berhasil dicatat.');
-  });
-}
-
-/* ============================================================
-   AI DESA MODULE (PERBAIKAN ERROR AI & INTEGRASI)
-   ============================================================ */
-function ddAI() {
-  ddEnsurePanel('ai', '🤖 AI Desa Wawongkolono', `
-    <div class="panel">
-      <p style="font-size:13px; color:#64748b; margin-bottom:12px">
-        Tanyakan hal seputar data desa, statistik pelayanan, program pembangunan, atau bantuan sosial secara cepat.
-      </p>
-      <div class="ai-chat-box">
-        <div id="aiChatMessages" class="ai-chat-messages">
-          <div class="chat-bubble ai">
-            Halo! Saya <b>AI Asisten Desa Wawongkolono</b>. Silakan ajukan pertanyaan seputar administrasi, keuangan, atau pembangunan desa.
-          </div>
+    <section class="info-section">
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="icon">📨</div>
+                <h3>Pelayanan Surat</h3>
+                <p>Pengajuan surat administrasi secara online cepat dan praktis.</p>
+            </div>
+            <div class="info-card">
+                <div class="icon">🏗</div>
+                <h3>Pembangunan</h3>
+                <p>Pantau progres dan transparansi program pembangunan desa.</p>
+            </div>
+            <div class="info-card">
+                <div class="icon">🎁</div>
+                <h3>Bantuan Sosial</h3>
+                <p>Informasi data penerima bantuan desa yang tepat sasaran.</p>
+            </div>
+            <div class="info-card">
+                <div class="icon">💰</div>
+                <h3>Keuangan</h3>
+                <p>Laporan alokasi dan pengeluaran dana desa secara terbuka.</p>
+            </div>
         </div>
-        <div class="ai-chat-input">
-          <input type="text" id="aiQuestion" placeholder="Ketik pertanyaan... (contoh: status pembangunan)" onkeypress="if(event.key==='Enter') ddAskAI()">
-          <button class="btn btn-primary" onclick="ddAskAI()">Kirim</button>
+    </section>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <div class="login-title">
+            <div class="big-icon">🔐</div>
+            <h2>Akses Sistem Desa</h2>
         </div>
-      </div>
+        <div class="role-grid">
+            <button class="btn btn-secondary" onclick="selectedRole='Admin'; showToast('Peran: Admin');">Admin</button>
+            <button class="btn btn-secondary" onclick="selectedRole='Operator'; showToast('Peran: Operator');">Operator</button>
+        </div>
+        <div class="form-group">
+            <label>Email / Username</label>
+            <input type="text" id="loginEmail" placeholder="user@wawongkolono.desa.id">
+        </div>
+        <div class="form-group">
+            <label>Kata Sandi</label>
+            <input type="password" id="loginPassword" placeholder="******">
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="
+                currentUser={email: document.getElementById('loginEmail').value || 'admin@wawongkolono.desa.id'};
+                document.getElementById('loginOverlay').style.display='none';
+                document.getElementById('homePage').style.display='none';
+                document.getElementById('appPage').style.display='block';
+                document.getElementById('displayUser').textContent=currentUser.email;
+                document.getElementById('displayRole').textContent=selectedRole||'Admin';
+                loadDashboard();
+            ">Masuk</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('loginOverlay').style.display='none'">Batal</button>
+        </div>
     </div>
-  `);
-}
+</div>
 
-function ddAskAI() {
-  const input = document.getElementById('aiQuestion');
-  const box = document.getElementById('aiChatMessages');
-  if (!input || !box) return;
-  const q = input.value.trim();
-  if (!q) return;
+<!-- APPLICATION MAIN PAGE -->
+<div id="appPage" class="hidden">
+    <div class="app-container">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <h2 style="font-size:18px; margin-bottom:20px;">🏡 Wawongkolono</h2>
+            <button class="nav-btn active" onclick="showPage('dashboard', this)">Dashboard</button>
+            <button class="nav-btn" onclick="showPage('surat', this)">📨 Surat Desa</button>
+            <button class="nav-btn" onclick="showPage('absensi', this)">📅 Absensi</button>
+            <button class="nav-btn" onclick="showPage('bantuan', this)">🎁 Data Bantuan</button>
+            <button class="nav-btn" onclick="showPage('pembangunan', this)">🏗 Pembangunan</button>
+            <button class="nav-btn" onclick="showPage('dusun', this)">🌿 Program Dusun</button>
+            <button class="nav-btn" onclick="showPage('keuangan', this)">💰 Keuangan Desa</button>
+            <button class="nav-btn" onclick="showPage('kritik', this)">💬 Kritik & Saran</button>
+            <button class="nav-btn" onclick="showPage('informasi', this)">ℹ Informasi Desa</button>
+            <button class="nav-btn" onclick="showPage('arsip', this)">🗄 Arsip Desa</button>
+            <button class="nav-btn" onclick="showPage('pemerintahan', this)">🏛 Pemerintahan</button>
+            <button class="nav-btn" onclick="showPage('pengguna', this)">👤 Pengguna</button>
+            <button class="nav-btn" onclick="showPage('log', this)">📝 Log Aktivitas</button>
+            <button class="nav-btn" onclick="showPage('pengaturan', this)">⚙ Pengaturan</button>
+            <button class="nav-btn" style="margin-top:20px; background:#ef4444;" onclick="location.reload()">Keluar</button>
+        </aside>
 
-  // Add User Message
-  box.innerHTML += `<div class="chat-bubble user">${ddEsc(q)}</div>`;
-  input.value = '';
-  box.scrollTop = box.scrollHeight;
+        <!-- MAIN CONTENT AREA -->
+        <main class="content">
+            <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div>
+                    <strong>Pengguna:</strong> <span id="displayUser">-</span> | 
+                    <strong>Peran:</strong> <span id="displayRole">-</span>
+                </div>
+            </header>
 
-  // Process & Simulated AI Answer based on Local Data
-  setTimeout(() => {
-    let reply = "Maaf, informasi tersebut belum dapat diproses oleh sistem AI.";
-    const lower = q.toLowerCase();
+            <!-- PAGES CONTAINER -->
+            <section id="page-dashboard" class="page active">
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3 id="statBantuan">0</h3>
+                        <p>Total Bantuan</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="statProgram">0</h3>
+                        <p>Program Pembangunan</p>
+                    </div>
+                </div>
+            </section>
 
-    if (lower.includes('bantuan')) {
-      const b = ddGet('bantuan');
-      reply = `Saat ini terdaftar <b>${b.length}</b> data penerima bantuan di Desa Wawongkolono.`;
-    } else if (lower.includes('pembangunan') || lower.includes('program')) {
-      const p = ddGet('pembangunan');
-      reply = `Terdapat <b>${p.length}</b> program pembangunan yang telah dicatat pada sistem.`;
-    } else if (lower.includes('surat')) {
-      const s = ddGet('surat');
-      reply = `Total pengajuan surat masuk hingga saat ini adalah <b>${s.length}</b> pengajuan.`;
-    } else if (lower.includes('desa') || lower.includes('wawongkolono')) {
-      reply = `Desa Wawongkolono terletak di Kecamatan Menui Kepulauan, Kabupaten Morowali, Sulawesi Tengah.`;
-    } else {
-      reply = `Terima kasih atas pertanyaannya. Untuk detail "${ddEsc(q)}", Anda dapat memeriksa menu navigasi terkait atau menghubungi operator desa.`;
-    }
-
-    box.innerHTML += `<div class="chat-bubble ai">${reply}</div>`;
-    box.scrollTop = box.scrollHeight;
-  }, 500);
-}
-
-/* Modul-Modul Tambahan Lainnya */
-function ddAbsensi() {
-  ddEnsurePanel('absensi', '📅 Absensi Aparat Desa', `<div class="panel"><p style="font-size:13px">Modul rekap absensi harian aparat desa.</p></div>`);
-}
-function ddBantuan() {
-  ddEnsurePanel('bantuan', '🎁 Data Bantuan Sosial', `<div class="panel"><p style="font-size:13px">Modul pencatatan penerima bantuan sosial masyarakat.</p></div>`);
-}
-function ddPembangunan() {
-  ddEnsurePanel('pembangunan', '🏗 Pembangunan Desa', `<div class="panel"><p style="font-size:13px">Daftar transparansi proyek dan anggaran fasilitas fisik desa.</p></div>`);
-}
-function ddDusun() {
-  ddEnsurePanel('dusun', '🌿 Program Dusun', `<div class="panel"><p style="font-size:13px">Pencatatan kegiatan dan program di tingkatan Dusun 1-5.</p></div>`);
-}
-function ddKeuangan() {
-  ddEnsurePanel('keuangan', '💰 Keuangan Desa', `<div class="panel"><p style="font-size:13px">Ringkasan arus APBDes, Pemasukan, dan Pengeluaran desa.</p></div>`);
-}
-function ddKritik() {
-  ddEnsurePanel('kritik', '💬 Kritik & Saran', `<div class="panel"><p style="font-size:13px">Wadah penampungan aspirasi dari warga masyarakat.</p></div>`);
-}
-function ddInformasi() {
-  ddEnsurePanel('informasi', 'ℹ Informasi Desa', `<div class="panel"><p style="font-size:13px">Pengumuman resmi dan pengumuman publik desa.</p></div>`);
-}
-function ddArsip() {
-  ddEnsurePanel('arsip', '🗄 Arsip Desa', `<div class="panel"><p style="font-size:13px">Penyimpanan dokumen digital dan SK Kepala Desa.</p></div>`);
-}
-function ddPemerintahan() {
-  ddEnsurePanel('pemerintahan', '🏛 Pemerintahan Desa', `<div class="panel"><p style="font-size:13px">Struktur organisasi dan data aparat desa.</p></div>`);
-}
-function ddPengguna() {
-  ddEnsurePanel('pengguna', '👤 Pengguna & Hak Akses', `<div class="panel"><p style="font-size:13px">Pengaturan hak akses sistem pengguna (Admin, Operator, Warga).</p></div>`);
-}
-function ddRenderLog() {
-  const a = ddGet('log');
-  ddTable('ddLogBody', 5, a.map((x, i) => [i + 1, ddEsc(x.waktu), ddEsc(x.pengguna), ddEsc(x.aktivitas), ddEsc(x.halaman)]));
-}
-function ddLogPage() {
-  ddEnsurePanel('log', '📝 Log Aktivitas Sistem', `
-    <div class="panel">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>No</th><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Modul</th></tr></thead>
-          <tbody id="ddLogBody"></tbody>
-        </table>
-      </div>
+            <section id="page-surat" class="page"></section>
+            <section id="page-absensi" class="page"></section>
+            <section id="page-bantuan" class="page"></section>
+            <section id="page-pembangunan" class="page"></section>
+            <section id="page-dusun" class="page"></section>
+            <section id="page-keuangan" class="page"></section>
+            <section id="page-kritik" class="page"></section>
+            <section id="page-informasi" class="page"></section>
+            <section id="page-arsip" class="page"></section>
+            <section id="page-pemerintahan" class="page"></section>
+            <section id="page-pengguna" class="page"></section>
+            <section id="page-log" class="page"></section>
+            <section id="page-pengaturan" class="page"></section>
+        </main>
     </div>
-  `);
-  ddRenderLog();
-}
-function ddPengaturan() {
-  ddEnsurePanel('pengaturan', '⚙ Pengaturan Sistem', `<div class="panel"><p style="font-size:13px">Pengaturan profil Desa Wawongkolono dan konfigurasi aplikasi.</p></div>`);
-}
+</div>
 
-/* Master Router */
-function ddRoute(page) {
-  if (page === 'dashboard') ddBuildDashboard();
-  if (page === 'surat') ddSurat();
-  if (page === 'absensi') ddAbsensi();
-  if (page === 'bantuan') ddBantuan();
-  if (page === 'pembangunan') ddPembangunan();
-  if (page === 'dusun') ddDusun();
-  if (page === 'keuangan') ddKeuangan();
-  if (page === 'kritik') ddKritik();
-  if (page === 'informasi') ddInformasi();
-  if (page === 'arsip') ddArsip();
-  if (page === 'pemerintahan') ddPemerintahan();
-  if (page === 'ai') ddAI();
-  if (page === 'pengguna') ddPengguna();
-  if (page === 'log') ddLogPage();
-  if (page === 'pengaturan') ddPengaturan();
-  ddLog('Membuka halaman ' + (pageNames[page] || page), pageNames[page] || page);
-}
-
-/* Init Handler */
-window.addEventListener('DOMContentLoaded', () => {
-  ddBuildDashboard();
-});
-</script>
 </body>
 </html>
