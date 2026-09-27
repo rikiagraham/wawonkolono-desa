@@ -1,568 +1,658 @@
-font-size: 13px;
-        font-weight: bold;
-        color: #334155;
-        transition: all 0.2s;
-      }
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Desa Wawongkolono</title>
 
-      .role-btn:hover,
-      .role-btn.active {
-        background: #e6f4ea;
-        border-color: #059669;
-        color: #065f46;
-      }
+    <!-- Library Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-      /* ================= APP LAYOUT ================= */
+    <style>
+        * {
+            box-sizing: border-box; 
+            margin: 0;
+            padding: 0;
+        }
 
-      #appPage {
-        display: none;
-        min-height: 100vh;
-      }
+        body {
+            font-family: Arial, Helvetica, sans-serif; 
+            background: #f1f5f9;
+            color: #1e293b;
+        }
 
-      .app-container {
-        display: flex;
-        min-height: 100vh;
-      }
+        button, input, select, textarea { 
+            font-family: inherit;
+        }
 
-      .sidebar {
-        width: 260px;
-        background: #064e3b;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        flex-shrink: 0;
-      }
+        button {
+            cursor: pointer;
+        }
 
-      .sidebar-header {
-        padding: 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
+        .hidden {
+            display: none !important;
+        }
 
-      .sidebar-menu {
-        list-style: none;
-        padding: 15px 10px;
-        overflow-y: auto;
-        flex: 1;
-      }
+        /* ================= HEADER ================= */
+        .home-header {
+            background: linear-gradient(135deg, #064e3b, #047857); 
+            color: white;
+            padding: 18px 5%; 
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            gap: 20px;
+        }
 
-      .sidebar-menu li a {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 15px;
-        color: #d1fae5;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 14px;
-        margin-bottom: 4px;
-        transition: background 0.2s;
-      }
+        .brand {
+            display: flex;
+            align-items: center; 
+            gap: 14px;
+        }
 
-      .sidebar-menu li a:hover,
-      .sidebar-menu li a.active {
-        background: #047857;
-        color: white;
-        font-weight: bold;
-      }
+        .logo {
+            width: 52px; 
+            height: 52px; 
+            background: white; 
+            color: #047857; 
+            border-radius: 50%; 
+            display: flex;
+            align-items: center; 
+            justify-content: center; 
+            font-size: 27px;
+        }
 
-      .main-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow-x: hidden;
-      }
+        .brand h1 {
+            font-size: 21px;
+        }
 
-      .top-navbar {
-        background: white;
-        padding: 15px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #e2e8f0;
-      }
+        .brand p {
+            font-size: 13px; 
+            opacity: 0.9; 
+            margin-top: 3px;
+        }
 
-      .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
+        .login-home-btn { 
+            border: none; 
+            background: white; 
+            color: #047857; 
+            padding: 11px 18px; 
+            border-radius: 10px; 
+            font-weight: bold;
+        }
 
-      .user-info {
-        text-align: right;
-        font-size: 13px;
-      }
+        /* ================= HOME ================= */
+        #homePage {
+            min-height: 100vh;
+        }
 
-      .user-info strong {
-        display: block;
-        color: #0f172a;
-      }
+        .hero {
+            padding: 65px 20px; 
+            text-align: center; 
+            background: linear-gradient(rgba(6,78,59,0.82), rgba(4,120,87,0.82)), radial-gradient(circle at top, #34d399, #064e3b);
+            color: white;
+        }
 
-      .content-body {
-        padding: 25px;
-        flex: 1;
-      }
+        .hero h2 {
+            font-size: 35px; 
+            margin-bottom: 12px;
+        }
 
-      /* ================= UI COMPONENTS ================= */
+        .hero p {
+            max-width: 700px; 
+            margin: auto;
+            line-height: 1.7;
+        }
 
-      .panel {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-      }
+        .hero-btn {
+            margin-top: 25px; 
+            border: none; 
+            background: white; 
+            color: #047857; 
+            padding: 13px 25px; 
+            border-radius: 10px; 
+            font-weight: bold;
+        }
 
-      .panel h3 {
-        margin-bottom: 15px;
-        color: #0f172a;
-      }
+        .info-section { 
+            padding: 35px 5%;
+        }
 
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 20px;
-      }
+        .info-grid { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 18px;
+            max-width: 1100px; 
+            margin: auto;
+        }
 
-      .stat-card {
-        background: white;
-        padding: 18px;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        border-left: 4px solid #059669;
-      }
+        .info-card { 
+            background: white; 
+            padding: 22px; 
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.06); 
+            text-align: center;
+        }
 
-      .stat-card h3 {
-        font-size: 22px;
-        color: #065f46;
-        margin-top: 5px;
-      }
+        .info-card .icon { 
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
 
-      .btn {
-        padding: 9px 16px;
-        border-radius: 8px;
-        border: none;
-        font-weight: bold;
-        font-size: 13px;
-        transition: opacity 0.2s;
-      }
+        .info-card h3 { 
+            font-size: 16px;
+            margin-bottom: 7px;
+        }
 
-      .btn:hover {
-        opacity: 0.9;
-      }
+        .info-card p {
+            font-size: 13px; 
+            color: #64748b; 
+            line-height: 1.5;
+        }
 
-      .btn-primary {
-        background: #059669;
-        color: white;
-      }
+        /* ================= LOGIN ================= */
+        .login-overlay { 
+            position: fixed; 
+            inset: 0;
+            background: rgba(15,23,42,0.75); 
+            z-index: 1000;
+            display: none; 
+            align-items: center;
+            justify-content: center; 
+            padding: 15px;
+        }
 
-      .btn-secondary {
-        background: #e2e8f0;
-        color: #334155;
-      }
+        .login-box { 
+            background: white; 
+            width: 100%;
+            max-width: 430px; 
+            border-radius: 18px; 
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+        }
 
-      .btn-danger {
-        background: #ef4444;
-        color: white;
-      }
+        .login-title {
+            text-align: center; 
+            margin-bottom: 20px;
+        }
 
-      .table-wrap {
-        overflow-x: auto;
-      }
+        .login-title .big-icon { 
+            font-size: 45px;
+        }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        text-align: left;
-        font-size: 14px;
-      }
+        .login-title h2 { 
+            color: #065f46; 
+            margin-top: 8px;
+        }
 
-      th, td {
-        padding: 12px 15px;
-        border-bottom: 1px solid #e2e8f0;
-      }
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 8px;
+            margin-bottom: 15px;
+        }
 
-      th {
-        background: #f8fafc;
-        color: #475569;
-        font-weight: bold;
-      }
+        /* ================= UTILITY & LAYOUT ================= */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
 
-      td.empty {
-        text-align: center;
-        color: #94a3b8;
-        padding: 30px;
-      }
+        .btn-primary { background: #047857; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #1e293b; }
+        .btn-danger { background: #ef4444; color: white; }
 
-      .badge {
-        padding: 4px 8px;
-        border-radius: 6px;
-        font-size: 12px;
-        background: #e2e8f0;
-        color: #334155;
-      }
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
 
-      .form-group {
-        margin-bottom: 15px;
-      }
+        .sidebar {
+            width: 250px;
+            background: #064e3b;
+            color: white;
+            padding: 20px;
+        }
 
-      .form-group label {
-        display: block;
-        font-size: 13px;
-        font-weight: bold;
-        margin-bottom: 6px;
-        color: #334155;
-      }
+        .sidebar .nav-btn {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            background: transparent;
+            color: white;
+            border: none;
+            text-align: left;
+            border-radius: 8px;
+        }
 
-      .form-group input,
-      .form-group select,
-      .form-group textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        outline: none;
-      }
+        .sidebar .nav-btn.active, 
+        .sidebar .nav-btn:hover {
+            background: #047857;
+        }
 
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-      }
+        .content {
+            flex: 1;
+            padding: 25px;
+        }
 
-      .form-grid .full {
-        grid-column: 1 / -1;
-      }
+        .page { display: none; }
+        .page.active { display: block; }
 
-      /* Modal & Toast */
-      .modal {
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.6);
-        z-index: 1000;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 15px;
-      }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
 
-      .modal-box {
-        background: white;
-        width: 100%;
-        max-width: 500px;
-        border-radius: 14px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-      .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-      }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
 
-      .modal-close {
-        background: none;
-        border: none;
-        font-size: 20px;
-        color: #64748b;
-      }
+        .table-wrap {
+            overflow-x: auto;
+        }
 
-      .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-      }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
 
-      #toast {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #0f172a;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        display: none;
-        z-index: 2000;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-      }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+        }
 
-      .dashboard-banner {
-        background: linear-gradient(135deg, #064e3b, #047857);
-        color: white;
-        padding: 30px;
-        border-radius: 16px;
-        margin-bottom: 25px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
+        th { background: #f8fafc; }
 
-      .dashboard-banner-art {
-        font-size: 50px;
-      }
+        .badge {
+            padding: 4px 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            font-size: 12px;
+        }
 
-      .quick-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 10px;
-      }
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
 
-      .quick-btn {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        padding: 15px 10px;
-        border-radius: 10px;
-        text-align: center;
-        font-weight: bold;
-        color: #334155;
-      }
+        .modal-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+        }
 
-      .module-note {
-        background: #eff6ff;
-        border-left: 4px solid #3b82f6;
-        padding: 12px;
-        border-radius: 6px;
-        font-size: 13px;
-        color: #1e40af;
-        margin-bottom: 15px;
-      }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .form-group.full { grid-column: span 2; }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #064e3b;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 3000;
+        }
+
+        .dashboard-banner {
+            background: linear-gradient(135deg, #047857, #10b981);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .quick-btn {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            text-align: center;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
 
-    <!-- ================= HALAMAN UTAMA (LANDING PAGE) ================= -->
-    <div id="homePage">
-      <header class="home-header">
+<div id="toast"></div>
+
+<!-- HOME PAGE -->
+<div id="homePage">
+    <header class="home-header">
         <div class="brand">
-          <div class="logo">🌴</div>
-          <div>
-            <h1>Desa Wawongkolono</h1>
-            <p>Kec. Menui Kepulauan, Kab. Morowali</p>
-          </div>
-        </div>
-        <button class="login-home-btn" onclick="openLoginModal()">🔑 Masuk Sistem</button>
-      </header>
-
-      <section class="hero">
-        <h2>Sistem Informasi Digital Desa Wawongkolono</h2>
-        <p>Mewujudkan tata kelola pemerintahan desa yang transparan, akuntabel, dan memberikan pelayanan publik secara cepat dan efisien.</p>
-        <button class="hero-btn" onclick="openLoginModal()">Mulai Akses Layanan</button>
-      </section>
-
-      <section class="info-section">
-        <div class="info-grid">
-          <div class="info-card">
-            <div class="icon">📑</div>
-            <h3>Pelayanan Surat</h3>
-            <p>Pengajuan surat keterangan desa secara online tanpa antri.</p>
-          </div>
-          <div class="info-card">
-            <div class="icon">🏗</div>
-            <h3>Pembangunan Desa</h3>
-            <p>Transparansi program dan anggaran pembangunan fisik di desa.</p>
-          </div>
-          <div class="info-card">
-            <div class="icon">🎁</div>
-            <h3>Data Bantuan</h3>
-            <p>Monitoring penerima bantuan sosial tepat sasaran.</p>
-          </div>
-          <div class="info-card">
-            <div class="icon">💬</div>
-            <h3>Kritik & Saran</h3>
-            <p>Wadah aspirasi masyarakat langsung kepada aparat desa.</p>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- ================= MODAL LOGIN ================= -->
-    <div id="loginOverlay" class="login-overlay">
-      <div class="login-box">
-        <div class="login-title">
-          <div class="big-icon">🏡</div>
-          <h2>Masuk ke Sistem</h2>
-          <p style="font-size: 12px; color: #64748b; margin-top: 4px;">Pilih peran dan masuk dengan akun Anda</p>
-        </div>
-
-        <div class="role-grid">
-          <button class="role-btn active" onclick="selectRole(this, 'Admin')">🔑 Admin</button>
-          <button class="role-btn" onclick="selectRole(this, 'Operator')">💻 Operator</button>
-          <button class="role-btn" onclick="selectRole(this, 'Kepala Desa')">🏛 Kades</button>
-          <button class="role-btn" onclick="selectRole(this, 'Masyarakat')">👤 Warga</button>
-        </div>
-
-        <div class="form-group">
-          <label>Email / Username</label>
-          <input type="email" id="loginEmail" placeholder="admin@wawongkolono.desa.id">
-        </div>
-        <div class="form-group">
-          <label>Kata Sandi</label>
-          <input type="password" id="loginPassword" placeholder="••••••••">
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-          <button class="btn btn-secondary" style="flex: 1;" onclick="closeLoginModal()">Batal</button>
-          <button class="btn btn-primary" style="flex: 1;" onclick="handleLogin()">Masuk</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= APLIKASI UTAMA (DASHBOARD) ================= -->
-    <div id="appPage">
-      <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-          <div class="sidebar-header">
-            <div class="logo" style="width:38px; height:38px; font-size:20px;">🌿</div>
+            <div class="logo">🏡</div>
             <div>
-              <h4 style="font-size: 15px;">Wawongkolono</h4>
-              <p style="font-size: 11px; opacity: 0.8;">Sistem Informasi Desa</p>
+                <h1>Desa Wawongkolono</h1>
+                <p>Sistem Informasi & Pelayanan Digital</p>
             </div>
-          </div>
-          <ul class="sidebar-menu">
-            <li><a href="#" class="active" onclick="showPageByName('dashboard', this)">📊 Dashboard</a></li>
-            <li><a href="#" onclick="showPageByName('surat', this)">📨 Surat Desa</a></li>
-            <li><a href="#" onclick="showPageByName('absensi', this)">📅 Absensi</a></li>
-            <li><a href="#" onclick="showPageByName('bantuan', this)">🎁 Bantuan</a></li>
-            <li><a href="#" onclick="showPageByName('pembangunan', this)">🏗 Pembangunan</a></li>
-            <li><a href="#" onclick="showPageByName('dusun', this)">🌿 Program Dusun</a></li>
-            <li><a href="#" onclick="showPageByName('keuangan', this)">💰 Keuangan Desa</a></li>
-            <li><a href="#" onclick="showPageByName('kritik', this)">💬 Kritik & Saran</a></li>
-            <li><a href="#" onclick="showPageByName('informasi', this)">ℹ Informasi Desa</a></li>
-            <li><a href="#" onclick="showPageByName('arsip', this)">🗄 Arsip Desa</a></li>
-            <li><a href="#" onclick="showPageByName('pemerintahan', this)">🏛 Pemerintahan</a></li>
-            <li><a href="#" onclick="showPageByName('pengguna', this)">👤 Hak Akses</a></li>
-            <li><a href="#" onclick="showPageByName('log', this)">📝 Log Aktivitas</a></li>
-            <li><a href="#" onclick="showPageByName('pengaturan', this)">⚙ Pengaturan</a></li>
-          </ul>
+        </div>
+        <button class="login-home-btn" onclick="document.getElementById('loginOverlay').style.display='flex'">Masuk System</button>
+    </header>
+
+    <section class="hero">
+        <h2>Selamat Datang di Portal Resmi Desa Wawongkolono</h2>
+        <p>Layanan informasi, pengajuan surat, pembangunan, dan pengelolaan administrasi desa secara transparan dan terpadu.</p>
+        <button class="hero-btn" onclick="document.getElementById('loginOverlay').style.display='flex'">Mulai Penggunaan</button>
+    </section>
+
+    <section class="info-section">
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="icon">📨</div>
+                <h3>Pelayanan Surat</h3>
+                <p>Pengajuan surat administrasi secara online cepat dan praktis.</p>
+            </div>
+            <div class="info-card">
+                <div class="icon">🏗</div>
+                <h3>Pembangunan</h3>
+                <p>Pantau progres dan transparansi program pembangunan desa.</p>
+            </div>
+            <div class="info-card">
+                <div class="icon">🎁</div>
+                <h3>Bantuan Sosial</h3>
+                <p>Informasi data penerima bantuan desa yang tepat sasaran.</p>
+            </div>
+            <div class="info-card">
+                <div class="icon">💰</div>
+                <h3>Keuangan</h3>
+                <p>Laporan alokasi dan pengeluaran dana desa secara terbuka.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <div class="login-title">
+            <div class="big-icon">🔐</div>
+            <h2>Akses Sistem Desa</h2>
+        </div>
+        <div class="role-grid">
+            <button class="btn btn-secondary" onclick="selectedRole='Admin'; showToast('Peran: Admin');">Admin</button>
+            <button class="btn btn-secondary" onclick="selectedRole='Operator'; showToast('Peran: Operator');">Operator</button>
+        </div>
+        <div class="form-group">
+            <label>Email / Username</label>
+            <input type="text" id="loginEmail" placeholder="user@wawongkolono.desa.id">
+        </div>
+        <div class="form-group">
+            <label>Kata Sandi</label>
+            <input type="password" id="loginPassword" placeholder="******">
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="doLogin()">Masuk</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('loginOverlay').style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- APPLICATION MAIN PAGE -->
+<div id="appPage" class="hidden">
+    <div class="app-container">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <h2 style="font-size:18px; margin-bottom:20px;">🏡 Wawongkolono</h2>
+            <button class="nav-btn active" onclick="showPage('dashboard', this)">Dashboard</button>
+            <button class="nav-btn" onclick="showPage('surat', this)">📨 Surat Desa</button>
+            <button class="nav-btn" onclick="showPage('absensi', this)">📅 Absensi</button>
+            <button class="nav-btn" onclick="showPage('bantuan', this)">🎁 Data Bantuan</button>
+            <button class="nav-btn" onclick="showPage('pembangunan', this)">🏗 Pembangunan</button>
+            <button class="nav-btn" onclick="showPage('dusun', this)">🌿 Program Dusun</button>
+            <button class="nav-btn" onclick="showPage('keuangan', this)">💰 Keuangan Desa</button>
+            <button class="nav-btn" onclick="showPage('kritik', this)">💬 Kritik & Saran</button>
+            <button class="nav-btn" onclick="showPage('informasi', this)">ℹ Informasi Desa</button>
+            <button class="nav-btn" onclick="showPage('arsip', this)">🗄 Arsip Desa</button>
+            <button class="nav-btn" onclick="showPage('pemerintahan', this)">🏛 Pemerintahan</button>
+            <button class="nav-btn" onclick="showPage('pengguna', this)">👤 Pengguna</button>
+            <button class="nav-btn" onclick="showPage('log', this)">📝 Log Aktivitas</button>
+            <button class="nav-btn" onclick="showPage('pengaturan', this)">⚙ Pengaturan</button>
+            <button class="nav-btn" style="margin-top:20px; background:#ef4444;" onclick="location.reload()">Keluar</button>
         </aside>
 
-        <!-- Main Content Area -->
-        <main class="main-content">
-          <header class="top-navbar">
-            <h3 id="currentTabTitle" style="color: #0f172a;">Dashboard</h3>
-            <div class="user-profile">
-              <div class="user-info">
-                <strong id="displayUser">admin@wawongkolono.desa.id</strong>
-                <span id="displayRole" style="color: #059669; font-weight: bold;">Admin</span>
-              </div>
-              <button class="btn btn-secondary" onclick="handleLogout()">Keluar 🚪</button>
-            </div>
-          </header>
+        <!-- MAIN CONTENT AREA -->
+        <main class="content">
+            <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div>
+                    <strong>Pengguna:</strong> <span id="displayUser">-</span> | 
+                    <strong>Peran:</strong> <span id="displayRole">-</span>
+                </div>
+            </header>
 
-          <div class="content-body">
-            <!-- Halaman Dinamis -->
-            <section id="page-dashboard" class="page-panel active">
-              <div class="stats">
-                <div class="stat-card">
-                  <p>Total Bantuan</p>
-                  <h3 id="statBantuan">0</h3>
+            <!-- PAGES CONTAINER -->
+            <section id="page-dashboard" class="page active">
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3 id="statBantuan">0</h3>
+                        <p>Total Bantuan</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="statProgram">0</h3>
+                        <p>Program Pembangunan</p>
+                    </div>
                 </div>
-                <div class="stat-card">
-                  <p>Program Pembangunan</p>
-                  <h3 id="statProgram">0</h3>
-                </div>
-              </div>
             </section>
 
-            <section id="page-surat" class="page-panel hidden"></section>
-            <section id="page-absensi" class="page-panel hidden"></section>
-            <section id="page-bantuan" class="page-panel hidden"></section>
-            <section id="page-pembangunan" class="page-panel hidden"></section>
-            <section id="page-dusun" class="page-panel hidden"></section>
-            <section id="page-keuangan" class="page-panel hidden"></section>
-            <section id="page-kritik" class="page-panel hidden"></section>
-            <section id="page-informasi" class="page-panel hidden"></section>
-            <section id="page-arsip" class="page-panel hidden"></section>
-            <section id="page-pemerintahan" class="page-panel hidden"></section>
-            <section id="page-pengguna" class="page-panel hidden"></section>
-            <section id="page-log" class="page-panel hidden"></section>
-            <section id="page-pengaturan" class="page-panel hidden"></section>
-          </div>
+            <section id="page-surat" class="page"></section>
+            <section id="page-absensi" class="page"></section>
+            <section id="page-bantuan" class="page"></section>
+            <section id="page-pembangunan" class="page"></section>
+            <section id="page-dusun" class="page"></section>
+            <section id="page-keuangan" class="page"></section>
+            <section id="page-kritik" class="page"></section>
+            <section id="page-informasi" class="page"></section>
+            <section id="page-arsip" class="page"></section>
+            <section id="page-pemerintahan" class="page"></section>
+            <section id="page-pengguna" class="page"></section>
+            <section id="page-log" class="page"></section>
+            <section id="page-pengaturan" class="page"></section>
         </main>
-      </div>
     </div>
+</div>
 
-    <!-- Element Toast Notifikasi -->
-    <div id="toast"></div>
+<!-- LOGIKA JAVASCRIPT -->
+<script>
+    const SUPABASE_URL = "https://upsmpuzktefbrulsvydv.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_7Czu7BSmfCOzpAXX3cJ_sA_PZQ1OZkQ";
+    var supabaseClient = null;
 
-    <!-- Script Kontrol Interaksi UI -->
-    <script>
-      function openLoginModal() {
-        document.getElementById('loginOverlay').style.display = 'flex';
-      }
+    if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
 
-      function closeLoginModal() {
+    var currentUser = null;
+    var selectedRole = "Admin";
+
+    var pageNames = {
+        dashboard: "Dashboard",
+        penduduk: "Data Penduduk",
+        kk: "Data KK",
+        pelayanan: "Pelayanan Desa",
+        surat: "Surat Desa",
+        absensi: "Absensi",
+        pemerintahan: "Pemerintahan Desa",
+        bantuan: "Bantuan",
+        pembangunan: "Pembangunan Desa",
+        dusun: "Program Dusun",
+        keuangan: "Keuangan Desa",
+        kritik: "Kritik & Saran",
+        informasi: "Informasi Desa",
+        laporan: "Laporan",
+        arsip: "Arsip Desa",
+        pengguna: "Pengguna & Hak Akses",
+        log: "Log Aktivitas",
+        pengaturan: "Pengaturan"
+    };
+
+    const DD_KEYS = {
+        surat: 'DD_SURAT',
+        absensi: 'DD_ABSENSI',
+        bantuan: 'DD_BANTUAN',
+        pembangunan: 'DD_PEMBANGUNAN',
+        dusun: 'DD_DUSUN',
+        keuangan: 'DD_KEUANGAN',
+        kritik: 'DD_KRITIK',
+        informasi: 'DD_INFORMASI',
+        arsip: 'DD_ARSIP',
+        pemerintahan: 'DD_PEMERINTAHAN',
+        pengguna: 'DD_PENGGUNA',
+        log: 'DD_LOG',
+        settings: 'DD_SETTINGS'
+    };
+
+    function ddGet(k) {
+        try {
+            return JSON.parse(localStorage.getItem(DD_KEYS[k]) || '[]');
+        } catch(e) {
+            return [];
+        }
+    }
+
+    function ddSet(k, v) {
+        localStorage.setItem(DD_KEYS[k], JSON.stringify(v));
+    }
+
+    function ddEsc(v) {
+        return (v == null ? '' : String(v))
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+    }
+
+    function ddRp(v) {
+        return 'Rp ' + Number(v || 0).toLocaleString('id-ID');
+    }
+
+    function ddToday() {
+        return new Date().toISOString().slice(0, 10);
+    }
+
+    function ddActor() {
+        return currentUser?.email || 'Pengguna';
+    }
+
+    function showToast(message) { 
+        const toast = document.getElementById("toast"); 
+        if (!toast) return;
+        toast.textContent = message; 
+        toast.style.display = "block"; 
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => { 
+            toast.style.display = "none"; 
+        }, 3500);
+    }
+
+    function showPage(page, button) {
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(p => p.classList.remove('active'));
+        
+        const navBtns = document.querySelectorAll('.nav-btn');
+        navBtns.forEach(b => b.classList.remove('active'));
+        
+        const targetPage = document.getElementById('page-' + page);
+        if (targetPage) targetPage.classList.add('active');
+        if (button) button.classList.add('active');
+
+        ddRoute(page);
+    }
+
+    function doLogin() {
+        currentUser = { email: document.getElementById('loginEmail').value || 'admin@wawongkolono.desa.id' };
         document.getElementById('loginOverlay').style.display = 'none';
-      }
-
-      function selectRole(btn, role) {
-        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedRole = role;
-      }
-
-      async function handleLogin() {
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value.trim();
-
-        if (!email) {
-          showToast('Harap masukkan email/username!');
-          return;
-        }
-
-        currentUser = { email: email };
-        if (!selectedRole) selectedRole = 'Admin';
-
-        document.getElementById('displayUser').textContent = currentUser.email;
-        document.getElementById('displayRole').textContent = selectedRole;
-
-        closeLoginModal();
         document.getElementById('homePage').style.display = 'none';
-        document.getElementById('appPage').style.display = 'block';
-
-        showToast('Berhasil masuk sebagai ' + selectedRole);
+        document.getElementById('appPage').classList.remove('hidden');
+        document.getElementById('displayUser').textContent = currentUser.email;
+        document.getElementById('displayRole').textContent = selectedRole || 'Admin';
         loadDashboard();
-      }
+    }
 
-      function handleLogout() {
-        currentUser = null;
-        document.getElementById('appPage').style.display = 'none';
-        document.getElementById('homePage').style.display = 'block';
-        showToast('Anda telah keluar sistem.');
-      }
+    function loadDashboard() {
+        const sb = document.getElementById('statBantuan');
+        if (sb) sb.textContent = ddGet('bantuan').length;
+        
+        const sp = document.getElementById('statProgram');
+        if (sp) sp.textContent = ddGet('pembangunan').length;
+    }
 
-      function showPage(pageName) {
-        document.querySelectorAll('.page-panel').forEach(el => el.classList.add('hidden'));
-        const target = document.getElementById('page-' + pageName);
-        if (target) {
-          target.classList.remove('hidden');
-        }
-        const titleEl = document.getElementById('currentTabTitle');
-        if (titleEl && pageNames[pageName]) {
-          titleEl.textContent = pageNames[pageName];
-        }
-      }
+    function ddRoute(page) {
+        if (page === 'dashboard') loadDashboard();
+    }
 
-      function showPageByName(pageName, btn) {
-        if (btn) {
-          document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-          btn.classList.add('active');
-        }
-        showPage(pageName);
-      }
-
-      async function loadDashboard() {
-        if (typeof ddRoute === 'function') {
-          ddRoute('dashboard');
-        }
-      }
-    </script>
-  </body>
+    // Modal click handler
+    window.addEventListener("click", (event) => {
+        const modals = document.querySelectorAll(".modal, .login-overlay");
+        modals.forEach(modal => { 
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+    });
+</script>
+</body>
 </html>
